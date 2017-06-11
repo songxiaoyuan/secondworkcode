@@ -52,13 +52,14 @@
         mddata =''
         var myChart = echarts.init(document.getElementById('drawing'));
 
-        MIN =0
-        MAX =100000
+        MIN =100000
+        MAX =0
         PREMEADATA=0
         NOWMEATICKNUM=0
         var CompXave = $('#CompXave').val()
         //注意，因为输入的是分钟数，因为计算的时候，是分钟数，所以还是需要乘以120
         COMPXAVENUM =  Number(CompXave)*120
+        COMPXAVENUM = 10
         // 得到具体的标题数据，和对应的标题数据的具体的数。
         LEGENDNUMS = []
         LEGENDDATA= []
@@ -155,7 +156,6 @@
             for (var i = 0; i < len; i++) {
                 var num = dataArray[i]
                 sum = sum + (num - avg)*(num - avg)
-                ret[i] = Number(ret[i].toFixed(2))
             }
             var ret = Math.sqrt(sum/len)
             ret = Number(ret.toFixed(2))
@@ -230,7 +230,11 @@
             for (var i = 0; i < mddata.length; i++) {
                 var tickmd = mddata[i].split(',')
                 // 首先判断是不是已经达到我们所需要的周期了，如果还没有达到，那么就继续等着，不然就开始计算数据。
-                var lastprice = tickmd[4]
+                var lastprice = Number(tickmd[4])
+                // console.log(lastprice)
+                if (lastprice==NaN) {
+                    break
+                }
                 if (i<COMPXAVENUM) {
                     // 还没有达到周期的数值，先临时保存接受的数据。但是ema数据也是需要计算的，因为计算的过程就是保存的过程。
                     LASTPRICEARRAY.push(lastprice)
@@ -253,16 +257,23 @@
                     else{
                         tmpma = getEMAData(LASTPRICEARRAY)
                     }
+                    console.log(tmpma)
 
-                    for (var i = 1; i < SERIESDATA.length; i++) {
-                        var num = tmpma + LEGENDNUMS[i]*(tmpma)
+                    var tmpsddata = getSDdata(LASTPRICEARRAY)
+
+                    // 在各个线里面插入数据。用来显示所用。
+                    // TODO：还有一些值是需要特殊处理的，就是下单，撤单，成交等选项，这个时候要显示差别
+                    for (var j = 1; j < SERIESDATA.length; j++) {
+                        var num = tmpma + LEGENDNUMS[j]*(tmpsddata)
+                        console.log(num)
+                        // console.log(typeof(num))
                         if (MIN > num) {
                             MIN = num
                         }
                         if (MAX < num) {
                             MAX = num
                         }
-                        SERIESDATA[i].data.push(num)
+                        SERIESDATA[j].data.push(num)
                     }
 
                 }
@@ -271,10 +282,12 @@
 
             option.legend.data = LEGENDDATA
             option.series = SERIESDATA
+            // console.log(LEGENDDATA)
 
             option.yAxis.min = MIN
             option.yAxis.max = MAX
-            // console.log(option)
+            option.xAxis.data = TIMES
+            console.log(option)
 
             myChart.setOption(option);
 
