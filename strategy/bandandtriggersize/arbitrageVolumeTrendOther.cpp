@@ -37,6 +37,8 @@ bool CHyArbitrageVolumeTrendOther::get_fv_less(double &fv)
 	isTrendCloseTime	=	isCloseTrendTime();
 
 	// 如果达到开仓的时机，那么就进行开仓的操作，如果达到平仓的时机，那么就进行平仓的操作？
+	//如果到了开仓的时机，但是已经进行开仓了，还会继续开仓吗，还是这个函数会自己判断。
+	// 如果已经平仓了也是同样的道理，判断是不是已经平仓了吗。
 	if (isTrendOpenTime)
 	{
 		STraderChannel *pTraderInfo=&g_arrTraderChannel[less_open_order_index];
