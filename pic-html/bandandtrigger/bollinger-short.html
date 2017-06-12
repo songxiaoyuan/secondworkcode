@@ -28,7 +28,7 @@
 	</div>
 	<div style="float: left;">
 		<div style="float: left;">SD</div>
-		<input style="float: left;" type="text" id="SD" value="0.5,1,2">
+		<input style="float: left;" type="text" id="SD" value="0.5,1,2,3">
 	</div>
 	<div style="float: left;">
 		<button type="button" onclick="startdraw()">draw</button>
@@ -63,10 +63,13 @@
         BUYLONG = 0
         SELLSHORT = 0
         BANDOPENEDGE = 0.5
+        BANDPROFITCLOSEEDGE = 3
+        BANDLOSSCLOSEEDGE = 0.5
         var CompXave = $('#CompXave').val()
         //注意，因为输入的是分钟数，因为计算的时候，是分钟数，所以还是需要乘以120
         COMPXAVENUM =  Number(CompXave)*120
-        COMPXAVENUM = 10
+        console.log(COMPXAVENUM)
+        // COMPXAVENUM = 10
         // 得到具体的标题数据，和对应的标题数据的具体的数。
         LEGENDNUMS = []
         LEGENDDATA= []
@@ -298,9 +301,10 @@
                     }
                     var tmpsddata = getSDdata(LASTPRICEARRAY)
 
-                    isLongOpen = isLongOpenTime(lastprice,tmpma,tmpma+BANDOPENEDGE*tmpsddata)
-                    if (isLongOpen && BUYLONG ==0) {
-                        BUYLONG  = BUYLONG +1
+                    isShortOpen = isShortOpenTime(lastprice,tmpma,tmpma-BANDOPENEDGE*tmpsddata)
+                    isShortCloseOpen = isShortCloseTime(lastprice,tmpma-BANDPROFITCLOSEEDGE*tmpsddata,tmpma + BANDLOSSCLOSEEDGE*tmpsddata)
+                    if (isShortOpen && SELLSHORT ==0) {
+                        SELLSHORT  = SELLSHORT +1
                         dataobj = {}
                         dataobj.value = lastprice
                         dataobj.symbol = 'star'
@@ -311,6 +315,17 @@
                         SERIESDATA[0].data.push(dataobj)
 
                         console.log("this is open long")
+                    }
+                    else if (isShortCloseOpen && SELLSHORT ==1) {
+                        SELLSHORT = SELLSHORT -1
+                        dataobj = {}
+                        dataobj.value = lastprice
+                        dataobj.symbol = 'pin'
+                        dataobj.symbolSize =15
+                        dataobj.itemStyle = {}
+                        dataobj.itemStyle.normal = {}
+                        dataobj.itemStyle.normal.color = 'green'
+                        SERIESDATA[0].data.push(dataobj)
                     }
                     else{
                         SERIESDATA[0].data.push(lastprice)

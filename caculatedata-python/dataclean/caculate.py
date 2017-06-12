@@ -140,4 +140,4 @@ if __name__ == '__main__':
 	# callPath="clean_20170515_m1709C2700.csv"
 	# getDataPath = "./getData"+callPath[5:]
 	# print getDataPath
-	getLastPriceData("./clean_20170605_pb1707.csv")
+	getLastPriceData("./20170612_pb1707.csv")

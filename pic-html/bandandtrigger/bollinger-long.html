@@ -1,0 +1,482 @@
+<html>
+<head>
+	<meta charset="UTF-8">
+	<script src="./echarts.min.js"></script>
+	<script src="./jquery-3.2.1.min.js"></script>
+	<script src="./data.js"></script>
+</head>
+
+<body style="width: 100%;height:100%;">
+<div>
+
+<div id="setting">
+	<div style="float: left;">
+        <input type="file" id="file" onchange="handleFiles(this.files)"/>
+		<!-- <div style="float: left;">合约代码</div>
+		<input type="text" id="contractcode" value="pb1707" style="float: left;"> -->
+	</div>
+	<div style="float: left;">
+		<div style="float: left;">CompTheo</div>
+		<select id="movingTheo" style="float: left;">
+		<option value="MA">MA</option>
+		<option value="EMA">EMA</option>
+		</select>
+	</div>
+	<div style="float: left;">
+		<div style="float: left;">CompXave</div>
+		<input style="float: left;"type="text" id="CompXave" value="60">
+	</div>
+	<div style="float: left;">
+		<div style="float: left;">SD</div>
+		<input style="float: left;" type="text" id="SD" value="0.5,1,2,3">
+	</div>
+	<div style="float: left;">
+		<button type="button" onclick="startdraw()">draw</button>
+	</div>
+</div>
+<br>
+<br>
+<br>
+<br>
+
+<div id="drawing" style="width: 3000px;height:100%;"></div>
+
+
+<script type="text/javascript">
+
+        // 首先定义几个颜色的标准：
+        // 开多的话，用红五角星。可能因为显示问题吗，五角星总是显示不出来。
+        // 开空的话，用绿五角星。
+        // 撤单的时候，统一用emptypin形状，就是冒泡的形状颜色是橘黄色。
+        // 平仓的时候用心型，空的。
+        // 整体的流程是，首先一行一行的读取数据，这样算模拟的接受的行情。
+        // 然后接受数据之后，首先判断是不是需要撤单。TODO：这个是画图的，就先不需要做呢。
+        // 然后判断是不是需要平仓。
+        // 然后判断是不是需要开仓。
+        mddata =''
+        var myChart = echarts.init(document.getElementById('drawing'));
+
+        MIN =100000
+        MAX =0
+        PREMEADATA=0
+        NOWMEATICKNUM=0
+        BUYLONG = 0
+        SELLSHORT = 0
+        BANDOPENEDGE = 0.5
+        BANDPROFITCLOSEEDGE = 3
+        BANDLOSSCLOSEEDGE = 0.5
+        var CompXave = $('#CompXave').val()
+        //注意，因为输入的是分钟数，因为计算的时候，是分钟数，所以还是需要乘以120
+        COMPXAVENUM =  Number(CompXave)*80
+        // COMPXAVENUM=10
+
+        // COMPXAVENUM = 10
+        // 得到具体的标题数据，和对应的标题数据的具体的数。
+        LEGENDNUMS = []
+        LEGENDDATA= []
+        // 用来保存线的具体的数据。是一个数组，就是echart的seriesdata
+        // 他们的顺序是lastprice，middle，+0.5，-0.5，+1，-1等一次类推
+        SERIESDATA =[]
+        // 用来保存时间的数组，以后就是图片的横坐标轴。
+        TIMES= []
+        //用来保存lastprice的数据，因为如果没有到达周期的话，这些都需要先保存着，然后等到达周期之后在计算
+        LASTPRICEARRAY= []
+
+
+
+        option = {
+            toolbox: {
+                show : true,
+                feature : {
+                    mark : {show: true},
+                    dataView : {show: true, readOnly: false},
+                    magicType : {show: true, type: ['line', 'bar']},
+                    restore : {show: true},
+                    saveAsImage : {show: true}
+                }
+            },
+            tooltip : {
+                trigger: 'axis'
+            },
+            title: {
+                text: 'bollinger band'
+            },
+            legend: {
+                // data:['邮件营销','联盟广告','视频广告','直接访问','搜索引擎']
+            },
+            xAxis: {
+                type: 'category',
+                // data: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
+            },
+            yAxis: {
+                min:MIN,
+                max:MAX,
+                type: 'value'
+            },         
+        };
+
+
+
+        // 根据input的file标签读取出相对应的csv的数据。
+        // 首先有一个问题就是因为是针对一个合约的数据，所以不存在对其的问题，那么数据还需不需要补充。
+        // 如果数据库中的数据，就是接受到的行情的本身的数据，那么就不需要补充，直接去除非交易时间的，直接用就可以了。
+        // 补充的话，还会影响最后的效果。
+        function  handleFiles(files)
+        {
+          if(files.length)
+          {
+             var file = files[0];
+             var reader = new FileReader();
+             reader.onload = function()
+             {
+                 // document.getElementById("filecontent").innerHTML = this.result;
+                 // console.log(this.result)
+                 var data = this.result
+                 mddata = data.split("\n")
+             };
+             reader.readAsText(file);
+          }
+        }
+
+        // 只是求特定周期的ma数据，如果数据还没有达到ma，那么就先不需要求。因为即使求了也没有意义。
+        // 这里面应该确保，传入的数组的长度，是我们想要的周期的数。
+        function getMAData(dataArray) {
+        	sum = 0
+        	var len = dataArray.length
+            if (len ==0) {
+                return 0
+            }
+        	for (var i = 0; i <len; i++) {
+                sum  = sum+ dataArray[i]
+        	}
+            return sum/len
+        }
+
+        // 获取想要数据的标准差，同样只是计算达到结果之后的标准差，因为如果没有达到之前也是没有意义的。
+        function getSDdata(dataArray){
+        	var len = dataArray.length
+            if (len ==0) {
+                return 0
+            }
+            var sum =0
+            for (var i = 0; i < len; i++) {
+                sum = sum + dataArray[i]
+            }
+            var avg = sum/len
+            sum=0
+            for (var i = 0; i < len; i++) {
+                var num = dataArray[i]
+                sum = sum + (num - avg)*(num - avg)
+            }
+            var ret = Math.sqrt(sum/len)
+            ret = Number(ret.toFixed(2))
+            return ret
+        }
+
+
+        // 按照公式的计算方法,
+        // 每次都是传入刚开始接受的行情的值，因为周期的参数是固定的，所以就是一个全局变量就好了，不需要在传了。
+        // 传入的参数是现在为止计算的周期，最大上限就是要求的全局变量，如果不到的话，就是按照不到的那个部分计算。
+        // 在计算的时候，以为只是需要上一个的值，所以还是需要一个全局变量用来放以前的值。
+        function getEMAData(tmpdata){
+            if (PREMEADATA ==0) {
+                PREMEADATA = tmpdata
+                NOWMEATICKNUM = 1
+                return tmpdata
+            }
+            if (NOWMEATICKNUM<COMPXAVENUM) {
+                NOWMEATICKNUM = NOWMEATICKNUM + 1
+            }
+            var ret = (NOWMEATICKNUM-1)*PREMEADATA + 2*tmpdata/(NOWMEATICKNUM+1)
+            PREMEADATA = ret
+            return ret
+        }
+
+        // 得到标题的参数和具体的每一个series
+        function getLegendAndSeriesData(){
+            var SD = $('#SD').val()  //画线的md参数
+            var sds =SD.split(',')
+
+            LEGENDDATA.push("lastprice")
+            LEGENDNUMS.push(0)
+            tmpobjlastprice = {}
+            tmpobjlastprice.name = "lastprice"
+            tmpobjlastprice.type = "line"
+            tmpobjlastprice.data = []
+            SERIESDATA.push(tmpobjlastprice)
+
+            LEGENDDATA.push('middle')
+            LEGENDNUMS.push(0)
+            tmpobj = {}
+            tmpobj.name = "middle"
+            tmpobj.type = "line"
+            tmpobj.data = []
+            SERIESDATA.push(tmpobj)
+
+
+            for (var i = 0; i < sds.length; i++) {
+                LEGENDDATA.push('+'+sds[i]) 
+                LEGENDNUMS.push(Number(sds[i]))
+                tmpobj = {}
+                tmpobj.name= '+'+sds[i]
+                tmpobj.type = "line"
+                tmpobj.data = []
+                SERIESDATA.push(tmpobj)
+
+                LEGENDDATA.push('-'+sds[i]) 
+                LEGENDNUMS.push(0-Number(sds[i]))
+                tmpobjneg = {}
+                tmpobjneg.name= '-'+sds[i]
+                tmpobjneg.type = "line"
+                tmpobjneg.data = []
+                SERIESDATA.push(tmpobjneg)
+            }
+        }
+
+        // 判断是不是达到开多的条件，这个是band的条件。当lastprice在0到0.5之间的那么就开多。
+        function isLongOpenTime(lastprice,middleval,upval){
+            if (lastprice < upval && lastprice > middleval) {
+                return true
+            }
+            return false
+        }
+
+        // 判断是不是达到平多仓的条件，这个是band的条件。当last price在0到-0.5之间，也就是止损，在大的2的时候，也就是止盈。
+        function isLongCloseTime(lastprice,profitval,lossval){
+            if (lastprice < lossval || lastprice > profitval) {
+                return true
+            }
+            return false
+        }
+
+        // 判断是不是达到开空的条件，这个是band的条件。当lastprice在0到-0.5之间的那么就开多。
+        function isShortOpenTime(lastprice,middleval,downval){
+            if (lastprice > downval && lastprice < middleval) {
+                return true
+            }
+            return false
+        }
+
+        // 判断是不是达到平空仓的条件，这个是band的条件。当last price在0到0.5之间，也就是止损，在大于-2的时候，例如-2.5也就是止盈。
+        function isShortCloseTime(lastprice,profitval,lossval){
+            if (lastprice>lossval || lastprice < profitval) {
+                return true
+            }
+            return false
+        }
+
+        // 根据传入的参数进行画图，
+        function startdraw(){
+            // 首先确定一些基本的参数。确定要选择的几条线，然后和周期的评价指标，ema还是ma。
+            getLegendAndSeriesData()
+            var movingTheo = $('#movingTheo').val()     //确定是ma还是ema
+            for (var i = 0; i < mddata.length; i++) {
+                var tickmd = mddata[i].split(',')
+                // 首先判断是不是已经达到我们所需要的周期了，如果还没有达到，那么就继续等着，不然就开始计算数据。
+                var lastprice = Number(tickmd[4])
+                // console.log(lastprice)
+                if (lastprice==NaN) {
+                    break
+                }
+                if (i<COMPXAVENUM) {
+                    // 还没有达到周期的数值，先临时保存接受的数据。但是ema数据也是需要计算的，因为计算的过程就是保存的过程。
+                    LASTPRICEARRAY.push(lastprice)
+                    var tmp = getEMAData(lastprice)
+
+                }
+                // 已经达到了周期数，那么就要开始计算数据，然后保存数据，如果有下单的时候，就下单，需要撤单的时候就撤单。
+                // 需要平仓的时候就平仓。一系列的数据都要保存下来。
+                else{
+                    LASTPRICEARRAY.push(lastprice)
+                    LASTPRICEARRAY.shift()
+                    var time = tickmd[20]
+                    TIMES.push(time)
+                    
+
+                    var tmpma
+                    if (movingTheo =="MA") {
+                        tmpma = getMAData(LASTPRICEARRAY)
+                    }
+                    else{
+                        tmpma = getEMAData(LASTPRICEARRAY)
+                    }
+                    var tmpsddata = getSDdata(LASTPRICEARRAY)
+
+                    isLongOpen = isLongOpenTime(lastprice,tmpma,tmpma+BANDOPENEDGE*tmpsddata)
+                    isCloseOpen = isLongCloseTime(lastprice,tmpma+BANDPROFITCLOSEEDGE*tmpsddata,tmpma - BANDLOSSCLOSEEDGE*tmpsddata)
+                    if (isLongOpen && BUYLONG ==0) {
+                        console.log(lastprice)
+                        console.log(time)
+                        BUYLONG  = BUYLONG +1
+                        dataobj = {}
+                        dataobj.value = lastprice
+                        dataobj.symbol = 'pin'
+                        dataobj.symbolSize =50
+                        dataobj.itemStyle = {}
+                        dataobj.itemStyle.normal = {}
+                        dataobj.itemStyle.normal.color = 'red'
+                        SERIESDATA[0].data.push(dataobj)
+                    }
+                    else if (isCloseOpen && BUYLONG ==1) {
+                        console.log(lastprice)
+                        console.log(time)
+                        BUYLONG = BUYLONG -1
+                        dataobj = {}
+                        dataobj.value = lastprice
+                        dataobj.symbol = 'pin'
+                        dataobj.symbolSize =50
+                        dataobj.itemStyle = {}
+                        dataobj.itemStyle.normal = {}
+                        dataobj.itemStyle.normal.color = 'green'
+                        SERIESDATA[0].data.push(dataobj)
+                    }
+                    else{
+                        SERIESDATA[0].data.push(lastprice)
+                    }
+                    // SERIESDATA[0].data.push(lastprice)
+
+                    // 在各个线里面插入数据。用来显示所用。
+                    // TODO：还有一些值是需要特殊处理的，就是下单，撤单，成交等选项，这个时候要显示差别
+                    for (var j = 1; j < SERIESDATA.length; j++) {
+                        var num = tmpma + LEGENDNUMS[j]*(tmpsddata)
+                        // console.log(num)
+                        // console.log(typeof(num))
+                        if (MIN > num) {
+                            MIN = num
+                        }
+                        if (MAX < num) {
+                            MAX = num
+                        }
+                        SERIESDATA[j].data.push(num)
+                    }
+
+                }
+            }
+
+
+            option.legend.data = LEGENDDATA
+            option.series = SERIESDATA
+            // console.log(LEGENDDATA)
+
+            option.yAxis.min = MIN
+            option.yAxis.max = MAX
+            option.xAxis.data = TIMES
+            console.log(option)
+
+            myChart.setOption(option);
+
+
+        }
+
+        // function startdraw() {
+        //     // console.log(mddata)
+        	
+
+        //     //刚开始计算中间的m线，如果时ma就是按照ma的计算，如果时ema，就按照ema的计算。
+        //     var madata
+        //     if (movingTheo =="MA") {
+        //         madata = getMAData(data,CompXaveNum)
+        //     }
+        //     else{
+        //         madata = getEMAData(data,CompXaveNum)
+        //     }
+        //     sddata = getSDdata(data,CompXaveNum)
+        //     lines = SD.split(',')
+
+        //     // 根据输入的时间，来重新计算数据，因为输入的时间之前的数据都是没用的，我们需要清理掉，从输入的时间开始画图。
+        //     tmptime = []
+        //     tmpmadata = []
+        //     tmpsddata = []
+        //     for (var i = CompXaveNum-1; i < time.length; i++) {
+        //     	tmptime.push(time[i]) 
+        //     	tmpmadata.push(madata[i])
+        //     	tmpsddata.push(sddata[i])
+        //     }
+        //     madata = tmpmadata
+        //     sddata = tmpsddata
+        //     time = tmptime
+
+        //     // 设置横坐标的数据
+        //     option.xAxis.data = time
+
+        //     //设置线条的具体的数据，是一个数组，数组里面是一个一个的对象。
+        //     SERIESDATA = []
+        //     // 设置总共有多少条线，然后进行命名
+        //     legendata = []
+
+        //     legendata.push("lastprice")
+        //     legendata.push("ma")
+        //     tmpobj = {}
+        //     tmpobj.name = "ma"
+        //     tmpobj.type = "line"
+        //     tmpobj.data = madata
+        //     seriesdata.push(tmpobj)
+
+        //     tmpobjlastprice = {}
+        //     tmpobjlastprice.name = "lastprice"
+        //     tmpobjlastprice.type = "line"
+        //     tmpobjlastprice.data = data
+        //     seriesdata.push(tmpobjlastprice)
+
+        //     // console.log(lines)
+        //     for (var i = 0; i < lines.length; i++) {
+        //         linenum = Number(lines[i])
+        //         legendata.push('+'+lines[i])
+        //         // 设置这一条线的具体的数据
+        //         tmpobj = {}
+        //         tmpobj.name= '+'+lines[i]
+        //         tmpobj.type = "line"
+        //         adddata = []
+        //         for (var j = 0; j < madata.length; j++) {
+        //             adddata.push(madata[j] + linenum*sddata[j]) 
+        //         }
+        //         tmpobj.data =adddata
+        //         seriesdata.push(tmpobj)
+
+        //         legendata.push('-'+lines[i]) 
+        //         tmpobjreduce = {}
+        //         tmpobjreduce.name= '-'+[i]
+        //         tmpobjreduce.type = "line"
+        //         adddatareduce = []
+        //         for (var j = 0; j < madata.length; j++) {
+        //             adddatareduce.push(madata[j] - linenum*sddata[j]) 
+        //         }
+        //         tmpobjreduce.data =adddatareduce
+        //         seriesdata.push(tmpobjreduce)
+        //         if (i==lines.length-1) {
+        //             for (var i = 0; i < adddata.length; i++) {
+        //                 if (MAX<adddata[i]) {
+        //                     MAX = adddata[i]
+        //                 }
+        //             }
+        //             for (var i = 0; i < adddatareduce.length; i++) {
+        //                 if (MIN>adddatareduce[i]) {
+        //                     MIN = adddatareduce[i]
+        //                 }
+        //             }
+        //         }
+        //     }
+
+
+        //     option.legend.data = legendata
+        //     option.series = seriesdata
+
+        //     option.yAxis.min = MIN
+        //     option.yAxis.max = MAX
+        //     // console.log(option)
+
+        //     myChart.setOption(option);
+
+        // }
+
+
+        myChart.setOption(option);
+
+         // 使用刚指定的配置项和数据显示图表。
+         
+</script>
+
+</div>
+
+</body>
+</html>
