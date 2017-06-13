@@ -3,7 +3,6 @@
 	<meta charset="UTF-8">
 	<script src="./echarts.min.js"></script>
 	<script src="./jquery-3.2.1.min.js"></script>
-	<script src="./data.js"></script>
 </head>
 
 <body style="width: 100%;height:100%;">
@@ -56,16 +55,31 @@
         mddata =''
         var myChart = echarts.init(document.getElementById('drawing'));
 
+        DIRECTION = "SHORT"
         MIN =100000
         MAX =0
         PREMEADATA=0
         NOWMEATICKNUM=0
-        BUYLONG = 0
-        SELLSHORT = 0
+        CANGNUM = 0
         BANDOPENEDGE = 0.5
-        BANDPROFITCLOSEEDGE = 3
+        BANDPROFITCLOSEEDGE = 2
         BANDLOSSCLOSEEDGE = 0.5
+
+        PREVOLUME = 0
+        PREOPENINTEREST = 0
+        PRETURNONER = 0
+        NOWVOLUME = 0
+        NOWOPENINTEREST=0
+        NOWTURNONER=0
+        BIDPRICE1 =0
+        ASKPRICE1 = 0
+
+        SPREAD =100
+        VOLUMEOPENEDGE =20
+        OPENINTERESTEDGE =1
+
         var CompXave = $('#CompXave').val()
+
         //注意，因为输入的是分钟数，因为计算的时候，是分钟数，所以还是需要乘以120
         COMPXAVENUM =  Number(CompXave)*80
         // COMPXAVENUM=10
@@ -174,6 +188,64 @@
         }
 
 
+        // 判断trigger是不是在上升的阶段，主要做判断的就是这个评价的交易价钱，所占的百分比
+        function isTriggerUpTime(){
+            var multiple = 5;
+            var diffVolume = NOWVOLUME - PREVOLUME
+            var diffTurnover = NOWTURNONER - PRETURNONER
+
+            if (diffVolume ==0 || diffTurnover ==0) {
+                return false
+            }
+            var avePrice = diffTurnover/diffVolume/multiple
+
+            var temp = 100*(ASKPRICE1 - avePrice)/(ASKPRICE1 - BIDPRICE1)
+            if(temp >= SPREAD){
+                return true
+            }
+            return false
+        }
+
+        // 判断trigger是不是在下降的阶段,主要做判断的就是这个评价的交易价钱，所占的百分比
+        function isTriggerDownTime(){
+            var multiple = 5;
+            var diffVolume = NOWVOLUME - PREVOLUME
+            var diffTurnover = NOWTURNONER - PRETURNONER
+
+            if (diffVolume ==0 || diffTurnover ==0) {
+                return false
+            }
+            var avePrice = diffTurnover/diffVolume/multiple
+
+            var temp = 100*(avePrice - BIDPRICE1)/(ASKPRICE1 - BIDPRICE1)
+            if(temp >= SPREAD){
+                return true
+            }
+            return false
+        }
+
+
+        //此函数用来判断trigger 是不是已经达到了开仓条件。
+        function isTriggerOpenTime(){
+            var diffVolume = NOWVOLUME - PREVOLUME
+            // console.log("this diff volume is " + diffVolume)
+            if (diffVolume < VOLUMEOPENEDGE) {
+                return false
+            }
+            var diffOpenInterset = NOWOPENINTEREST - PREOPENINTEREST
+            // console.log("the diff open interest is " + diffOpenInterset)
+            if (diffOpenInterset < OPENINTERESTEDGE) {
+                return false
+            }
+            if (DIRECTION =="LONG") {
+                return isTriggerUpTime()
+            }
+            else{
+                return isTriggerDownTime()
+            }
+        }
+
+
         // 按照公式的计算方法,
         // 每次都是传入刚开始接受的行情的值，因为周期的参数是固定的，所以就是一个全局变量就好了，不需要在传了。
         // 传入的参数是现在为止计算的周期，最大上限就是要求的全局变量，如果不到的话，就是按照不到的那个部分计算。
@@ -187,7 +259,7 @@
             if (NOWMEATICKNUM<COMPXAVENUM) {
                 NOWMEATICKNUM = NOWMEATICKNUM + 1
             }
-            var ret = （(NOWMEATICKNUM-1)*PREMEADATA + 2*tmpdata）/(NOWMEATICKNUM+1)
+            var ret = ((NOWMEATICKNUM-1)*PREMEADATA + 2* tmpdata)/(NOWMEATICKNUM+1)
             PREMEADATA = ret
             return ret
         }
@@ -275,6 +347,13 @@
                 // 首先判断是不是已经达到我们所需要的周期了，如果还没有达到，那么就继续等着，不然就开始计算数据。
                 var lastprice = Number(tickmd[4])
                 // console.log(lastprice)
+                NOWVOLUME = Number(tickmd[11])
+                NOWOPENINTEREST = Number(tickmd[13])
+                NOWTURNONER = Number(tickmd[12])
+                BIDPRICE1 = Number(tickmd[22])
+                ASKPRICE1 =Number(tickmd[24])
+
+
                 if (lastprice==NaN) {
                     break
                 }
@@ -302,37 +381,35 @@
                     }
                     var tmpsddata = getSDdata(LASTPRICEARRAY)
 
-                    isLongOpen = isLongOpenTime(lastprice,tmpma,tmpma+BANDOPENEDGE*tmpsddata)
-                    isCloseOpen = isLongCloseTime(lastprice,tmpma+BANDPROFITCLOSEEDGE*tmpsddata,tmpma - BANDLOSSCLOSEEDGE*tmpsddata)
-                    if (isLongOpen && BUYLONG ==0) {
-                        console.log(lastprice)
+                    var isOpenSignal =false
+                    var isTriggerOpen =false
+                    var isCloseSignal = false
+                    if (DIRECTION == "LONG") {
+                        isOpenSignal = isLongOpenTime(lastprice,tmpma,tmpma+BANDOPENEDGE*tmpsddata)
+                        isCloseSignal = isLongCloseTime(lastprice,tmpma+BANDPROFITCLOSEEDGE*tmpsddata,tmpma - BANDLOSSCLOSEEDGE*tmpsddata)
+                        isTriggerOpen = isTriggerOpenTime()
+                    }
+                    else {
+                        isOpenSignal = isShortOpenTime(lastprice,tmpma,tmpma-BANDOPENEDGE*tmpsddata)
+                        isCloseSignal = isShortCloseTime(lastprice,tmpma-BANDPROFITCLOSEEDGE*tmpsddata,tmpma + BANDLOSSCLOSEEDGE*tmpsddata)
+                        isTriggerOpen = isTriggerOpenTime()
+                    }
+                    
+                    if (isOpenSignal && CANGNUM ==0 && isTriggerOpen) {
+                        console.log(lastprice + " this is open signal")
                         console.log(time)
-                        BUYLONG  = BUYLONG +1
-                        dataobj = {}
-                        dataobj.value = lastprice
-                        dataobj.symbol = 'pin'
-                        dataobj.symbolSize =50
-                        dataobj.itemStyle = {}
-                        dataobj.itemStyle.normal = {}
-                        dataobj.itemStyle.normal.color = 'red'
-                        SERIESDATA[0].data.push(dataobj)
+                        console.log("the diff volume is ")
+                        console.log(NOWVOLUME - PREVOLUME) 
+                        console.log("the diff interest is ")
+                        console.log(NOWOPENINTEREST - PREOPENINTEREST)
+                        CANGNUM  = CANGNUM +1
                     }
-                    else if (isCloseOpen && BUYLONG ==1) {
-                        console.log(lastprice)
+                    else if (isCloseSignal && CANGNUM ==1) {
+                        console.log(lastprice + " this is close signal")
                         console.log(time)
-                        BUYLONG = BUYLONG -1
-                        dataobj = {}
-                        dataobj.value = lastprice
-                        dataobj.symbol = 'pin'
-                        dataobj.symbolSize =50
-                        dataobj.itemStyle = {}
-                        dataobj.itemStyle.normal = {}
-                        dataobj.itemStyle.normal.color = 'green'
-                        SERIESDATA[0].data.push(dataobj)
+                        CANGNUM = CANGNUM -1
                     }
-                    else{
-                        SERIESDATA[0].data.push(lastprice)
-                    }
+                    SERIESDATA[0].data.push(lastprice)
                     // SERIESDATA[0].data.push(lastprice)
 
                     // 在各个线里面插入数据。用来显示所用。
@@ -351,6 +428,9 @@
                     }
 
                 }
+                PREVOLUME = NOWVOLUME
+                PREOPENINTEREST =NOWOPENINTEREST
+                PRETURNONER = NOWTURNONER
             }
 
 

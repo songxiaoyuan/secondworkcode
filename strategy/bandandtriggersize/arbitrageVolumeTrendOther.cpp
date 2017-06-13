@@ -12,16 +12,44 @@ void CHyArbitrageVolumeTrendOther::clearVector()
 bool CHyArbitrageVolumeTrendOther::get_fv_less(double &fv)
 {
 	// 获取最新的价格。问题：这个mdprice对象每一个参数的作用？
-	// trigger size 需要输入一个参数，100，这个参数是什么，在哪里起作用。
 	new_Price=getNewPrice(g_arrChannel,less_md_index);
 
 	last_Price=getLastPrice(g_arrChannel,less_md_index);
+
 
 	if (new_Price.Volume	==0	||	new_Price.OpenInterest	==	0	||	new_Price.Turnover	==0||	new_Price.LastPrice	==	0
 	  ||last_Price.Volume	==0	||	last_Price.OpenInterest	==	0	||	last_Price.Turnover	==0||	last_Price.LastPrice	==	0)
 	{
 		return false;
 	}
+
+	//通过 positionAdj来设置band的开仓边界，一般都是0.5,这边除以了10，所以设置的时候，应该在10倍。
+	bandOpenEdge = (param->less.PositionAdj)/10;
+	// 通过设置shortcompxvae来设置band的平仓边界，一般都是2
+	bandCloseEdge = (param->less.ShortCompXave)/10;
+
+	// 此部分代码主要是用来保存计算middledata和sd的price。
+	double price = new_Price.LastPrice;
+	if (prices.size() < param->less.CompXave)
+	{
+		prices.push_back(price);
+		double tmp = getEMAData(price);
+		return false;
+	}
+	else{
+		prices.push_back(price);
+		vector<double>::iterator it = prices.begin();
+		it = prices.erase(it);
+	}
+	//已经达到了周期，开始计算middle data和sd的data
+	if (param->less.CompTheo == "EMA"){
+		middleData = getEMAData(price);
+	}
+	else
+	{
+		middleData = getMAData(prices);
+	}
+	sdData = getSDData(prices);
 
 	// 根据最新的价格判断已经下的单子是不是需要撤单
 	// 问题：我需要一个参数，现在来决定到了这个边界就开始撤单，那么我怎么调用。达到布林带的某一个标准的时候。
@@ -83,12 +111,14 @@ bool CHyArbitrageVolumeTrendOther::isOpenTrendTime()
 		return false;
 	}
 
+	// 表示现在交易量之间的差值必须达到一定的数值。
 	int diffVolume	=	new_Price.Volume	-	last_Price.Volume;
 	if (diffVolume	<	param->less.openEdge)
 	{
 		return false;
 	}
 
+	// 表示现在持仓量之间的差值需要达到一定的数值。
 	int diffOpenInterest	=	new_Price.OpenInterest	-	last_Price.OpenInterest;
 
 	if (diffOpenInterest	<=	param->less.index)
@@ -96,6 +126,13 @@ bool CHyArbitrageVolumeTrendOther::isOpenTrendTime()
 		return false;
 	}
 
+	// 获取band的信号，判断根据布林带是不是已经达到开仓条件。
+	// 如果没有达到的话，直接返回false, 达到的话判断trigger size是不是达到.
+	bool bandSignal = isBandOpenTime();
+	if (bandSignal ==false)
+	{
+		return false;
+	}
 	double edge =param->less.spread;
 
 	if (arbitrageDirection	==	Direction_long)
@@ -111,10 +148,15 @@ bool CHyArbitrageVolumeTrendOther::isOpenTrendTime()
 
 bool CHyArbitrageVolumeTrendOther::isCloseTrendTime()
 {
+
 	if (status	==	STATUS_Pause)
 	{
 		return false;
 	}
+
+	//现在根据袁总的要求，在判断平仓的时候，只是根据band的平仓条件。
+	// 所以trigger size 的平仓条件先忽略。
+	return isBandCloseTime();
 
 	int diffVolume	=	new_Price.Volume	-	last_Price.Volume;
 	if (diffVolume	<	param->less.closeEdge)
@@ -148,9 +190,9 @@ bool CHyArbitrageVolumeTrendOther::isCloseTrendTime()
 
 bool CHyArbitrageVolumeTrendOther::isUpTime(double edge)
 {
-	int multiple=getVolumeMultiple(g_arrChannel,less_md_index);
-	int diffVolume	=	new_Price.Volume	-	last_Price.Volume;
-	double diffTurnover	=	new_Price.Turnover	-	last_Price.Turnover;
+	int multiple=getVolumeMultiple(g_arrChannel,less_md_index);   //返回合约乘数
+	int diffVolume	=	new_Price.Volume	-	last_Price.Volume;  //返回持仓量的变化
+	double diffTurnover	=	new_Price.Turnover	-	last_Price.Turnover;  //返回成交金额的变化
 
 	if (diffVolume	==	0	||	diffTurnover	==	0	||	multiple	==	0)
 	{
@@ -171,9 +213,9 @@ bool CHyArbitrageVolumeTrendOther::isUpTime(double edge)
 
 bool CHyArbitrageVolumeTrendOther::isDownTime(double edge)
 {
-	int multiple=getVolumeMultiple(g_arrChannel,less_md_index);    //这个参数是什么意思，我怎么计算。
-	int diffVolume	=	new_Price.Volume	-	last_Price.Volume;    //数量差？
-	double diffTurnover	=	new_Price.Turnover	-	last_Price.Turnover;  //成交金额差
+	int multiple=getVolumeMultiple(g_arrChannel,less_md_index);    
+	int diffVolume	=	new_Price.Volume	-	last_Price.Volume;   
+	double diffTurnover	=	new_Price.Turnover	-	last_Price.Turnover;  
 
 	if (diffVolume	==	0	||	diffTurnover	==	0	||	multiple	==	0)
 	{
@@ -209,6 +251,127 @@ void CHyArbitrageVolumeTrendOther::cancelNotMatchOrder(STraderChannel* pTraderIn
 		}
 	}
 	pthread_mutex_unlock(&pTraderInfo->cs_trader_order);
+}
+
+double CHyArbitrageVolumeTrendOther::getMAData(vector<double> prices){
+	double sum =0;
+	if (prices.size()==0)
+	{
+		return 0;
+	}
+	for (int i = 0; i < prices.size(); i++)
+	{
+		sum +=prices[i];
+	}
+	return sum/prices.size();
+}
+
+double CHyArbitrageVolumeTrendOther::getSDData(vector<double> prices){
+	int size = prices.size();
+	if (size ==0)
+	{
+		return 0;
+	}
+	double sum = 0;
+	for (int i = 0; i < prices.size(); i++)
+	{
+		sum +=prices[i];
+	}
+	double avg = sum/size;
+	sum = 0;
+	for (int i = 0; i < size; i++)
+	{
+		sum += (prices[i]-avg)*(prices[i]-avg);
+	}
+	return sqrt(sum);
+}
+
+double CHyArbitrageVolumeTrendOther::getEMAData(double price){
+	if (prices.size()==1)
+	{
+		emaTickNum =1;
+		lastPrice = price;
+		return lastPrice;
+	}
+	if (emaTickNum < param->less.CompXave)
+	{
+		emaTickNum +=1;
+	}
+	double ret = ((emaTickNum-1)*lastPrice + 2*price)/(emaTickNum+1);
+	lastPrice = ret;
+	return ret;
+}
+
+
+bool CHyArbitrageVolumeTrendOther::isLongOpenTime(double price,double middleval,double upval){
+	if (price < upval && price > middleval)
+	{
+		return true;
+	}
+	return false;
+}
+
+bool CHyArbitrageVolumeTrendOther::isLongCloseTime(double price,double profitval,double lossval){
+	if (price < lossval || price > profitval)
+	{
+		return true;
+	}
+	return false;
+}
+
+bool CHyArbitrageVolumeTrendOther::isShortOpenTime(double price,double middleval,double downval){
+	if (price>downval && price < middleval)
+	{
+		return true;
+	}
+	return false;
+}
+
+bool CHyArbitrageVolumeTrendOther::isShortCloseTime(double price,double profitval,double lossval){
+	if (price > lossval || price < profitval )
+	{
+		return true;
+	}
+	return false;
+}
+
+bool CHyArbitrageVolumeTrendOther::isBandOpenTime(){
+	if (arbitrageDirection	==	Direction_long)
+	{
+		bool isLoneOpen = isLongOpenTime(price,middleData,middleData + sdData*bandOpenEdge);
+		if (isLoneOpen)
+		{
+			return true;
+		}
+	}
+	else if (arbitrageDirection	==	Direction_short)
+	{
+		bool isShortOpen =isShortOpenTime(price,middleData,middleData-sdData*bandOpenEdge);
+		if (isShortOpen)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+bool CHyArbitrageVolumeTrendOther::isBandCloseTime(){
+
+	if (arbitrageDirection	==	Direction_long)
+	{
+		bool isLongClose = isLongCloseTime(price,middleData+sdData*bandCloseEdge,middleData - sdData*bandOpenEdge);
+		if(isLongClose){
+			return true;
+		}
+	}
+	else if (arbitrageDirection	==	Direction_short)
+	{
+		bool isShortClose = isShortCloseTime(price,middleData-sdData*bandCloseEdge,middleData + sdData*bandOpenEdge);
+		if (isShortClose){
+			return true;
+		}
+	}
+	return false;
 }
 
 void CHyArbitrageVolumeTrendOther::closeTraded(char direction,double price)
