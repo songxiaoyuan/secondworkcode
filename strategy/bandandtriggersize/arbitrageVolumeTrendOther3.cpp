@@ -30,7 +30,7 @@ bool CHyArbitrageVolumeTrendOther3::get_fv_less(double &fv)
 
 	// 此部分代码主要是用来保存计算cur_middle_value_和sd的price。
 	cur_lastprice_ = new_Price.LastPrice;
-	if (vector_prices_.size() < param->less.CompXave)
+	if (vector_prices_.size() < param->less.CompXave -1)
 	{
 		vector_prices_.push_back(cur_lastprice_);
 		double tmp = GetEMAData(cur_lastprice_);
@@ -261,7 +261,7 @@ double CHyArbitrageVolumeTrendOther3::GetMAData(vector<double> &vector_prices_){
 	{
 		sum +=vector_prices_[i];
 	}
-	return sum/vector_prices_.size();
+	return sum/param->less.CompXave;
 }
 
 double CHyArbitrageVolumeTrendOther3::GetSDData(vector<double> &vector_prices_){
@@ -275,7 +275,7 @@ double CHyArbitrageVolumeTrendOther3::GetSDData(vector<double> &vector_prices_){
 	{
 		sum +=vector_prices_[i];
 	}
-	double avg = sum/size;
+	double avg = sum/param->less.CompXave;
 	sum = 0;
 	for (int i = size-1; i >=0 && i >= size - param->less.CompXave; i--)
 	{
@@ -337,7 +337,7 @@ bool CHyArbitrageVolumeTrendOther3::IsBandCloseTime(){
 	{
 		double profitval = cur_middle_value_ - cur_sd_val_ * band_close_edge_;
 		double lossval = cur_middle_value_ + cur_sd_val_ * band_open_edge_;
-		if (cur_lastprice_ < lossval || cur_lastprice_ > profitval)
+		if (cur_lastprice_ > lossval || cur_lastprice_ < profitval)
 		{
 			return true;
 		}
