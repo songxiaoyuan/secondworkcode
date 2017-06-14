@@ -1,7 +1,7 @@
-#include "arbitrageVolumeTrendOther.h"
+#include "arbitrageVolumeTrendOther3.h"
 
 
-void CHyArbitrageVolumeTrendOther::clearVector()
+void CHyArbitrageVolumeTrendOther3::clearVector()
 {
 	memset(&new_Price,0,sizeof(mdPrice));
 	memset(&last_Price,0,sizeof(mdPrice));
@@ -9,7 +9,7 @@ void CHyArbitrageVolumeTrendOther::clearVector()
 	isTrendCloseTime=false;
 }
 
-bool CHyArbitrageVolumeTrendOther::get_fv_less(double &fv)
+bool CHyArbitrageVolumeTrendOther3::get_fv_less(double &fv)
 {
 	// 获取最新的价格。问题：这个mdprice对象每一个参数的作用？
 	new_Price=getNewPrice(g_arrChannel,less_md_index);
@@ -23,33 +23,33 @@ bool CHyArbitrageVolumeTrendOther::get_fv_less(double &fv)
 		return false;
 	}
 
-	//通过 positionAdj来设置band的开仓边界，一般都是0.5,这边除以了10，所以设置的时候，应该在10倍。
-	bandOpenEdge = (param->less.PositionAdj)/10;
-	// 通过设置shortcompxvae来设置band的平仓边界，一般都是2
-	bandCloseEdge = (param->less.ShortCompXave)/10;
+	//通过 ShortCompXave 来设置band的开仓边界，一般都是0.5,这边除以了10，所以设置的时候，应该在10倍。
+	band_open_edge_ = (param->less.ShortCompXave)/10;
+	// 通过设置 LongCompXave 来设置band的平仓边界，一般都是2
+	band_close_edge_ = (param->less.LongCompXave)/10;
 
-	// 此部分代码主要是用来保存计算middledata和sd的price。
-	double price = new_Price.LastPrice;
-	if (prices.size() < param->less.CompXave)
+	// 此部分代码主要是用来保存计算cur_middle_value_和sd的price。
+	cur_lastprice_ = new_Price.LastPrice;
+	if (vector_prices_.size() < param->less.CompXave)
 	{
-		prices.push_back(price);
-		double tmp = getEMAData(price);
+		vector_prices_.push_back(cur_lastprice_);
+		double tmp = GetEMAData(cur_lastprice_);
 		return false;
 	}
 	else{
-		prices.push_back(price);
-		vector<double>::iterator it = prices.begin();
-		it = prices.erase(it);
+		vector_prices_.push_back(cur_lastprice_);
+		// vector<double>::iterator it = vector_prices_.begin();
+		// it = vector_prices_.erase(it);
 	}
 	//已经达到了周期，开始计算middle data和sd的data
-	if (param->less.CompTheo == "EMA"){
-		middleData = getEMAData(price);
+	if (param->less.PositionAdj == 0){
+		cur_middle_value_ = GetEMAData(cur_lastprice_);
 	}
 	else
 	{
-		middleData = getMAData(prices);
+		cur_middle_value_ = GetMAData(vector_prices_);
 	}
-	sdData = getSDData(prices);
+	cur_sd_val_ = GetSDData(vector_prices_);
 
 	// 根据最新的价格判断已经下的单子是不是需要撤单
 	// 问题：我需要一个参数，现在来决定到了这个边界就开始撤单，那么我怎么调用。达到布林带的某一个标准的时候。
@@ -80,12 +80,12 @@ bool CHyArbitrageVolumeTrendOther::get_fv_less(double &fv)
 	}
 	return true;
 }
-double CHyArbitrageVolumeTrendOther::calculateEmaFvAdj()
+double CHyArbitrageVolumeTrendOther3::calculateEmaFvAdj()
 {
 	return 0;
 }
 
-double CHyArbitrageVolumeTrendOther::calculateLessPrice(char OffsetFlag,char Direction,double fv,int perside)
+double CHyArbitrageVolumeTrendOther3::calculateLessPrice(char OffsetFlag,char Direction,double fv,int perside)
 {
 	
 	// 这个最后的挂单价根本就没有计算啊，还是这个maxprice已经改变了。
@@ -104,7 +104,7 @@ double CHyArbitrageVolumeTrendOther::calculateLessPrice(char OffsetFlag,char Dir
 
 }
 
-bool CHyArbitrageVolumeTrendOther::isOpenTrendTime()
+bool CHyArbitrageVolumeTrendOther3::isOpenTrendTime()
 {
 	if (status	==	STATUS_Exit	||	status	==	STATUS_Pause)
 	{
@@ -128,7 +128,7 @@ bool CHyArbitrageVolumeTrendOther::isOpenTrendTime()
 
 	// 获取band的信号，判断根据布林带是不是已经达到开仓条件。
 	// 如果没有达到的话，直接返回false, 达到的话判断trigger size是不是达到.
-	bool bandSignal = isBandOpenTime();
+	bool bandSignal = IsBandOpenTime();
 	if (bandSignal ==false)
 	{
 		return false;
@@ -146,7 +146,7 @@ bool CHyArbitrageVolumeTrendOther::isOpenTrendTime()
 	return false;
 }
 
-bool CHyArbitrageVolumeTrendOther::isCloseTrendTime()
+bool CHyArbitrageVolumeTrendOther3::isCloseTrendTime()
 {
 
 	if (status	==	STATUS_Pause)
@@ -156,7 +156,7 @@ bool CHyArbitrageVolumeTrendOther::isCloseTrendTime()
 
 	//现在根据袁总的要求，在判断平仓的时候，只是根据band的平仓条件。
 	// 所以trigger size 的平仓条件先忽略。
-	return isBandCloseTime();
+	return IsBandCloseTime();
 
 	int diffVolume	=	new_Price.Volume	-	last_Price.Volume;
 	if (diffVolume	<	param->less.closeEdge)
@@ -186,9 +186,7 @@ bool CHyArbitrageVolumeTrendOther::isCloseTrendTime()
 	return false;
 }
 
-
-
-bool CHyArbitrageVolumeTrendOther::isUpTime(double edge)
+bool CHyArbitrageVolumeTrendOther3::isUpTime(double edge)
 {
 	int multiple=getVolumeMultiple(g_arrChannel,less_md_index);   //返回合约乘数
 	int diffVolume	=	new_Price.Volume	-	last_Price.Volume;  //返回持仓量的变化
@@ -211,7 +209,7 @@ bool CHyArbitrageVolumeTrendOther::isUpTime(double edge)
 
 }
 
-bool CHyArbitrageVolumeTrendOther::isDownTime(double edge)
+bool CHyArbitrageVolumeTrendOther3::isDownTime(double edge)
 {
 	int multiple=getVolumeMultiple(g_arrChannel,less_md_index);    
 	int diffVolume	=	new_Price.Volume	-	last_Price.Volume;   
@@ -233,7 +231,7 @@ bool CHyArbitrageVolumeTrendOther::isDownTime(double edge)
 	return false;
 
 }
-void CHyArbitrageVolumeTrendOther::cancelNotMatchOrder(STraderChannel* pTraderInfo)
+void CHyArbitrageVolumeTrendOther3::cancelNotMatchOrder(STraderChannel* pTraderInfo)
 {
 	pthread_mutex_lock(&pTraderInfo->cs_trader_order);
 	for (unsigned int i=0;i<pTraderInfo->trader_order.size();i++)
@@ -253,101 +251,70 @@ void CHyArbitrageVolumeTrendOther::cancelNotMatchOrder(STraderChannel* pTraderIn
 	pthread_mutex_unlock(&pTraderInfo->cs_trader_order);
 }
 
-double CHyArbitrageVolumeTrendOther::getMAData(vector<double> prices){
+double CHyArbitrageVolumeTrendOther3::GetMAData(vector<double> &vector_prices_){
 	double sum =0;
-	if (prices.size()==0)
+	if (vector_prices_.size()==0)
 	{
 		return 0;
 	}
-	for (int i = 0; i < prices.size(); i++)
+	for (int i = vector_prices_.size()-1; i >=0 && i >= vector_prices_.size() - param->less.CompXave; i--)
 	{
-		sum +=prices[i];
+		sum +=vector_prices_[i];
 	}
-	return sum/prices.size();
+	return sum/vector_prices_.size();
 }
 
-double CHyArbitrageVolumeTrendOther::getSDData(vector<double> prices){
-	int size = prices.size();
+double CHyArbitrageVolumeTrendOther3::GetSDData(vector<double> &vector_prices_){
+	int size = vector_prices_.size();
 	if (size ==0)
 	{
 		return 0;
 	}
 	double sum = 0;
-	for (int i = 0; i < prices.size(); i++)
+	for (int i = size-1; i >=0 && i >= size - param->less.CompXave; i--)
 	{
-		sum +=prices[i];
+		sum +=vector_prices_[i];
 	}
 	double avg = sum/size;
 	sum = 0;
-	for (int i = 0; i < size; i++)
+	for (int i = size-1; i >=0 && i >= size - param->less.CompXave; i--)
 	{
-		sum += (prices[i]-avg)*(prices[i]-avg);
+		sum += (vector_prices_[i]-avg)*(vector_prices_[i]-avg);
 	}
 	return sqrt(sum);
 }
 
-double CHyArbitrageVolumeTrendOther::getEMAData(double price){
-	if (prices.size()==1)
+double CHyArbitrageVolumeTrendOther3::GetEMAData(double price){
+	if (vector_prices_.size()==1)
 	{
-		emaTickNum =1;
-		lastPrice = price;
-		return lastPrice;
+		current_ema_tick_num_ =1;
+		last_mea_val_ = price;
+		return last_mea_val_;
 	}
-	if (emaTickNum < param->less.CompXave)
+	if (current_ema_tick_num_ < param->less.CompXave)
 	{
-		emaTickNum +=1;
+		current_ema_tick_num_ +=1;
 	}
-	double ret = ((emaTickNum-1)*lastPrice + 2*price)/(emaTickNum+1);
-	lastPrice = ret;
+	double ret = ((current_ema_tick_num_ - 1)*last_mea_val_ + 2*price)/(current_ema_tick_num_ + 1);
+	last_mea_val_ = ret;
 	return ret;
 }
 
 
-bool CHyArbitrageVolumeTrendOther::isLongOpenTime(double price,double middleval,double upval){
-	if (price < upval && price > middleval)
-	{
-		return true;
-	}
-	return false;
-}
 
-bool CHyArbitrageVolumeTrendOther::isLongCloseTime(double price,double profitval,double lossval){
-	if (price < lossval || price > profitval)
-	{
-		return true;
-	}
-	return false;
-}
-
-bool CHyArbitrageVolumeTrendOther::isShortOpenTime(double price,double middleval,double downval){
-	if (price>downval && price < middleval)
-	{
-		return true;
-	}
-	return false;
-}
-
-bool CHyArbitrageVolumeTrendOther::isShortCloseTime(double price,double profitval,double lossval){
-	if (price > lossval || price < profitval )
-	{
-		return true;
-	}
-	return false;
-}
-
-bool CHyArbitrageVolumeTrendOther::isBandOpenTime(){
+bool CHyArbitrageVolumeTrendOther3::IsBandOpenTime(){
 	if (arbitrageDirection	==	Direction_long)
 	{
-		bool isLoneOpen = isLongOpenTime(price,middleData,middleData + sdData*bandOpenEdge);
-		if (isLoneOpen)
+		double upval = cur_middle_value_ + cur_sd_val_ * band_open_edge_;
+		if (cur_lastprice_ > cur_middle_value_ && cur_lastprice_ < upval)
 		{
 			return true;
 		}
 	}
 	else if (arbitrageDirection	==	Direction_short)
 	{
-		bool isShortOpen =isShortOpenTime(price,middleData,middleData-sdData*bandOpenEdge);
-		if (isShortOpen)
+		double downval = cur_middle_value_ - cur_sd_val_ * band_open_edge_;
+		if (cur_lastprice_ > downval && cur_lastprice_ < cur_middle_value_)
 		{
 			return true;
 		}
@@ -355,32 +322,36 @@ bool CHyArbitrageVolumeTrendOther::isBandOpenTime(){
 	return false;
 }
 
-bool CHyArbitrageVolumeTrendOther::isBandCloseTime(){
+bool CHyArbitrageVolumeTrendOther3::IsBandCloseTime(){
 
 	if (arbitrageDirection	==	Direction_long)
 	{
-		bool isLongClose = isLongCloseTime(price,middleData+sdData*bandCloseEdge,middleData - sdData*bandOpenEdge);
-		if(isLongClose){
+		double profitval = cur_middle_value_ + cur_sd_val_ * band_close_edge_;
+		double lossval = cur_middle_value_ - cur_sd_val_ * band_open_edge_;
+		if (cur_lastprice_ > profitval || cur_lastprice_ < lossval)
+		{
 			return true;
 		}
 	}
 	else if (arbitrageDirection	==	Direction_short)
 	{
-		bool isShortClose = isShortCloseTime(price,middleData-sdData*bandCloseEdge,middleData + sdData*bandOpenEdge);
-		if (isShortClose){
+		double profitval = cur_middle_value_ - cur_sd_val_ * band_close_edge_;
+		double lossval = cur_middle_value_ + cur_sd_val_ * band_open_edge_;
+		if (cur_lastprice_ < lossval || cur_lastprice_ > profitval)
+		{
 			return true;
 		}
 	}
 	return false;
 }
 
-void CHyArbitrageVolumeTrendOther::closeTraded(char direction,double price)
+void CHyArbitrageVolumeTrendOther3::closeTraded(char direction,double price)
 {
 
 
 }
 
-void CHyArbitrageVolumeTrendOther::openTraded(char direction,double price)
+void CHyArbitrageVolumeTrendOther3::openTraded(char direction,double price)
 {
 
 }
