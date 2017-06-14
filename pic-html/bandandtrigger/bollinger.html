@@ -65,14 +65,14 @@
         BANDPROFITCLOSEEDGE = 2
         BANDLOSSCLOSEEDGE = 0.5
 
-        PREVOLUME = 0
-        PREOPENINTEREST = 0
-        PRETURNONER = 0
+        PREVOLUME = 0   //成交量
+        PREOPENINTEREST = 0  //持仓量
+        PRETURNONER = 0  //成交金额
         NOWVOLUME = 0
         NOWOPENINTEREST=0
         NOWTURNONER=0
-        BIDPRICE1 =0
-        ASKPRICE1 = 0
+        BIDPRICE1 =0    //买一价
+        ASKPRICE1 = 0    //卖一价
 
         SPREAD =100
         VOLUMEOPENEDGE =20
@@ -199,7 +199,8 @@
             }
             var avePrice = diffTurnover/diffVolume/multiple
 
-            var temp = 100*(ASKPRICE1 - avePrice)/(ASKPRICE1 - BIDPRICE1)
+            var temp = 100*(avePrice - BIDPRICE1)/(ASKPRICE1 - BIDPRICE1)
+            // console.log(temp)
             if(temp >= SPREAD){
                 return true
             }
@@ -217,7 +218,8 @@
             }
             var avePrice = diffTurnover/diffVolume/multiple
 
-            var temp = 100*(avePrice - BIDPRICE1)/(ASKPRICE1 - BIDPRICE1)
+            var temp = 100*(ASKPRICE1 - avePrice)/(ASKPRICE1 - BIDPRICE1)
+            // console.log(temp)
             if(temp >= SPREAD){
                 return true
             }
@@ -260,6 +262,7 @@
                 NOWMEATICKNUM = NOWMEATICKNUM + 1
             }
             var ret = ((NOWMEATICKNUM-1)*PREMEADATA + 2* tmpdata)/(NOWMEATICKNUM+1)
+            // console.log(ret)
             PREMEADATA = ret
             return ret
         }
@@ -377,7 +380,9 @@
                         tmpma = getMAData(LASTPRICEARRAY)
                     }
                     else{
-                        tmpma = getEMAData(LASTPRICEARRAY)
+                        // console.log("this is ema")
+                        tmpma = getEMAData(lastprice)
+                        // console.log(tmpma)
                     }
                     var tmpsddata = getSDdata(LASTPRICEARRAY)
 
