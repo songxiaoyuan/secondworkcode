@@ -4,6 +4,7 @@
 #include <math.h>
 #include <string>
 #include <string.h>
+#include <fstream>
 #include "hyArbitrage_Interface.h"
 #include "func.h"
 using namespace std;
@@ -37,11 +38,14 @@ private:
 	bool IsBandCloseTime();
 	bool IsBandOpenTime();
 	//根据现在的price的一个列表，计算列表里面的ma数据。
-	double GetMAData(vector<double> prices);
+	double GetMAData(vector<double> &prices);
 	// 根据现在的price的一个列表，计算列表里面的标准差
-	double GetSDData(vector<double> prices);
+	double GetSDData(vector<double> &prices);
 	// 根据传入的这个lastprice，计算返回的ema的值。
 	double GetEMAData(double price);
+
+	// 将想要的信息写入到本地。
+	void WriteMesgToFile(string path,string mesg);
 
 private:
 
@@ -55,6 +59,7 @@ private:
 	double band_close_edge_;
 	double cur_middle_value_;
 	double cur_sd_val_;
+	double cur_spread_price_val_;
 
 };
 

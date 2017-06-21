@@ -64,6 +64,22 @@ bool CHyArbitrageVolumeTrendOther3::get_fv_less(double &fv)
 	isTrendOpenTime		=	isOpenTrendTime();
 	isTrendCloseTime	=	isCloseTrendTime();
 
+
+	string strategy = "";  //这个是要获取到策略的id，你帮我修改一下。
+	string instrumentid = new_Price.InstrumentID;  //获取到合约编码
+	string date = new_Price.TradingDay;   //获取到合约交易时间。
+	string path = strategy+"_"+instrumentid +"_"+date
+
+	string time = new_Price.UpdateTime;
+	string str_lastprice = to_string(new_Price.LastPrice);
+	string str_middle_val = to_string(cur_middle_value_);
+	string str_sd_val = to_string(cur_sd_val_);
+	string str_diffvolume = to_string(new_Price.Volume	-	last_Price.Volume);
+	string str_diffopeninterest = to_string(new_Price.OpenInterest	-	last_Price.OpenInterest);
+	string str_spread = to_string(cur_spread_price_val_)
+	string mes = time+","+str_lastprice+","+str_middle_val+","+str_sd_val+","+","+str_diffvolume+","+str_diffopeninterest+","+str_spread;
+	WriteMesgToFile(path,mesg);
+
 	// 如果达到开仓的时机，那么就进行开仓的操作，如果达到平仓的时机，那么就进行平仓的操作？
 	//如果到了开仓的时机，但是已经进行开仓了，还会继续开仓吗，还是这个函数会自己判断。
 	// 如果已经平仓了也是同样的道理，判断是不是已经平仓了吗。
@@ -188,7 +204,8 @@ bool CHyArbitrageVolumeTrendOther3::isCloseTrendTime()
 
 bool CHyArbitrageVolumeTrendOther3::isUpTime(double edge)
 {
-	int multiple=getVolumeMultiple(g_arrChannel,less_md_index);   //返回合约乘数
+	int multiple=getVolume
+	Multiple(g_arrChannel,less_md_index);   //返回合约乘数
 	int diffVolume	=	new_Price.Volume	-	last_Price.Volume;  //返回持仓量的变化
 	double diffTurnover	=	new_Price.Turnover	-	last_Price.Turnover;  //返回成交金额的变化
 
@@ -199,7 +216,8 @@ bool CHyArbitrageVolumeTrendOther3::isUpTime(double edge)
 	double avePrice	=	diffTurnover/diffVolume/multiple;
 
 	double temp	=	100*(avePrice	-	last_Price.BidPrice1)/(last_Price.AskPrice1-last_Price.BidPrice1);
-
+	cur_spread_price_val_ = temp;
+	
 	if (temp >=	edge)
 	{
 		return true;
@@ -223,6 +241,7 @@ bool CHyArbitrageVolumeTrendOther3::isDownTime(double edge)
 	double avePrice	=	diffTurnover/diffVolume/multiple;
 
 	double temp	=	100*(last_Price.AskPrice1	-	avePrice)/(last_Price.AskPrice1-last_Price.BidPrice1);
+	cur_spread_price_val_ = temp;
 	if (temp >=	edge)
 	{
 		return true;
@@ -285,7 +304,7 @@ double CHyArbitrageVolumeTrendOther3::GetSDData(vector<double> &vector_prices_){
 }
 
 double CHyArbitrageVolumeTrendOther3::GetEMAData(double price){
-	if (vector_prices_.size()==1)
+	if (vector_prices_.size()<=1)
 	{
 		current_ema_tick_num_ =1;
 		last_mea_val_ = price;
@@ -344,6 +363,16 @@ bool CHyArbitrageVolumeTrendOther3::IsBandCloseTime(){
 	}
 	return false;
 }
+
+void CHyArbitrageVolumeTrendOther3::WriteMesgToFile(string path,string mesg){
+  const char *filePath = path.data();
+  FILE *file_fd = fopen(filePath, "a");
+  char *huiche = "\n";
+  const char *data = mesg.data();
+  int writeLen = fwrite(data, 1, strlen(data), file_fd);
+  int writeLen1 = fwrite(huiche, 1, 1, file_fd);
+  fclose(file_fd);
+ }
 
 void CHyArbitrageVolumeTrendOther3::closeTraded(char direction,double price)
 {

@@ -1,0 +1,68 @@
+typedef struct  
+{
+	int		arbitrageMode;
+	int		arbitrageType;
+	int		traderMode;
+	int		arbitrageTypeID;
+	char	userName[32];
+	int 	HedgeFlag;
+	bool	isTrader;
+	char	instrumentTypeID[31];
+	int bCloseYestoday;
+	char	arbitrageTypeName[31];
+	int groupID;
+	bool bClose;
+
+	int spread;
+	double openEdge;
+	double closeEdge;
+	double EdgeAdj;
+	int cancelEdge;
+	int edgebWork;
+	int orderDelay;
+	int edgePrice;
+
+	int compTheo;
+	int compXave;
+	int Theo;
+	int index;
+	int marketImprovement;
+	int marketPriceAdj;
+
+	int orderPerside;
+	int orderSpacingOpen;
+	int orderSpacingClose;
+	int orderVolume;
+	int orderMaxVolume;
+	int orderLegMaxVolume;
+	int PositionNormal;
+	int volMultiplier;
+
+	int maxDrawDown;
+	int maxLoss;
+	int lockLoss;
+	int closeLoss;
+
+
+	int profitStart;
+	int profitStop;
+	int lockAdj;
+
+	int closeStart;
+	int closeStop;
+	int closeAdj;
+
+	int PositionAdj;
+	int AdjEmaFast;
+	int AdjEmaSlow;
+
+	int dayStopTime;
+	int midStopTime;
+
+}Param;
+
+typedef struct 
+{
+	Param main;
+	Param less;
+}Parameter;
