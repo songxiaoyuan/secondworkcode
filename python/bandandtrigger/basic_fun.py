@@ -156,6 +156,31 @@ def get_rsi_data(rsi_array,period):
 		return 0
 	return 100*float(rise)/total
 
+def get_rsi_data2(tmpdiff,rsi_array,period):
+	# get the current rsi ,the array is the increase and low val
+	period = period -1
+	if len(rsi_array) ==0:
+		return 0
+	rise =0
+	total =0
+	if tmpdiff >0:
+		rise += tmpdiff
+		total +=tmpdiff
+	else:
+		total -=tmpdiff
+	l = len(rsi_array)
+	for i in xrange(l-1,-1,-1):
+		if i >= (l - period):
+			tmp = rsi_array[i]
+			if tmp > 0:
+				rise +=tmp
+				total +=tmp
+			else:
+				total -=tmp
+	if rise ==0 or total ==0:
+		return 0
+	return 100*float(rise)/total
+
 def write_data_to_csv(path,data):
 	csvfile = file(path, 'wb')
 	writer = csv.writer(csvfile)

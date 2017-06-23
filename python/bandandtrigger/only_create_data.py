@@ -28,8 +28,8 @@ class BandAndTrigger(object):
 		self._pre_rsi_lastprice =0
 		self._now_rsi_tick = 0
 		self._now_bar_rsi_tick = 0
-		self._rsi_bar_period = 120
-		self._rsi_period = 10 
+		self._rsi_bar_period = 80
+		self._rsi_period = 10
 
 		self._moving_theo = "EMA"
 		self._param_period = 3600
@@ -63,19 +63,24 @@ class BandAndTrigger(object):
 			# self._rsi_array.append(lastprice - self._pre_md_price[LASTPRICE])
 			if self._now_rsi_tick >= self._rsi_bar_period:
 				# 表示已经到了一个bar的周期。
-				self._rsi_array.append(lastprice - self._pre_rsi_lastprice)
+				tmpdiff = lastprice - self._pre_rsi_lastprice		
 				self._pre_rsi_lastprice = lastprice
 				self._now_rsi_tick = 1
-				self._ris_data =bf.get_rsi_data(self._rsi_array,self._rsi_period)
+				self._ris_data =bf.get_rsi_data2(tmpdiff,self._rsi_array,self._rsi_period)
+				self._rsi_array.append(tmpdiff)
 			else:
 				self._now_rsi_tick +=1
-				self._ris_data = -1
+				tmpdiff = lastprice - self._pre_rsi_lastprice
+				self._ris_data =bf.get_rsi_data2(tmpdiff,self._rsi_array,self._rsi_period)
+				self._ris_data = 0
+				# self._ris_data = -1
 		# self._now_rsi_tick +=1
 		# if self._now_rsi_tick >= self._rsi_period:
 		# 	self._ris_data =bf.get_rsi_data(self._rsi_array,self._rsi_period)
 		# 	self._now_rsi_tick =0
 		# else:
-		# 	self._ris_data =0	
+		# 	self._ris_data =0
+		# print self._ris_data	
 
 		if len(self._lastprice_array)-1 < self._param_period:
 			# this is we dont start the period.
@@ -124,6 +129,10 @@ def main(filename):
 	bf.write_data_to_csv(path_new,data)
 
 
-if __name__=='__main__': 
-	main("rb1710_20170620")
-	# print WRITETOFILE
+if __name__=='__main__':
+	# data = [20170622,20170621,20170620,20170619,20170616]
+	data = [20170623]
+	for item in data:
+		path = "rb1710_"+ str(item)
+		print path
+		main(path)	

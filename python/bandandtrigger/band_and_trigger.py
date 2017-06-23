@@ -13,7 +13,7 @@ SHORT =0
 
 class BandAndTrigger(object):
 	"""docstring for BandAndTrigger"""
-	def __init__(self,direction,max_drawdowm,limit_sd_val,limit_rsi_val,limit_ris_bar_val,ris_period):
+	def __init__(self,direction,max_drawdowm,limit_sd_val,limit_rsi_val,ris_period):
 		super(BandAndTrigger, self).__init__()
 		# self.arg = arg
 		self._pre_md_price = []
@@ -25,18 +25,12 @@ class BandAndTrigger(object):
 
 		self._max_profit = 0
 		self._draw_down = max_drawdowm
-		self._limit_max_profit = 200
+		self._limit_max_profit = 20
 
 		self._multiple = 10
 
 		self._rsi_array = []
-		self._now_ris_tick =0
 		self._rsi_period = ris_period
-		self._pre_rsi_lastprice =0
-		self._now_rsi_tick = 0
-		self._now_bar_rsi_tick = 0
-		self._rsi_bar_period = limit_ris_bar_val
-		self._cur_rsi_val = -1
 
 
 		self._limit_twice_sd = 2
@@ -63,7 +57,6 @@ class BandAndTrigger(object):
 		self._param_open_interest_edge = 0
 		self._param_spread = 100
 
-		self._write_to_csv_data = []
 		self._open_lastprice = 0
 		self._profit = 0
 		self._ris_data = 0
@@ -86,24 +79,10 @@ class BandAndTrigger(object):
 		self._lastprice_array.append(lastprice)
 		# print lastprice
 
-		# if len(self._pre_md_price) ==0:
-		# 	self._rsi_array.append(0)
-		# else:
-		# 	self._rsi_array.append(lastprice - self._pre_md_price[LASTPRICE])
 		if len(self._pre_md_price) ==0:
 			self._rsi_array.append(0)
-			self._pre_rsi_lastprice = lastprice
-			self._ris_data = -1
 		else:
-			# self._rsi_array.append(lastprice - self._pre_md_price[LASTPRICE])
-			if self._now_rsi_tick >= self._rsi_bar_period:
-				# 表示已经到了一个bar的周期。
-				self._rsi_array.append(lastprice - self._pre_rsi_lastprice)
-				self._pre_rsi_lastprice = lastprice
-				self._now_rsi_tick = 1
-				self._ris_data =bf.get_rsi_data(self._rsi_array,self._rsi_period)
-			else:
-				self._now_rsi_tick +=1
+			self._rsi_array.append(lastprice - self._pre_md_price[LASTPRICE])
 
 		if len(self._lastprice_array)-1 < self._param_period:
 			# this is we dont start the period.
@@ -122,17 +101,9 @@ class BandAndTrigger(object):
 		
 		self._now_sd_val =bf.get_sd_data(self._now_md_price[TIME], self._lastprice_array,self._param_period)	
 		
-		# self._now_ris_tick +=1
-		# if self._now_ris_tick >= self._rsi_period:
-		# 	self._ris_data = bf.get_rsi_data(self._rsi_array,self._rsi_period)
-		# 	self._now_ris_tick = 0
-		# else:
-		# 	self._ris_data = -1
-		diff_volume = self._now_md_price[VOLUME] - self._pre_md_price[VOLUME]
+		self._ris_data = bf.get_rsi_data(self._rsi_array,self._rsi_period)
 
-		tmp_to_csv = [self._now_md_price[TIME],self._now_md_price[LASTPRICE],self._now_middle_value,
-					self._now_sd_val,self._ris_data,diff_volume]
-		self._write_to_csv_data.append(tmp_to_csv)
+		diff_volume = self._now_md_price[VOLUME] - self._pre_md_price[VOLUME]
 
 		open_time = self.is_trend_open_time()
 		close_time = self.is_trend_close_time()
@@ -221,8 +192,6 @@ class BandAndTrigger(object):
 											self._now_middle_value,self._now_sd_val,open_val,close_val,self._ris_data,self._limit_rsi_data)
 		return is_band_close
 		
-	def get_to_csv_data(self):
-		return self._write_to_csv_data
 
 	def get_total_profit(self):
 		return self._profit
