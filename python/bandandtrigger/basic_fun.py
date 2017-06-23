@@ -9,29 +9,40 @@ TURNONER = 12
 BIDPRICE1 = 22
 ASKPRICE1 =24
 
+LONG =1
+SHORT =0
+
 def is_band_open_time(direction,lastprice,middle_val,sd_val,open_edge):
 	# this is used to judge is time to band open
-	if direction =="LONG":
+	if direction ==LONG:
 		upval = middle_val + open_edge*sd_val
 		if lastprice > middle_val and lastprice < upval:
 			return True
-	elif direction =="SHORT":
+	elif direction ==SHORT:
 		downval = middle_val - open_edge*sd_val
 		if lastprice < middle_val and lastprice > downval:
 			return True
 	return False
 
-def is_band_close_time(direction,lastprice,middle_val,sd_val,open_edge,close_edge):
+def is_band_close_time(direction,lastprice,middle_val,sd_val,open_edge,close_edge,cur_rsi_data,limit_rsi_data):
 	# this is used to judge is time to band is close time
-	if direction =="LONG":
+	if direction ==LONG:
 		profitval = middle_val + close_edge*sd_val
 		lossvla = middle_val - open_edge*sd_val
-		if lastprice > profitval or lastprice < lossvla:
+		# 尽量避免损失，如果达到止损条件，即使止损
+		if lastprice < lossvla:
 			return True
-	elif direction =="SHORT":
+		# 判断止盈条件，大于几倍的band，并且同时rsi大于80，然后可能在加上最大回撤的值。
+		# 因为ris是按照这个bar来计算的，所以应该一段时间判断一次，如果没有达到这个段的时间，应该就直接不平仓
+		if lastprice > profitval and cur_rsi_data >= limit_rsi_data and cur_rsi_data >=0:
+			return True
+	elif direction ==SHORT:
 		profitval = middle_val - close_edge*sd_val
 		lossval = middle_val + open_edge*sd_val
-		if lastprice < profitval or lastprice > lossval:
+		if lastprice > lossval:
+			return True
+		ris = 100 - cur_rsi_data
+		if lastprice < profitval and ris >= limit_rsi_data and cur_rsi_data >=0 :
 			return True
 	return False
 
@@ -65,15 +76,16 @@ def is_trigger_down_time(now_md_price,pre_md_price,spread_edge,multiple):
 def is_trigger_size_open_time(direction,now_md_price,pre_md_price,volume_open_edge,
 							openinterest_edge,spread_edge,multiple):
 	# this is used to judge the time of trigger size to open
+	# print now_md_price[VOLUME] - pre_md_price[VOLUME]
 	if now_md_price[VOLUME] - pre_md_price[VOLUME] < volume_open_edge:
 		return False
 	if now_md_price[OPENINTEREST] - pre_md_price[OPENINTEREST] <= openinterest_edge:
 		return False
-	if direction =="LONG":
+	if direction ==LONG:
 		return is_trigger_up_time(now_md_price,pre_md_price,spread_edge,multiple)
-	elif direction =="SHORT":
+	elif direction ==SHORT:
 		return is_trigger_down_time(now_md_price,pre_md_price,spread_edge,multiple)
-	return True
+	return False
 
 def is_trigger_size_close_time(direction,now_md_price,pre_md_price,volume_open_edge,
 							openinterest_edge,spread_edge,multiple):
@@ -82,9 +94,9 @@ def is_trigger_size_close_time(direction,now_md_price,pre_md_price,volume_open_e
 		return False
 	if now_md_price[OPENINTEREST] - pre_md_price[OPENINTEREST] <= openinterest_edge:
 		return False
-	if direction =="LONG":
+	if direction ==LONG:
 		return is_trigger_down_time(now_md_price,pre_md_price,spread_edge,multiple)
-	elif direction =="SHORT":
+	elif direction ==SHORT:
 		return is_trigger_up_time(now_md_price,pre_md_price,spread_edge,multiple)
 	return False
 
@@ -140,6 +152,8 @@ def get_rsi_data(rsi_array,period):
 				total +=tmp
 			else:
 				total -=tmp
+	if rise ==0 or total ==0:
+		return 0
 	return 100*float(rise)/total
 
 def write_data_to_csv(path,data):
@@ -152,5 +166,5 @@ def write_data_to_csv(path,data):
 
 if __name__=='__main__': 
 	print "this is basic fun like c++ so"
-	tmp = is_band_open_time("SHORT",10,10.2,2,0.5)
+	tmp = is_band_open_time(1,10,10.2,2,0.5)
 	print tmp

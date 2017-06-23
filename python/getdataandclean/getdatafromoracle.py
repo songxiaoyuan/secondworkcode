@@ -68,8 +68,8 @@ def getSqlData(myday,instrumentid):
 	conn.close () 
 
 if __name__=='__main__': 
-	listtime=[20170620]
-	instrumentid = "rb1710"
+	listtime=[20170622]
+	instrumentid = "ru1709"
 	for myday in listtime:
 		# pass
 		getSqlData(myday,instrumentid)

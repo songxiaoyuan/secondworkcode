@@ -28,16 +28,19 @@
 <br>
 
 <div id="banddrawing" style="width: 3000px;height:500px;"></div>
-<div id="sddrawing" style="width: 3000px;height:300px;"></div>
 <div id="rsidrawing" style="width: 3000px;height:300px;"></div>
+<div id="diff_volume_drawing" style="width: 3000px;height:300px;"></div>
+<div id="sddrawing" style="width: 3000px;height:300px;"></div>
 
 
 <script type="text/javascript">
 
         filedata =''
         var band_myChart = echarts.init(document.getElementById('banddrawing'));
-        var sd_myChart = echarts.init(document.getElementById('sddrawing'));
         var rsi_myChart = echarts.init(document.getElementById('rsidrawing'));
+        var diff_volume_myChart = echarts.init(document.getElementById('diff_volume_drawing'));
+        var sd_myChart = echarts.init(document.getElementById('sddrawing'));
+        
 
         // COMPXAVENUM = 10
         // 得到具体的标题数据，和对应的标题数据的具体的数。
@@ -51,8 +54,10 @@
         band_series_data =[]
         // 用来保存时间的数组，以后就是图片的横坐标轴。
         times_array= []
+        rsi_times_array =[]
         sd_array=[]
         rsi_array = []
+        diff_volume_array = []
         //用来保存lastprice的数据，因为如果没有到达周期的话，这些都需要先保存着，然后等到达周期之后在计算
         LASTPRICEARRAY= []
 
@@ -89,45 +94,6 @@
             },         
         };
 
-        sd_option = {
-            toolbox: {
-                show : true,
-                feature : {
-                    mark : {show: true},
-                    dataView : {show: true, readOnly: false},
-                    magicType : {show: true, type: ['line', 'bar']},
-                    restore : {show: true},
-                    saveAsImage : {show: true}
-                }
-            },
-            tooltip : {
-                trigger: 'axis'
-            },
-            title: {
-                text: 'sd'
-            },
-            legend: {
-                 data:['sd']
-            },
-            xAxis: {
-                type: 'category',
-                // data: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
-            },
-            yAxis: {
-                // min:40,
-                // max:60,
-                type: 'value'
-            },  
-            series : [
-                {
-                    name:'sd',
-                    type:'line',
-                    stack: '百分比',
-                    // data:[120, 132, 101, 134, 90, 230, 210]
-                }
-            ]       
-        };
-
         rsi_option = {
             toolbox: {
                 show : true,
@@ -160,6 +126,85 @@
             series : [
                 {
                     name:'rsi',
+                    type:'line',
+                    stack: '百分比',
+                    // data:[120, 132, 101, 134, 90, 230, 210]
+                }
+            ]       
+        };
+
+        diff_volume_option = {
+            toolbox: {
+                show : true,
+                feature : {
+                    mark : {show: true},
+                    dataView : {show: true, readOnly: false},
+                    magicType : {show: true, type: ['line', 'bar']},
+                    restore : {show: true},
+                    saveAsImage : {show: true}
+                }
+            },
+            tooltip : {
+                trigger: 'axis'
+            },
+            title: {
+                text: 'diff_volume'
+            },
+            legend: {
+                 data:['diff_volume']
+            },
+            xAxis: {
+                type: 'category',
+                // data: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
+            },
+            yAxis: {
+                // min:40,
+                // max:60,
+                type: 'value'
+            },  
+            series : [
+                {
+                    name:'diff_volume',
+                    type:'line',
+                    stack: '百分比',
+                    // data:[120, 132, 101, 134, 90, 230, 210]
+                }
+            ]       
+        };
+
+
+        sd_option = {
+            toolbox: {
+                show : true,
+                feature : {
+                    mark : {show: true},
+                    dataView : {show: true, readOnly: false},
+                    magicType : {show: true, type: ['line', 'bar']},
+                    restore : {show: true},
+                    saveAsImage : {show: true}
+                }
+            },
+            tooltip : {
+                trigger: 'axis'
+            },
+            title: {
+                text: 'sd'
+            },
+            legend: {
+                 data:['sd']
+            },
+            xAxis: {
+                type: 'category',
+                // data: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
+            },
+            yAxis: {
+                // min:40,
+                // max:60,
+                type: 'value'
+            },  
+            series : [
+                {
+                    name:'sd',
                     type:'line',
                     stack: '百分比',
                     // data:[120, 132, 101, 134, 90, 230, 210]
@@ -244,6 +289,13 @@
                 var middle = Number(linedata[2])
                 var sd = Number(linedata[3])
                 var rsi = Number(linedata[4])
+                var diff_volume = Number(linedata[5])
+                if (diff_volume <= 900) {
+                    diff_volume =0
+                }
+                if (diff_volume >2000) {
+                    diff_volume =2000
+                }
 
                 if (lastprice==NaN) {
                     break
@@ -251,7 +303,12 @@
                     
                 times_array.push(time)
                 sd_array.push(sd)
-                rsi_array.push(rsi)
+                diff_volume_array.push(diff_volume)
+
+                if (rsi >0) {
+                    rsi_times_array.push(time)
+                    rsi_array.push(rsi)
+                }
 
                 if (MIN > lastprice) {
                     MIN = lastprice
@@ -287,22 +344,27 @@
             band_option.xAxis.data = times_array
             // console.log(option)
 
-            rsi_option.xAxis.data = times_array
+            rsi_option.xAxis.data = rsi_times_array
             rsi_option.series[0].data = rsi_array
 
             sd_option.xAxis.data = times_array
             sd_option.series[0].data = sd_array
 
+            diff_volume_option.xAxis.data = times_array
+            diff_volume_option.series[0].data = diff_volume_array
+
 
 
             band_myChart.setOption(band_option);
-            sd_myChart.setOption(sd_option)
+            diff_volume_myChart.setOption(diff_volume_option)
             rsi_myChart.setOption(rsi_option);
+            sd_myChart.setOption(sd_option)
 
         }
 
 
         band_myChart.setOption(band_option);
+        diff_volume_myChart.setOption(diff_volume_option)
         sd_myChart.setOption(sd_option)
         rsi_myChart.setOption(rsi_option);
 
