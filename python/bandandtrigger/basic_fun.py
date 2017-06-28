@@ -8,7 +8,7 @@ OPENINTEREST = 13
 TURNONER = 12
 BIDPRICE1 = 22
 ASKPRICE1 =24
-
+TIME = 20
 LONG =1
 SHORT =0
 
@@ -57,7 +57,8 @@ def is_trigger_up_time(now_md_price,pre_md_price,spread_edge,multiple):
 	tmp = 100*(avg_price - pre_md_price[BIDPRICE1])/(pre_md_price[ASKPRICE1] - pre_md_price[BIDPRICE1])
 	# print str(diff_volume) + " , " + str(diff_turnover) + " , " +str(multiple) + " , " + str(avg_price) 
 	if tmp >= spread_edge:
-		# print str(tmp)+" , "+str(spread_edge)+" , "+str(avg_price)
+		# print "the diff turn over : " + str(diff_turnover) + ", the diff volume :" + str(diff_volume)
+		# print str(tmp)+" , "+str(spread_edge)+" , "+str(avg_price)+","+str(pre_md_price[ASKPRICE1])+","+str(pre_md_price[BIDPRICE1])
 		return True
 	return False
 
@@ -186,6 +187,25 @@ def write_data_to_csv(path,data):
 	writer = csv.writer(csvfile)
  	writer.writerows(data)
 	csvfile.close()
+
+def is_max_draw_down(direction,cur_price,open_price,multiple,max_profit,limit_max_draw_down):
+	if open_price ==0 or limit_max_draw_down ==0:
+		return (False,max_profit)
+	if direction ==LONG:
+		tmp_profit = cur_price - open_price;
+	elif direction ==SHORT:
+		tmp_profit = open_price - cur_price;
+	else :
+		return (False,0)
+	tmp_profit = tmp_profit * multiple
+	if max_profit < tmp_profit:
+		max_profit = tmp_profit
+	# f = open("rsidata.txt","a")
+	# f.write(str(time)+","+str(cur_price)+","+str(open_price)+","+str(max_profit)+","+str(tmp_profit)+"\n")
+	if (max_profit - tmp_profit) >= limit_max_draw_down :
+		return (True,max_profit)
+	else:
+		return (False,max_profit)
 
 
 

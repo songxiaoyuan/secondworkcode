@@ -38,6 +38,7 @@ def create_band_obj(data,filename,ris_add,ris_period,loss_band,open_edge):
 			profit = band_and_trigger_obj.get_total_profit()
 			print profit
 		else:
+			# continue
 			print "方向是short的交易情况"
 			start_to_run_md(band_and_trigger_obj,data)
 			profit = band_and_trigger_obj.get_total_profit()
@@ -55,7 +56,7 @@ def main(filename):
 	print filename
 	for band_type in xrange(0,2):
 		if band_type ==0:
-			# continue
+			continue
 			# print "正常根据0.5开，然后3平的交易情况： 没有添加rsi的情况"
 			# create_band_obj(csv_data,5000,0,filename,True,False)
 			print "正常根据0.5开，0.5退出 然后3平的交易情况：了添加rsi的情况"
@@ -63,8 +64,8 @@ def main(filename):
 		elif band_type ==1:
 			# print "当sd小于4倍的最小变动价位时，平仓变成4倍的sd的交易情况：没有添加ris的情况 "
 			# create_band_obj(csv_data,5000,20,filename,False,False)
-			print "正常根据0.5开，1退出 然后3平的交易情况：开仓是100的情况。"
-			create_band_obj(csv_data,filename,True,10,1,120)
+			print "正常根据0.5开，1退出 然后3平的交易情况：开仓是900的情况。"
+			create_band_obj(csv_data,filename,True,14,1,120)
 			# print "正常根据0.5开，1退出 然后3平的交易情况：开仓是120的情况。"
 			# create_band_obj(csv_data,filename,True,10,1,120)
 			# print "正常根据0.5开，1退出 然后3平的交易情况：开仓是150的情况。"
@@ -83,7 +84,7 @@ def main(filename):
 if __name__=='__main__': 
 	# main("ru1709_20170622")
 	# data = [20170623,20170622,20170621,20170620,20170619,20170616]
-	data = [20170627]
+	data = [20170628]
 	for item in data:
 		path = "ru1709_"+ str(item)
 		# print path

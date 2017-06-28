@@ -24,9 +24,9 @@ class BandAndTrigger(object):
 		self._now_sd_val = 0
 
 		self._max_profit = 0
-		# self._draw_down = max_drawdowm
-		self._limit_max_profit = 200
-		self._limit_max_loss = 100
+		self._limit_max_draw_down = 0
+		self._limit_max_profit = 1000
+		self._limit_max_loss = 500
 
 		self._multiple = 10
 
@@ -35,6 +35,7 @@ class BandAndTrigger(object):
 		self._pre_rsi_lastprice =0 
 		self._now_bar_rsi_tick = 0
 		self._rsi_bar_period = 120
+		self._limit_rsi_data = limit_rsi_val
 
 
 		# self._limit_twice_sd = 2
@@ -46,11 +47,11 @@ class BandAndTrigger(object):
 		self._limit_interest = 1
 
 		# band param
-		self._param_open_edge = 0.5
+		self._param_open_edge = 1
 		self._param_loss_edge = loss_edge
 		self._param_close_edge =3
 		self._param_period = 3600
-		self._limit_rsi_data = limit_rsi_val
+		
 		# if the sd is too small like is smaller than _param_limit_sd_value,
 		# the open edge and close edge will bigger 
 		# self._param_limit_sd_value = limit_sd_val
@@ -65,7 +66,6 @@ class BandAndTrigger(object):
 		self._profit = 0
 		self._ris_data = 0
 
-		self.f = open("rsidata.txt","w")
 
 	# get the md data ,every line;
 	def get_md_data(self,md_array):
@@ -122,13 +122,10 @@ class BandAndTrigger(object):
 		
 		self._now_sd_val =bf.get_sd_data(self._now_md_price[TIME], self._lastprice_array,self._param_period)	
 		
-		# self._ris_data = bf.get_rsi_data(self._rsi_array,self._rsi_period)
+		diff_volume = self._now_md_price[VOLUME] - self._pre_md_price[VOLUME]
+		diff_openinterest = self._now_md_price[OPENINTEREST] - self._pre_md_price[OPENINTEREST]
 
-		# diff_volume = self._now_md_price[VOLUME] - self._pre_md_price[VOLUME]
-		# diff_openinterest = self._now_md_price[OPENINTEREST] - self._pre_md_price[OPENINTEREST]
-
-		# self.f.write(str(lastprice)+","+str(self._now_middle_value)+","+str(self._now_sd_val)+","
-		# 	+str(diff_volume)+","+str(diff_openinterest)+","+str(self._ris_data)+"\n")
+		# self.f.write(str(self._now_md_price[TIME])+","+str(lastprice)+","+str(self._now_middle_value)+","+str(self._now_sd_val)+","+str(self._ris_data)+"\n")
 
 		open_time = self.is_trend_open_time()
 		close_time = self.is_trend_close_time()
@@ -140,8 +137,9 @@ class BandAndTrigger(object):
 			self._now_interest +=1
 			# print "we start to open"
 			self._open_lastprice = self._now_md_price[LASTPRICE]
+			self._max_profit = 0
 			print "the time of open: "+self._now_md_price[TIME] + ",the price: " + str(self._now_md_price[LASTPRICE])
-			print "the diff volume is:" + str(self._now_md_price[VOLUME] - self._pre_md_price[VOLUME])
+			# print "the diff volume is:" + str(self._now_md_price[VOLUME] - self._pre_md_price[VOLUME])
 		# elif close_time:
 		elif close_time and self._now_interest >0:
 			self._now_interest -=1
@@ -183,6 +181,7 @@ class BandAndTrigger(object):
 
 		# base the max draw down
 		# 达到最大盈利之后，或者最大亏损之后，就开始平仓。这个是系统自带的。
+		# 现在根据李总的说法，添加了maxdrawdown的功能。！！！！！
 		if self._direction ==LONG:
 			tmp_profit = self._now_md_price[LASTPRICE] - self._open_lastprice
 		elif self._direction ==SHORT:
@@ -193,6 +192,12 @@ class BandAndTrigger(object):
 			print "the profit is bigger or loss"
 			return True
 
+		is_drawdown = bf.is_max_draw_down(self._direction,self._now_md_price[LASTPRICE],self._open_lastprice
+			,self._multiple,self._max_profit,self._limit_max_draw_down)
+		self._max_profit = is_drawdown[1]
+		if is_drawdown[0]:
+			print 'this is the max draw down ' + str(self._max_profit)
+			return True
 		
 		# if tmp_profit >= self._max_profit:
 		# 	self._max_profit = tmp_profit

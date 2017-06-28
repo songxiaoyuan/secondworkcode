@@ -130,8 +130,8 @@ def main(filename):
 
 if __name__=='__main__':
 	# data = [20170623,20170622,20170621,20170620,20170619,20170616]
-	data = [20170627]
+	data = [20170628]
 	for item in data:
-		path = "ru1709_"+ str(item)
+		path = "rb1710_"+ str(item)
 		print path
 		main(path)	
