@@ -13,7 +13,7 @@ SHORT =0
 
 class BandAndTrigger(object):
 	"""docstring for BandAndTrigger"""
-	def __init__(self,direction,limit_rsi_val,ris_period,loss_edge,open_edge):
+	def __init__(self,param_dic):
 		super(BandAndTrigger, self).__init__()
 		# self.arg = arg
 		self._pre_md_price = []
@@ -24,33 +24,33 @@ class BandAndTrigger(object):
 		self._now_sd_val = 0
 
 		self._max_profit = 0
-		self._limit_max_draw_down = 0
-		self._limit_max_profit = 1000
-		self._limit_max_loss = 500
+		self._limit_max_draw_down = param_dic["limit_max_draw_down"]
+		self._limit_max_profit = param_dic["limit_max_profit"]
+		self._limit_max_loss = param_dic["limit_max_loss"]
 
-		self._multiple = 10
+		self._multiple = param_dic["multiple"]
 
 		self._rsi_array = []
-		self._rsi_period = ris_period
+		self._rsi_period = param_dic["rsi_period"]
 		self._pre_rsi_lastprice =0 
 		self._now_bar_rsi_tick = 0
-		self._rsi_bar_period = 120
-		self._limit_rsi_data = limit_rsi_val
+		self._rsi_bar_period = param_dic["rsi_bar_period"]
+		self._limit_rsi_data = param_dic["limit_rsi_data"]
 
 
 		# self._limit_twice_sd = 2
 
-		self._direction = direction
+		self._direction = param_dic["direction"]
 		self._moving_theo = "EMA"
 		# now we have the cangwei and the limit cangwei
 		self._now_interest = 0
 		self._limit_interest = 1
 
 		# band param
-		self._param_open_edge = 1
-		self._param_loss_edge = loss_edge
-		self._param_close_edge =3
-		self._param_period = 3600
+		self._param_open_edge = param_dic["band_open_edge"]
+		self._param_loss_edge = param_dic["band_loss_edge"]
+		self._param_close_edge =param_dic["band_profit_edge"]
+		self._param_period = param_dic["band_period"]
 		
 		# if the sd is too small like is smaller than _param_limit_sd_value,
 		# the open edge and close edge will bigger 
@@ -58,13 +58,15 @@ class BandAndTrigger(object):
 		# self._param_limit_bigger = 0
 
 		# trigger param
-		self._param_volume_open_edge = open_edge
+		self._param_volume_open_edge = param_dic["volume_open_edge"]
 		self._param_open_interest_edge = 0
 		self._param_spread = 100
 
 		self._open_lastprice = 0
 		self._profit = 0
 		self._ris_data = 0
+
+		self._file = param_dic["file"]
 
 
 	# get the md data ,every line;
@@ -138,7 +140,8 @@ class BandAndTrigger(object):
 			# print "we start to open"
 			self._open_lastprice = self._now_md_price[LASTPRICE]
 			self._max_profit = 0
-			print "the time of open: "+self._now_md_price[TIME] + ",the price: " + str(self._now_md_price[LASTPRICE])
+			mesg= "the time of open: "+self._now_md_price[TIME] + ",the price: " + str(self._now_md_price[LASTPRICE])
+			self._file.write(mesg+"\n")
 			# print "the diff volume is:" + str(self._now_md_price[VOLUME] - self._pre_md_price[VOLUME])
 		# elif close_time:
 		elif close_time and self._now_interest >0:
@@ -150,7 +153,8 @@ class BandAndTrigger(object):
 				self._profit +=(self._open_lastprice - self._now_md_price[LASTPRICE])
 			self._open_lastprice = 0
 			self._max_profit = 0
-			print "the time of close:"+self._now_md_price[TIME] + ",the price: " + str(self._now_md_price[LASTPRICE])
+			mesg= "the time of close:"+self._now_md_price[TIME] + ",the price: " + str(self._now_md_price[LASTPRICE])
+			self._file.write(mesg+"\n")
 
 		return True
 
@@ -189,14 +193,15 @@ class BandAndTrigger(object):
 		else:
 			return False
 		if tmp_profit < (0 - self._limit_max_loss) or tmp_profit > self._limit_max_profit:
-			print "the profit is bigger or loss"
+			# print "the profit is bigger or loss"
 			return True
 
 		is_drawdown = bf.is_max_draw_down(self._direction,self._now_md_price[LASTPRICE],self._open_lastprice
 			,self._multiple,self._max_profit,self._limit_max_draw_down)
 		self._max_profit = is_drawdown[1]
 		if is_drawdown[0]:
-			print 'this is the max draw down ' + str(self._max_profit)
+			mesg= 'this is the max draw down ' + str(self._max_profit)
+			self._file.write(mesg +"\n")
 			return True
 		
 		# if tmp_profit >= self._max_profit:
