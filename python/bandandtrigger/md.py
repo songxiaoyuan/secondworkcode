@@ -54,7 +54,7 @@ def create_band_obj(data,param_dict):
 def main(filename):
 	path = "../data/"+filename+".csv"
 	csv_data = read_data_from_csv(path)
-	path = filename+"_trade——2.5_no.txt"
+	path = filename+"_trade—3-duibi.txt"
 	file = open(path,"w")
 	# param_dict = {"limit_max_profit":200,"limit_max_loss":100,"rsi_bar_period":120
 	# 			,"limit_rsi_data":80,"rsi_period":14
