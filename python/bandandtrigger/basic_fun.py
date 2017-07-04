@@ -26,6 +26,8 @@ def is_band_open_time(direction,lastprice,middle_val,sd_val,open_edge):
 
 def is_band_close_time(direction,lastprice,middle_val,sd_val,open_edge,close_edge,cur_rsi_data,limit_rsi_data):
 	# this is used to judge is time to band is close time
+	if sd_val <=3:
+		return False
 	if direction ==LONG:
 		profitval = middle_val + close_edge*sd_val
 		lossvla = middle_val - open_edge*sd_val
@@ -82,6 +84,7 @@ def is_trigger_size_open_time(direction,now_md_price,pre_md_price,volume_open_ed
 		return False
 	if now_md_price[OPENINTEREST] - pre_md_price[OPENINTEREST] <= openinterest_edge:
 		return False
+	return True
 	if direction ==LONG:
 		return is_trigger_up_time(now_md_price,pre_md_price,spread_edge,multiple)
 	elif direction ==SHORT:

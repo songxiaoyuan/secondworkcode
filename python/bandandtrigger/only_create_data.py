@@ -71,7 +71,7 @@ class BandAndTrigger(object):
 				self._now_bar_rsi_tick +=1
 				tmpdiff = lastprice - self._pre_rsi_lastprice
 				self._ris_data =bf.get_rsi_data2(tmpdiff,self._rsi_array,self._rsi_period)
-				self._ris_data = 0
+				# self._ris_data = 0
 				# self._ris_data = -1
 		# self._now_bar_rsi_tick +=1
 		# if self._now_bar_rsi_tick >= self._rsi_period:
@@ -129,8 +129,8 @@ def main(filename):
 
 
 if __name__=='__main__':
-	# data = [20170623,20170622,20170621,20170620,20170619,20170616]
-	data = [20170628]
+	data = [20170628,20170627,20170623,20170622,20170621,20170620,20170619,20170616]
+	# data = [20170628]
 	for item in data:
 		path = "rb1710_"+ str(item)
 		print path
