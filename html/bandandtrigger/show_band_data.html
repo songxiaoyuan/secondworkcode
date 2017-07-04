@@ -28,9 +28,12 @@
 <br>
 
 <div id="banddrawing" style="width: 3000px;height:500px;"></div>
-<div id="rsidrawing" style="width: 3000px;height:300px;"></div>
 <div id="diff_volume_drawing" style="width: 3000px;height:300px;"></div>
+<div id="rsidrawing" style="width: 3000px;height:300px;"></div>
+<div id="sd_lastprice_rawing" style="width: 3000px;height:300px;"></div>
 <div id="sddrawing" style="width: 3000px;height:300px;"></div>
+
+
 
 
 <script type="text/javascript">
@@ -40,7 +43,7 @@
         var rsi_myChart = echarts.init(document.getElementById('rsidrawing'));
         var diff_volume_myChart = echarts.init(document.getElementById('diff_volume_drawing'));
         var sd_myChart = echarts.init(document.getElementById('sddrawing'));
-        
+        var sd_lastprice_myChart = echarts.init(document.getElementById('sd_lastprice_rawing'));
 
         // COMPXAVENUM = 10
         // 得到具体的标题数据，和对应的标题数据的具体的数。
@@ -56,10 +59,14 @@
         times_array= []
         rsi_times_array =[]
         sd_array=[]
+        sd_lastprice_array =[]
         rsi_array = []
+        rsi_array_3 = []
         diff_volume_array = []
+        diff_volume_times_array =[]
         //用来保存lastprice的数据，因为如果没有到达周期的话，这些都需要先保存着，然后等到达周期之后在计算
         LASTPRICEARRAY= []
+
 
 
 
@@ -112,7 +119,7 @@
                 text: 'rsi'
             },
             legend: {
-                 data:['rsi']
+                 data:['rsi',"rsi3"]
             },
             xAxis: {
                 type: 'category',
@@ -127,7 +134,11 @@
                 {
                     name:'rsi',
                     type:'line',
-                    stack: '百分比',
+                    // data:[120, 132, 101, 134, 90, 230, 210]
+                },
+                {
+                    name:'rsi3',
+                    type:'line',
                     // data:[120, 132, 101, 134, 90, 230, 210]
                 }
             ]       
@@ -212,6 +223,45 @@
             ]       
         };
 
+        sd_lastprice_option = {
+            toolbox: {
+                show : true,
+                feature : {
+                    mark : {show: true},
+                    dataView : {show: true, readOnly: false},
+                    magicType : {show: true, type: ['line', 'bar']},
+                    restore : {show: true},
+                    saveAsImage : {show: true}
+                }
+            },
+            tooltip : {
+                trigger: 'axis'
+            },
+            title: {
+                text: 'sd/lastprice'
+            },
+            legend: {
+                 data:['sd/lastprice']
+            },
+            xAxis: {
+                type: 'category',
+                // data: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
+            },
+            yAxis: {
+                // min:40,
+                // max:60,
+                type: 'value'
+            },  
+            series : [
+                {
+                    name:'sd/lastprice',
+                    type:'line',
+                    // data:[120, 132, 101, 134, 90, 230, 210]
+                }
+            ]       
+        };
+
+
 
 
         // 根据input的file标签读取出相对应的csv的数据。
@@ -290,11 +340,20 @@
                 var sd = Number(linedata[3])
                 var rsi = Number(linedata[4])
                 var diff_volume = Number(linedata[5])
-                if (diff_volume <= 100) {
-                    diff_volume =0
-                }
-                if (diff_volume >400) {
-                    diff_volume =400
+                var rsi3 = Number(linedata[6])
+                var sd_lastprice = 10*Number(linedata[7])
+                if (lastprice > middle -1*sd && lastprice < middle + 1*sd) {
+                    if (diff_volume <= 900) {
+                        diff_volume =0
+                    }
+                    if (diff_volume >2000) {
+                        diff_volume =2000
+                    }
+                    if (diff_volume != 0) {
+                       diff_volume_array.push(diff_volume)
+                       diff_volume_times_array.push(time)   
+                    }
+                    
                 }
 
                 if (lastprice==NaN) {
@@ -303,12 +362,14 @@
                     
                 times_array.push(time)
                 sd_array.push(sd)
-                diff_volume_array.push(diff_volume)
+                sd_lastprice_array.push(sd_lastprice)
+                
 
-                if (rsi >0) {
+                // if (rsi >0) {
                     rsi_times_array.push(time)
                     rsi_array.push(rsi)
-                }
+                    rsi_array_3.push(rsi3)
+                // }
 
                 if (MIN > lastprice) {
                     MIN = lastprice
@@ -346,11 +407,15 @@
 
             rsi_option.xAxis.data = rsi_times_array
             rsi_option.series[0].data = rsi_array
+            rsi_option.series[1].data = rsi_array_3
 
             sd_option.xAxis.data = times_array
             sd_option.series[0].data = sd_array
 
-            diff_volume_option.xAxis.data = times_array
+            sd_lastprice_option.xAxis.data = times_array
+            sd_lastprice_option.series[0].data = sd_lastprice_array
+
+            diff_volume_option.xAxis.data = diff_volume_times_array
             diff_volume_option.series[0].data = diff_volume_array
 
 
@@ -359,6 +424,7 @@
             diff_volume_myChart.setOption(diff_volume_option)
             rsi_myChart.setOption(rsi_option);
             sd_myChart.setOption(sd_option)
+            sd_lastprice_myChart.setOption(sd_lastprice_option)
             console.log(rsi_option)
 
         }
@@ -367,6 +433,7 @@
         band_myChart.setOption(band_option);
         diff_volume_myChart.setOption(diff_volume_option)
         sd_myChart.setOption(sd_option)
+        sd_lastprice_myChart.setOption(sd_lastprice_option)
         rsi_myChart.setOption(rsi_option);
 
          // 使用刚指定的配置项和数据显示图表。

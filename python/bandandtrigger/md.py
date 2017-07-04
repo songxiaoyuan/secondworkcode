@@ -36,7 +36,7 @@ def create_band_obj(data,param_dict):
 			file.write("方向是short的交易情况:\n")
 			start_to_run_md(band_and_trigger_obj,data)
 			profit = band_and_trigger_obj.get_total_profit()
-			file.write(profit+"\n")
+			file.write(str(profit)+"\n")
 			# if write_to_file ==True:
 			# 	print "start to write the file"
 			# 	csv_data = band_and_trigger_obj.get_to_csv_data()
@@ -47,69 +47,84 @@ def create_band_obj(data,param_dict):
 			file.write("方向是long的交易情况：:\n")
 			start_to_run_md(band_and_trigger_obj,data)
 			profit = band_and_trigger_obj.get_total_profit()
-			file.write(profit+"\n")
+			file.write(str(profit)+"\n")
 
 
 
 def main(filename):
 	path = "../data/"+filename+".csv"
 	csv_data = read_data_from_csv(path)
-	path = filename+"_trade.txt"
+	path = filename+"_trade——2.5_no.txt"
 	file = open(path,"w")
+	# param_dict = {"limit_max_profit":200,"limit_max_loss":100,"rsi_bar_period":120
+	# 			,"limit_rsi_data":80,"rsi_period":14
+	# 			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":3600
+	# 			,"volume_open_edge":120,"limit_max_draw_down":0,"multiple":10,"file":file}
 	param_dict = {"limit_max_profit":25,"limit_max_loss":10,"rsi_bar_period":120
 				,"limit_rsi_data":80,"rsi_period":14
 				,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":3600
-				,"volume_open_edge":900,"limit_max_draw_down":0,"multiple":10,"file":file}
-	for band_type in xrange(0,2):
+				,"volume_open_edge":1500,"limit_max_draw_down":0,"multiple":10,"file":file,"sd_lastprice":100}
+	for band_type in xrange(0,7):
 		if band_type ==0:
 			# continue
-			mesg = "但是只是根据止盈止损来退出"
-			print mesg
-			file.write(mesg)
-			param_dict["band_loss_edge"] =100
-			param_dict["band_profit_edge"] =100
-			create_band_obj(csv_data,param_dict)
-		elif band_type ==1:
-			mesg = "1退出，盈利通过止盈数来做"
-			print mesg
-			file.write(mesg+"\n")
-			param_dict["band_loss_edge"] =1
-			param_dict["band_profit_edge"] =100
-			create_band_obj(csv_data,param_dict)
-		elif band_type ==2:
-			mesg = "根据止盈止损的值，然后加上Max draw dowm“"
-			print mesg
-			file.write(mesg+"\n")
-			param_dict["band_loss_edge"] =100
-			param_dict["band_profit_edge"] =100
-			param_dict["limit_max_draw_down"] =100
-			create_band_obj(csv_data,param_dict)
-		elif band_type ==3:
-			mesg = "根据1退出 根据止盈数值来止盈，然后加上Max draw dowm“"
-			print mesg
-			file.write(mesg+"\n")
-			param_dict["band_loss_edge"] =1
-			param_dict["band_profit_edge"] =100
-			param_dict["limit_max_draw_down"] =100
-			create_band_obj(csv_data,param_dict)
-		elif band_type ==4:
-			mesg = "根据1退出 3退出，然后加rsi，周期是120，14"
+			mesg = "完全按照1退出，3退出。900进入"
 			print mesg
 			file.write(mesg+"\n")
 			param_dict["band_loss_edge"] =1
 			param_dict["band_profit_edge"] =3
-			param_dict["limit_max_draw_down"] =0
+			param_dict["volume_open_edge"] =900
 			create_band_obj(csv_data,param_dict)
-		elif band_type ==5:
-			mesg = "根据1退出 3退出，然后加rsi，周期是300，14"
+		elif band_type ==1:
+			# continue
+			mesg = "1，3退出，sd／last price <9 不平，900进入"
 			print mesg
 			file.write(mesg+"\n")
-			param_dict["band_loss_edge"] =100
-			param_dict["band_profit_edge"] =100
-			param_dict["rsi_bar_period"] =300
-			param_dict["limit_max_draw_down"] =0
+			param_dict["band_loss_edge"] =1
+			param_dict["band_profit_edge"] =3
+			param_dict["volume_open_edge"] =900
+			param_dict["sd_lastprice"] =9
+			create_band_obj(csv_data,param_dict)
+		elif band_type ==2:
+			# continue
+			mesg = "完全按照1退出，3退出。1000进入"
+			print mesg
+			file.write(mesg+"\n")
+			param_dict["band_loss_edge"] =1
+			param_dict["band_profit_edge"] =3
+			param_dict["volume_open_edge"] =1000
+			param_dict["sd_lastprice"] =900
+			create_band_obj(csv_data,param_dict)
+		elif band_type ==3:
+			# continue
+			mesg = "1，3退出，sd／last price <9 不平，1000进入"
+			print mesg
+			file.write(mesg+"\n")
+			param_dict["band_loss_edge"] =1
+			param_dict["band_profit_edge"] =3
+			param_dict["volume_open_edge"] =1000
+			param_dict["sd_lastprice"] =9
+			create_band_obj(csv_data,param_dict)
+		elif band_type ==4:
+			mesg = "完全按照1退出，3退出。1200进入"
+			print mesg
+			file.write(mesg+"\n")
+			param_dict["band_loss_edge"] =1
+			param_dict["band_profit_edge"] =3
+			param_dict["volume_open_edge"] =1200
+			param_dict["sd_lastprice"] =900
+			create_band_obj(csv_data,param_dict)
+		elif band_type ==5:
+			# continue
+			mesg = "1，3退出，sd／last price <9 不平，1200进入"
+			print mesg
+			file.write(mesg+"\n")
+			param_dict["band_loss_edge"] =1
+			param_dict["band_profit_edge"] =3
+			param_dict["volume_open_edge"] =1200
+			param_dict["sd_lastprice"] =9
 			create_band_obj(csv_data,param_dict)
 		elif band_type ==6:
+			continue
 			mesg = "根据1退出 3退出，然后加rsi，周期是120，14,添加Max draw down"
 			print mesg
 			file.write(mesg+"\n")
@@ -126,8 +141,8 @@ def main(filename):
 
 if __name__=='__main__': 
 	# main("ru1709_20170622")
-	data = [20170628,20170627,20170623,20170622,20170621,20170620,20170619,20170616]
-	# data = [20170628]
+	data = [20170703,20170620,20170629,20170628,20170627,20170623,20170622,20170621,20170620,20170619,20170616]
+	# data = [20170703]
 	for item in data:
 		path = "rb1710_"+ str(item)
 		# print path
