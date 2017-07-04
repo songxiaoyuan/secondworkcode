@@ -38,6 +38,7 @@ class BandAndTrigger(object):
 
 		self._moving_theo = "EMA"
 		self._param_period = 3600
+		self._multiple =10
 
 		self._write_to_csv_data = []
 
@@ -121,9 +122,18 @@ class BandAndTrigger(object):
 		self._now_sd_val =bf.get_sd_data(self._now_md_price[TIME], self._lastprice_array,self._param_period)
 		diff_volume = self._now_md_price[VOLUME] - self._pre_md_price[VOLUME]
 
+		diff_interest = self._now_md_price[OPENINTEREST] - self._pre_md_price[OPENINTEREST]
+
+		diff_turnover = self._now_md_price[TURNONER] - self._pre_md_price[TURNONER]
+		if diff_volume ==0:
+			return True
+		avg_price = float(diff_turnover)/diff_volume/self._multiple
+		spread = 100*(self._pre_md_price[ASKPRICE1] - avg_price)/(self._pre_md_price[ASKPRICE1] - self._pre_md_price[BIDPRICE1])
+
 		tmpsd_lastprice = 1000*self._now_sd_val/self._now_md_price[LASTPRICE]
 		tmp_to_csv = [self._now_md_price[TIME],self._now_md_price[LASTPRICE],self._now_middle_value,
-					self._now_sd_val,self._ris_data,diff_volume,self._ris_data_3,tmpsd_lastprice]
+					self._now_sd_val,self._ris_data,diff_volume,self._ris_data_3,tmpsd_lastprice
+					,diff_interest,spread]
 		self._write_to_csv_data.append(tmp_to_csv)
 
 		return True
@@ -152,6 +162,6 @@ if __name__=='__main__':
 	# data = [20170623,20170622,20170621,20170620,20170619,20170616]
 	data = [20170703]
 	for item in data:
-		path = "pb1708_"+ str(item)
+		path = "rb1710_"+ str(item)
 		print path
 		main(path)	

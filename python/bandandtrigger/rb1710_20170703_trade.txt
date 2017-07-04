@@ -1,0 +1,11 @@
+完全按照1退出，3退出。900进入
+方向是short的交易情况:
+the time of open: 14:16:12,the price: 3388.0
+the diff volume: 1692.0, the interest: 1646.0, the spread: 101.891252955
+the time of close:14:36:53,the price: 3399.0
+-11.0
+方向是long的交易情况：:
+the time of open: 10:11:08,the price: 3366.0
+the diff volume: 1268.0, the interest: 1260.0, the spread: 0.0
+the time of close:13:30:04,the price: 3392.0
+26.0
