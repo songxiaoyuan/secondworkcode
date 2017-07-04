@@ -28,7 +28,13 @@ class BandAndTrigger(object):
 		self._pre_rsi_lastprice =0
 		self._now_bar_rsi_tick = 0
 		self._rsi_bar_period = 120
-		self._rsi_period = 10
+		self._rsi_period = 14
+
+		self._rsi_array_3 = []
+		self._pre_rsi_lastprice_3 =0
+		self._now_bar_rsi_tick_3 = 0
+		self._rsi_period_3 = 20
+		self._ris_data_3 = 0
 
 		self._moving_theo = "EMA"
 		self._param_period = 3600
@@ -72,6 +78,19 @@ class BandAndTrigger(object):
 				tmpdiff = lastprice - self._pre_rsi_lastprice
 				self._ris_data =bf.get_rsi_data2(tmpdiff,self._rsi_array,self._rsi_period)
 				# self._ris_data = 0
+
+			if self._now_bar_rsi_tick_3 >= self._rsi_bar_period:
+				# 表示已经到了一个bar的周期。
+				tmpdiff1 = lastprice - self._pre_rsi_lastprice_3		
+				self._pre_rsi_lastprice_3 = lastprice
+				self._now_bar_rsi_tick_3 = 1
+				self._ris_data_3 =bf.get_rsi_data2(tmpdiff1,self._rsi_array_3,self._rsi_period_3)
+				self._rsi_array_3.append(tmpdiff1)
+			else:
+				self._now_bar_rsi_tick_3 +=1
+				tmpdiff1 = lastprice - self._pre_rsi_lastprice_3
+				self._ris_data_3 =bf.get_rsi_data2(tmpdiff1,self._rsi_array_3,self._rsi_period_3)
+				# self._ris_data_3 = 0
 				# self._ris_data = -1
 		# self._now_bar_rsi_tick +=1
 		# if self._now_bar_rsi_tick >= self._rsi_period:
@@ -102,8 +121,9 @@ class BandAndTrigger(object):
 		self._now_sd_val =bf.get_sd_data(self._now_md_price[TIME], self._lastprice_array,self._param_period)
 		diff_volume = self._now_md_price[VOLUME] - self._pre_md_price[VOLUME]
 
+		tmpsd_lastprice = 1000*self._now_sd_val/self._now_md_price[LASTPRICE]
 		tmp_to_csv = [self._now_md_price[TIME],self._now_md_price[LASTPRICE],self._now_middle_value,
-					self._now_sd_val,self._ris_data,diff_volume]
+					self._now_sd_val,self._ris_data,diff_volume,self._ris_data_3,tmpsd_lastprice]
 		self._write_to_csv_data.append(tmp_to_csv)
 
 		return True
@@ -129,9 +149,9 @@ def main(filename):
 
 
 if __name__=='__main__':
-	data = [20170628,20170627,20170623,20170622,20170621,20170620,20170619,20170616]
-	# data = [20170628]
+	# data = [20170623,20170622,20170621,20170620,20170619,20170616]
+	data = [20170703]
 	for item in data:
-		path = "rb1710_"+ str(item)
+		path = "pb1708_"+ str(item)
 		print path
 		main(path)	

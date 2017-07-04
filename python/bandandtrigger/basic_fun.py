@@ -24,9 +24,9 @@ def is_band_open_time(direction,lastprice,middle_val,sd_val,open_edge):
 			return True
 	return False
 
-def is_band_close_time(direction,lastprice,middle_val,sd_val,open_edge,close_edge,cur_rsi_data,limit_rsi_data):
+def is_band_close_time(direction,lastprice,middle_val,sd_val,open_edge,close_edge,cur_rsi_data,limit_rsi_data,sd_lastprice):
 	# this is used to judge is time to band is close time
-	if sd_val <=3:
+	if 10000*(sd_val/lastprice) <=sd_lastprice:
 		return False
 	if direction ==LONG:
 		profitval = middle_val + close_edge*sd_val

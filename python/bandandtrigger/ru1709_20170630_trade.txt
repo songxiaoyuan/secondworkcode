@@ -1,0 +1,11 @@
+根据1退出 3退出，然后加rsi，周期是120，14
+方向是short的交易情况:
+the time of open: 09:44:59,the price: 13280.0
+the time of close:09:46:56,the price: 13320.0
+the time of open: 11:10:01,the price: 13325.0
+the time of close:11:11:03,the price: 13345.0
+-60.0
+方向是long的交易情况：:
+the time of open: 14:07:52,the price: 13345.0
+the time of close:14:08:01,the price: 13325.0
+-20.0
