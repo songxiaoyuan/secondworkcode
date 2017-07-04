@@ -59,8 +59,8 @@ class BandAndTrigger(object):
 
 		# trigger param
 		self._param_volume_open_edge = param_dic["volume_open_edge"]
-		self._param_open_interest_edge = 900
-		self._param_spread = 100
+		self._param_open_interest_edge = param_dic["open_interest_edge"]
+		self._param_spread = param_dic["spread"]
 
 		self._open_lastprice = 0
 		self._profit = 0
