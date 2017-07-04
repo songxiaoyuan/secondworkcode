@@ -59,6 +59,7 @@ def is_trigger_up_time(now_md_price,pre_md_price,spread_edge,multiple):
 	tmp = 100*(avg_price - pre_md_price[BIDPRICE1])/(pre_md_price[ASKPRICE1] - pre_md_price[BIDPRICE1])
 	# print str(diff_volume) + " , " + str(diff_turnover) + " , " +str(multiple) + " , " + str(avg_price) 
 	if tmp >= spread_edge:
+		print "the tmp is " + str(tmp) + "the spread is "+ str(spread_edge)
 		# print "the diff turn over : " + str(diff_turnover) + ", the diff volume :" + str(diff_volume)
 		# print str(tmp)+" , "+str(spread_edge)+" , "+str(avg_price)+","+str(pre_md_price[ASKPRICE1])+","+str(pre_md_price[BIDPRICE1])
 		return True
@@ -73,6 +74,7 @@ def is_trigger_down_time(now_md_price,pre_md_price,spread_edge,multiple):
 	avg_price = float(diff_turnover)/diff_volume/multiple
 	tmp = 100*(pre_md_price[ASKPRICE1] - avg_price)/(pre_md_price[ASKPRICE1] - pre_md_price[BIDPRICE1])
 	if tmp >= spread_edge:
+		print "the tmp is " + str(tmp) + "the spread is "+ str(spread_edge)
 		return True
 	return False
 
@@ -84,7 +86,7 @@ def is_trigger_size_open_time(direction,now_md_price,pre_md_price,volume_open_ed
 		return False
 	if now_md_price[OPENINTEREST] - pre_md_price[OPENINTEREST] <= openinterest_edge:
 		return False
-	return True
+	# return True
 	if direction ==LONG:
 		return is_trigger_up_time(now_md_price,pre_md_price,spread_edge,multiple)
 	elif direction ==SHORT:

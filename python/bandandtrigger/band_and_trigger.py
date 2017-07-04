@@ -59,7 +59,7 @@ class BandAndTrigger(object):
 
 		# trigger param
 		self._param_volume_open_edge = param_dic["volume_open_edge"]
-		self._param_open_interest_edge = 0
+		self._param_open_interest_edge = 900
 		self._param_spread = 100
 
 		self._open_lastprice = 0
@@ -130,6 +130,15 @@ class BandAndTrigger(object):
 		diff_openinterest = self._now_md_price[OPENINTEREST] - self._pre_md_price[OPENINTEREST]
 
 		# self.f.write(str(self._now_md_price[TIME])+","+str(lastprice)+","+str(self._now_middle_value)+","+str(self._now_sd_val)+","+str(self._ris_data)+"\n")
+		diff_volume = self._now_md_price[VOLUME] - self._pre_md_price[VOLUME]
+
+		diff_interest = self._now_md_price[OPENINTEREST] - self._pre_md_price[OPENINTEREST]
+
+		diff_turnover = self._now_md_price[TURNONER] - self._pre_md_price[TURNONER]
+		if diff_volume ==0:
+			return True
+		avg_price = float(diff_turnover)/diff_volume/self._multiple
+		spread = 100*(self._pre_md_price[ASKPRICE1] - avg_price)/(self._pre_md_price[ASKPRICE1] - self._pre_md_price[BIDPRICE1])
 
 		open_time = self.is_trend_open_time()
 		close_time = self.is_trend_close_time()
@@ -143,7 +152,9 @@ class BandAndTrigger(object):
 			self._open_lastprice = self._now_md_price[LASTPRICE]
 			self._max_profit = 0
 			mesg= "the time of open: "+self._now_md_price[TIME] + ",the price: " + str(self._now_md_price[LASTPRICE])
+			mesg1 = "the diff volume: "+str(diff_volume)+", the interest: " + str(diff_interest) + ", the spread: "+ str(spread)
 			self._file.write(mesg+"\n")
+			self._file.write(mesg1+"\n")
 			# print "the diff volume is:" + str(self._now_md_price[VOLUME] - self._pre_md_price[VOLUME])
 		# elif close_time:
 		elif close_time and self._now_interest >0:
