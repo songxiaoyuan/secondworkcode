@@ -84,6 +84,11 @@ def is_trigger_size_open_time(direction,now_md_price,pre_md_price,volume_open_ed
 	# print now_md_price[VOLUME] - pre_md_price[VOLUME]
 	if now_md_price[VOLUME] - pre_md_price[VOLUME] < volume_open_edge:
 		return False
+	tmp = now_md_price[OPENINTEREST] - pre_md_price[OPENINTEREST]
+	# if tmp >0 and tmp <=openinterest_edge:
+	# 	return False
+	# if tmp < 0  and (0-tmp) <=openinterest_edge :
+	# 	return False
 	if now_md_price[OPENINTEREST] - pre_md_price[OPENINTEREST] <= openinterest_edge:
 		return False
 	# return True
