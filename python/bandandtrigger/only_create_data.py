@@ -37,10 +37,14 @@ class BandAndTrigger(object):
 		self._ris_data_3 = 0
 
 		self._moving_theo = "EMA"
-		self._param_period = 3600
+		self._param_period = 1200
 		self._multiple =10
 
 		self._write_to_csv_data = []
+
+		self._diff_volume_array = []
+		self._diff_period =60
+		self._diff_open_interest_array = []
 
 
 	# get the md data ,every line;
@@ -77,8 +81,8 @@ class BandAndTrigger(object):
 			else:
 				self._now_bar_rsi_tick +=1
 				tmpdiff = lastprice - self._pre_rsi_lastprice
-				self._ris_data =bf.get_rsi_data2(tmpdiff,self._rsi_array,self._rsi_period)
-				# self._ris_data = 0
+				# self._ris_data =bf.get_rsi_data2(tmpdiff,self._rsi_array,self._rsi_period)
+				self._ris_data = 0
 
 			if self._now_bar_rsi_tick_3 >= self._rsi_bar_period:
 				# 表示已经到了一个bar的周期。
@@ -90,8 +94,8 @@ class BandAndTrigger(object):
 			else:
 				self._now_bar_rsi_tick_3 +=1
 				tmpdiff1 = lastprice - self._pre_rsi_lastprice_3
-				self._ris_data_3 =bf.get_rsi_data2(tmpdiff1,self._rsi_array_3,self._rsi_period_3)
-				# self._ris_data_3 = 0
+				# self._ris_data_3 =bf.get_rsi_data2(tmpdiff1,self._rsi_array_3,self._rsi_period_3)
+				self._ris_data_3 = 0
 				# self._ris_data = -1
 		# self._now_bar_rsi_tick +=1
 		# if self._now_bar_rsi_tick >= self._rsi_period:
@@ -125,15 +129,24 @@ class BandAndTrigger(object):
 		diff_interest = self._now_md_price[OPENINTEREST] - self._pre_md_price[OPENINTEREST]
 
 		diff_turnover = self._now_md_price[TURNONER] - self._pre_md_price[TURNONER]
+		self._diff_volume_array.append(diff_volume)
+		self._diff_open_interest_array.append(diff_interest)
+
+		ema_diff_volume = bf.get_ema_data_2(self._diff_volume_array,self._diff_period)
+		ema_diff_openinterest = bf.get_ema_data_2(self._diff_open_interest_array,self._diff_period)
+
 		if diff_volume ==0:
 			return True
 		avg_price = float(diff_turnover)/diff_volume/self._multiple
-		spread = 100*(self._pre_md_price[ASKPRICE1] - avg_price)/(self._pre_md_price[ASKPRICE1] - self._pre_md_price[BIDPRICE1])
+		if lastprice > self._now_middle_value:
+			spread = 100*(avg_price - self._pre_md_price[BIDPRICE1])/(self._pre_md_price[ASKPRICE1] - self._pre_md_price[BIDPRICE1])
+		else:
+			spread = 100*(self._pre_md_price[ASKPRICE1] - avg_price)/(self._pre_md_price[ASKPRICE1] - self._pre_md_price[BIDPRICE1])
 
 		tmpsd_lastprice = 1000*self._now_sd_val/self._now_md_price[LASTPRICE]
 		tmp_to_csv = [self._now_md_price[TIME],self._now_md_price[LASTPRICE],self._now_middle_value,
 					self._now_sd_val,self._ris_data,diff_volume,self._ris_data_3,tmpsd_lastprice
-					,diff_interest,spread]
+					,diff_interest,spread,ema_diff_volume,ema_diff_openinterest]
 		self._write_to_csv_data.append(tmp_to_csv)
 
 		return True
@@ -160,7 +173,7 @@ def main(filename):
 
 if __name__=='__main__':
 	# data = [20170623,20170622,20170621,20170620,20170619,20170616]
-	data = [20170703]
+	data = [20170704]
 	for item in data:
 		path = "rb1710_"+ str(item)
 		print path

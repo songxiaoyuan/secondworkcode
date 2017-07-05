@@ -118,6 +118,16 @@ def get_ema_data(lastprice,pre_ema_val,period):
 	tmp = float(((period -1)*pre_ema_val + 2*lastprice))/(period + 1)
 	return tmp
 
+def get_ema_data_2(data_array,period):
+	l = len(data_array)
+	begin = max(0,l - period)
+	tmp = 1
+	sum_tmp =0
+	for i in xrange(begin,l):
+		sum_tmp += data_array[i]*tmp
+		tmp +=1
+	return float(2*sum_tmp)/(tmp *(tmp-1))
+
 def get_ma_data(price_array,period):
 	# this is used to get the ma data
 	if len(price_array) ==0 or period ==0:
@@ -221,5 +231,8 @@ def is_max_draw_down(direction,cur_price,open_price,multiple,max_profit,limit_ma
 
 if __name__=='__main__': 
 	print "this is basic fun like c++ so"
-	tmp = is_band_open_time(1,10,10.2,2,0.5)
+	# tmp = is_band_open_time(1,10,10.2,2,0.5)
+	# print tmp
+	data_array = [1,2,3,4,5]
+	tmp = get_ema_data_2(data_array,1)
 	print tmp
