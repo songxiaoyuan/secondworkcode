@@ -69,8 +69,11 @@ def getSqlData(myday,instrumentid):
 
 if __name__=='__main__': 
 	# listtime=[20170623,20170622,20170621,20170620,20170619,20170616]
-	listtime=[20170706]
+	data1 = [20170630,20170629,20170628,20170627,20170623,20170622,20170621,20170620,20170619,20170616]
+	data2 =[20170703,20170704,20170705,20170706]
+	data = data1+ data2
+	# data=[20170706]
 	instrumentid = "ru1709"
-	for myday in listtime:
+	for myday in data:
 		# pass
 		getSqlData(myday,instrumentid)
