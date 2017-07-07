@@ -43,6 +43,12 @@
 
 <script type="text/javascript">
 
+
+        // document.getElementById("diff_volume_drawing").style.display="none";
+        // document.getElementById("diff_openinterest_drawing").style.display="none";
+        document.getElementById("sddrawing").style.display="none";
+        // document.getElementById("sd_lastprice_rawing").style.display="none";
+
         filedata =''
         var band_myChart = echarts.init(document.getElementById('banddrawing'));
         var rsi_myChart = echarts.init(document.getElementById('rsidrawing'));
@@ -514,53 +520,53 @@
                 var ema_openinterest = Number(linedata[11])
                 var ema_diff_volume = Number(linedata[10])
 
-                if (lastprice > middle -0.5*sd && lastprice < middle + 0.5*sd) {
-                    if (diff_volume <= 900) {
-                        diff_volume =0
+                // if (lastprice > middle -0.5*sd && lastprice < middle + 0.5*sd) {
+                    // if (diff_volume <= 00) {
+                    //     diff_volume =0
+                    // }
+                    if (diff_volume >300) {
+                        diff_volume =300
                     }
-                    if (diff_volume >2000) {
-                        diff_volume =2000
-                    }
-                    // if (diff_volume != 0) {
+                    if (diff_volume != 0) {
                        diff_volume_array.push(diff_volume)
                        diff_volume_times_array.push(time)   
-                    // }
+                    }
 
-                    if (ema_openinterest >500) {
-                        ema_openinterest_array.push(500)
-                    }
-                    else if (ema_openinterest < -500) {
-                        ema_openinterest_array.push(-500)
-                    }
-                    else{
+                    // if (ema_openinterest >500) {
+                    //     ema_openinterest_array.push(500)
+                    // }
+                    // else if (ema_openinterest < -500) {
+                    //     ema_openinterest_array.push(-500)
+                    // }
+                    // else{
                         ema_openinterest_array.push(ema_openinterest)
-                    }
-                    if (ema_diff_volume >500) {
-                        ema_diff_volume_array.push(500)
-                    }
-                    else{
+                    // }
+                    // if (ema_diff_volume >500) {
+                    //     ema_diff_volume_array.push(500)
+                    // }
+                    // else{
                         ema_diff_volume_array.push(ema_diff_volume)
 
-                    }
+                    // }
 
                     openinterest_array.push(diff_openinterest)
-                    if (spread <100 && spread >0) {
-                        spread_array.push(0)
-                    }
-                    else{
+                    // if (spread <=100 && spread >0) {
+                    //     spread_array.push(0)
+                    // }
+                    // else{
                         spread_array.push(spread)
-                    }
+                    // }
                     
                     
-                }
-                else{
-                    diff_volume_array.push(0)
-                    openinterest_array.push(0)
-                    spread_array.push(0)
+                // }
+                // else{
+                //     diff_volume_array.push(0)
+                //     openinterest_array.push(0)
+                //     spread_array.push(0)
 
-                    ema_openinterest_array.push(0)
-                    ema_diff_volume_array.push(0)
-                }
+                //     ema_openinterest_array.push(0)
+                //     ema_diff_volume_array.push(0)
+                // }
 
                 if (lastprice==NaN) {
                     break

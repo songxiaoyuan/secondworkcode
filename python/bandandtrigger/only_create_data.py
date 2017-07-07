@@ -10,13 +10,48 @@ TURNONER = 12
 BIDPRICE1 = 22
 ASKPRICE1 =24
 TIME = 20
+LONG =1
+SHORT =0
 
 
+# 这个是铅的
+# param_dict = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
+# 			,"limit_rsi_data":80,"rsi_period":14
+# 			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":3600
+# 			,"volume_open_edge":20,"limit_max_draw_down":0,"multiple":5,"file":file
+# 			,"sd_lastprice":100,"open_interest_edge":0,"spread":100}
+# 这个是螺纹钢的
+# param_dict = {"limit_max_profit":25,"limit_max_loss":10,"rsi_bar_period":120
+# 			,"limit_rsi_data":80,"rsi_period":14
+# 			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":3600
+# 			,"volume_open_edge":900,"limit_max_draw_down":0,"multiple":10,"file":file
+# 			,"sd_lastprice":100,"open_interest_edge":0,"spread":100}
+
+# 这个是锌的
+# param_dic = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
+# 			,"limit_rsi_data":80,"rsi_period":14
+# 			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":3600
+# 			,"volume_open_edge":100,"limit_max_draw_down":0,"multiple":5,"file":file
+# 			,"sd_lastprice":0,"open_interest_edge":0,"spread":100}
+# 这个是橡胶的
+param_dic = {"limit_max_profit":250,"limit_max_loss":100,"rsi_bar_period":120
+			,"limit_rsi_data":80,"rsi_period":14
+			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":3600
+			,"volume_open_edge":120,"limit_max_draw_down":0,"multiple":10,"file":file
+			,"sd_lastprice":0,"open_interest_edge":0,"spread":100}
 class BandAndTrigger(object):
 	"""docstring for BandAndTrigger"""
 	def __init__(self):
 		super(BandAndTrigger, self).__init__()
-		# self.arg = arg
+
+		self._write_to_csv_data = []
+
+		self._diff_volume_array = []
+		self._diff_period =30
+		self._diff_open_interest_array = []
+
+		self._diff_spread_array = []
+
 		self._pre_md_price = []
 		self._now_md_price = []
 		self._lastprice_array = []
@@ -24,11 +59,19 @@ class BandAndTrigger(object):
 		self._now_middle_value =0
 		self._now_sd_val = 0
 
+		self._max_profit = 0
+		self._limit_max_draw_down = param_dic["limit_max_draw_down"]
+		self._limit_max_profit = param_dic["limit_max_profit"]
+		self._limit_max_loss = param_dic["limit_max_loss"]
+
+		self._multiple = param_dic["multiple"]
+
 		self._rsi_array = []
-		self._pre_rsi_lastprice =0
+		self._rsi_period = param_dic["rsi_period"]
+		self._pre_rsi_lastprice =0 
 		self._now_bar_rsi_tick = 0
-		self._rsi_bar_period = 120
-		self._rsi_period = 14
+		self._rsi_bar_period = param_dic["rsi_bar_period"]
+		self._limit_rsi_data = param_dic["limit_rsi_data"]
 
 		self._rsi_array_3 = []
 		self._pre_rsi_lastprice_3 =0
@@ -36,15 +79,36 @@ class BandAndTrigger(object):
 		self._rsi_period_3 = 20
 		self._ris_data_3 = 0
 
+
+		# self._limit_twice_sd = 2
+
 		self._moving_theo = "EMA"
-		self._param_period = 1200
-		self._multiple =10
+		# now we have the cangwei and the limit cangwei
+		self._now_interest = 0
+		self._limit_interest = 1
 
-		self._write_to_csv_data = []
+		# band param
+		self._param_open_edge = param_dic["band_open_edge"]
+		self._param_loss_edge = param_dic["band_loss_edge"]
+		self._param_close_edge =param_dic["band_profit_edge"]
+		self._param_period = param_dic["band_period"]
+		
+		# if the sd is too small like is smaller than _param_limit_sd_value,
+		# the open edge and close edge will bigger 
+		# self._param_limit_sd_value = limit_sd_val
+		# self._param_limit_bigger = 0
 
-		self._diff_volume_array = []
-		self._diff_period =60
-		self._diff_open_interest_array = []
+		# trigger param
+		self._param_volume_open_edge = param_dic["volume_open_edge"]
+		self._param_open_interest_edge = param_dic["open_interest_edge"]
+		self._param_spread = param_dic["spread"]
+
+		self._open_lastprice = 0
+		self._profit = 0
+		self._ris_data = 0
+
+		self._sd_lastprice = param_dic["sd_lastprice"]
+
 
 
 	# get the md data ,every line;
@@ -130,7 +194,10 @@ class BandAndTrigger(object):
 
 		diff_turnover = self._now_md_price[TURNONER] - self._pre_md_price[TURNONER]
 		self._diff_volume_array.append(diff_volume)
-		self._diff_open_interest_array.append(diff_interest)
+		if diff_interest <0:
+			self._diff_open_interest_array.append(0 - diff_interest)
+		else:
+			self._diff_open_interest_array.append(diff_interest)
 
 		ema_diff_volume = bf.get_ema_data_2(self._diff_volume_array,self._diff_period)
 		ema_diff_openinterest = bf.get_ema_data_2(self._diff_open_interest_array,self._diff_period)
@@ -138,11 +205,13 @@ class BandAndTrigger(object):
 		if diff_volume ==0:
 			return True
 		avg_price = float(diff_turnover)/diff_volume/self._multiple
-		if lastprice > self._now_middle_value:
-			spread = 100*(avg_price - self._pre_md_price[BIDPRICE1])/(self._pre_md_price[ASKPRICE1] - self._pre_md_price[BIDPRICE1])
-		else:
-			spread = 100*(self._pre_md_price[ASKPRICE1] - avg_price)/(self._pre_md_price[ASKPRICE1] - self._pre_md_price[BIDPRICE1])
+		# if lastprice > self._now_middle_value:
+		spread = 100*(avg_price - self._pre_md_price[BIDPRICE1])/(self._pre_md_price[ASKPRICE1] - self._pre_md_price[BIDPRICE1])
+		# else:
+			# spread = 100*(self._pre_md_price[ASKPRICE1] - avg_price)/(self._pre_md_price[ASKPRICE1] - self._pre_md_price[BIDPRICE1])
 
+		self._diff_spread_array.append(spread)
+		spread = bf.get_ema_data_2(self._diff_spread_array,self._diff_period)
 		tmpsd_lastprice = 1000*self._now_sd_val/self._now_md_price[LASTPRICE]
 		tmp_to_csv = [self._now_md_price[TIME],self._now_md_price[LASTPRICE],self._now_middle_value,
 					self._now_sd_val,self._ris_data,diff_volume,self._ris_data_3,tmpsd_lastprice
@@ -173,8 +242,8 @@ def main(filename):
 
 if __name__=='__main__':
 	# data = [20170623,20170622,20170621,20170620,20170619,20170616]
-	data = [20170704]
+	data = [20170706]
 	for item in data:
-		path = "rb1710_"+ str(item)
+		path = "ru1709_"+ str(item)
 		print path
 		main(path)	
