@@ -56,34 +56,74 @@ def main(filename):
 	csv_data = read_data_from_csv(path)
 	path = filename+"_trade.txt"
 	file = open(path,"w")
-	# 这个是铅的
+	# 这个是铅的 tick 5
 	# param_dict = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
 	# 			,"limit_rsi_data":80,"rsi_period":14
 	# 			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":3600
 	# 			,"volume_open_edge":20,"limit_max_draw_down":0,"multiple":5,"file":file
 	# 			,"sd_lastprice":100,"open_interest_edge":0,"spread":100}
-	# 这个是螺纹钢的
+	# 这个是螺纹钢的 tick 1
 	# param_dict = {"limit_max_profit":25,"limit_max_loss":10,"rsi_bar_period":120
 	# 			,"limit_rsi_data":80,"rsi_period":14
 	# 			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":3600
 	# 			,"volume_open_edge":900,"limit_max_draw_down":0,"multiple":10,"file":file
 	# 			,"sd_lastprice":100,"open_interest_edge":0,"spread":100}
-	# 这个是锌的
+	# 这个是锌的 tick 5
+	param_dict = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
+				,"limit_rsi_data":80,"rsi_period":14
+				,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":3600
+				,"volume_open_edge":120,"limit_max_draw_down":0,"multiple":5,"file":file
+				,"sd_lastprice":0,"open_interest_edge":0,"spread":100}
+
+	# 这个是橡胶的 tick 5
 	# param_dict = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
 	# 			,"limit_rsi_data":80,"rsi_period":14
 	# 			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":3600
-	# 			,"volume_open_edge":120,"limit_max_draw_down":0,"multiple":5,"file":file
+	# 			,"volume_open_edge":180,"limit_max_draw_down":0,"multiple":10,"file":file
 	# 			,"sd_lastprice":0,"open_interest_edge":0,"spread":100}
-
-	# 这个是橡胶的
-	param_dict = {"limit_max_profit":250,"limit_max_loss":100,"rsi_bar_period":120
-				,"limit_rsi_data":80,"rsi_period":14
-				,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":3600
-				,"volume_open_edge":180,"limit_max_draw_down":0,"multiple":10,"file":file
-				,"sd_lastprice":0,"open_interest_edge":0,"spread":100}
 
 	for band_type in xrange(0,7):
 		if band_type ==0:
+			# continue
+			mesg = "完全按照1退出，3退出。100进入"
+			print mesg
+			file.write(mesg+"\n")
+			param_dict["band_loss_edge"] =1
+			param_dict["band_profit_edge"] =3
+			param_dict["volume_open_edge"] =100
+			param_dict["sd_lastprice"] =0
+			create_band_obj(csv_data,param_dict)
+		elif band_type ==1:
+			# continue
+			mesg = "1，3退出，sd／last price <9 不平，100进入"
+			print mesg
+			file.write(mesg+"\n")
+			param_dict["band_loss_edge"] =1
+			param_dict["band_profit_edge"] =3
+			param_dict["volume_open_edge"] =100
+			param_dict["sd_lastprice"] =9
+			create_band_obj(csv_data,param_dict)
+		elif band_type ==2:
+			# continue
+			mesg = "完全按照1退出，3退出。120进入"
+			print mesg
+			file.write(mesg+"\n")
+			param_dict["band_loss_edge"] =1
+			param_dict["band_profit_edge"] =3
+			param_dict["volume_open_edge"] =120
+			param_dict["sd_lastprice"] =0
+			create_band_obj(csv_data,param_dict)
+		elif band_type ==3:
+			# continue
+			mesg = "1，3退出，sd／last price <9 不平，120进入"
+			print mesg
+			file.write(mesg+"\n")
+			param_dict["band_loss_edge"] =1
+			param_dict["band_profit_edge"] =3
+			param_dict["volume_open_edge"] =120
+			param_dict["sd_lastprice"] =9
+			create_band_obj(csv_data,param_dict)
+		elif band_type ==4:
 			# continue
 			mesg = "完全按照1退出，3退出。150进入"
 			print mesg
@@ -93,7 +133,7 @@ def main(filename):
 			param_dict["volume_open_edge"] =150
 			param_dict["sd_lastprice"] =0
 			create_band_obj(csv_data,param_dict)
-		elif band_type ==1:
+		elif band_type ==5:
 			# continue
 			mesg = "1，3退出，sd／last price <9 不平，150进入"
 			print mesg
@@ -103,46 +143,6 @@ def main(filename):
 			param_dict["volume_open_edge"] =150
 			param_dict["sd_lastprice"] =9
 			create_band_obj(csv_data,param_dict)
-		elif band_type ==2:
-			# continue
-			mesg = "完全按照1退出，3退出。180进入"
-			print mesg
-			file.write(mesg+"\n")
-			param_dict["band_loss_edge"] =1
-			param_dict["band_profit_edge"] =3
-			param_dict["volume_open_edge"] =180
-			param_dict["sd_lastprice"] =0
-			create_band_obj(csv_data,param_dict)
-		elif band_type ==3:
-			# continue
-			mesg = "1，3退出，sd／last price <9 不平，180进入"
-			print mesg
-			file.write(mesg+"\n")
-			param_dict["band_loss_edge"] =1
-			param_dict["band_profit_edge"] =3
-			param_dict["volume_open_edge"] =180
-			param_dict["sd_lastprice"] =9
-			create_band_obj(csv_data,param_dict)
-		elif band_type ==4:
-			# continue
-			mesg = "完全按照1退出，3退出。200进入"
-			print mesg
-			file.write(mesg+"\n")
-			param_dict["band_loss_edge"] =1
-			param_dict["band_profit_edge"] =3
-			param_dict["volume_open_edge"] =200
-			param_dict["sd_lastprice"] =0
-			create_band_obj(csv_data,param_dict)
-		elif band_type ==5:
-			# continue
-			mesg = "1，3退出，sd／last price <9 不平，200进入"
-			print mesg
-			file.write(mesg+"\n")
-			param_dict["band_loss_edge"] =1
-			param_dict["band_profit_edge"] =3
-			param_dict["volume_open_edge"] =200
-			param_dict["sd_lastprice"] =9
-			create_band_obj(csv_data,param_dict)
 		elif band_type ==6:
 			# continue
 			mesg = "根据1退出 3退出,添加Max draw down"
@@ -150,8 +150,8 @@ def main(filename):
 			file.write(mesg+"\n")
 			param_dict["band_loss_edge"] =1
 			param_dict["band_profit_edge"] =3
-			param_dict["volume_open_edge"] =150
-			param_dict["limit_max_draw_down"] =15
+			param_dict["volume_open_edge"] =120
+			param_dict["limit_max_draw_down"] =50
 			create_band_obj(csv_data,param_dict)
 		else:
 			pass
@@ -166,7 +166,7 @@ if __name__=='__main__':
 	data = data1+ data2
 	# data = [20170703]
 	for item in data:
-		path = "ru1709_"+ str(item)
+		path = "zn1708_"+ str(item)
 		print path
 		main(path)	
 	# print WRITETOFILE
