@@ -84,7 +84,7 @@ def main(filename):
 
 	for band_type in xrange(0,7):
 		if band_type ==0:
-			# continue
+			continue
 			mesg = "完全按照1退出，3退出。150进入"
 			print mesg
 			file.write(mesg+"\n")
@@ -104,7 +104,7 @@ def main(filename):
 			param_dict["sd_lastprice"] =9
 			create_band_obj(csv_data,param_dict)
 		elif band_type ==2:
-			# continue
+			continue
 			mesg = "完全按照1退出，3退出。180进入"
 			print mesg
 			file.write(mesg+"\n")
@@ -114,7 +114,7 @@ def main(filename):
 			param_dict["sd_lastprice"] =0
 			create_band_obj(csv_data,param_dict)
 		elif band_type ==3:
-			# continue
+			continue
 			mesg = "1，3退出，sd／last price <9 不平，180进入"
 			print mesg
 			file.write(mesg+"\n")
@@ -124,7 +124,7 @@ def main(filename):
 			param_dict["sd_lastprice"] =9
 			create_band_obj(csv_data,param_dict)
 		elif band_type ==4:
-			# continue
+			continue
 			mesg = "完全按照1退出，3退出。200进入"
 			print mesg
 			file.write(mesg+"\n")
@@ -134,7 +134,7 @@ def main(filename):
 			param_dict["sd_lastprice"] =0
 			create_band_obj(csv_data,param_dict)
 		elif band_type ==5:
-			# continue
+			continue
 			mesg = "1，3退出，sd／last price <9 不平，200进入"
 			print mesg
 			file.write(mesg+"\n")
@@ -144,7 +144,7 @@ def main(filename):
 			param_dict["sd_lastprice"] =9
 			create_band_obj(csv_data,param_dict)
 		elif band_type ==6:
-			# continue
+			continue
 			mesg = "根据1退出 3退出,添加Max draw down"
 			print mesg
 			file.write(mesg+"\n")
@@ -161,10 +161,10 @@ def main(filename):
 
 if __name__=='__main__': 
 	# main("ru1709_20170622")
-	data1 = [20170630,20170629,20170628,20170627,20170623,20170622,20170621,20170620,20170619,20170616]
-	data2 =[20170703,20170704,20170705,20170706]
-	data = data1+ data2
-	# data = [20170703]
+	# data1 = [20170630,20170629,20170628,20170627,20170623,20170622,20170621,20170620,20170619,20170616]
+	# data2 =[20170703,20170704,20170705,20170706]
+	# data = data1+ data2
+	data = [20170713]
 	for item in data:
 		path = "ru1709_"+ str(item)
 		print path

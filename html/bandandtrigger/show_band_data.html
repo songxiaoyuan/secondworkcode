@@ -82,7 +82,7 @@
         //用来保存lastprice的数据，因为如果没有到达周期的话，这些都需要先保存着，然后等到达周期之后在计算
         LASTPRICEARRAY= []
 
-        openinterest_array = []
+        diff_openinterest_array = []
         spread_array =[]
 
         ema_openinterest_array =[]
@@ -512,7 +512,7 @@
                 var rsi = Number(linedata[4])
                 var diff_volume = Number(linedata[5])
                 var rsi3 = Number(linedata[6])
-                var sd_lastprice = 10*Number(linedata[7])
+                var sd_lastprice = Number(linedata[7])
 
                 var diff_openinterest = Number(linedata[8])
                 var spread = Number(linedata[9])
@@ -520,17 +520,44 @@
                 var ema_openinterest = Number(linedata[11])
                 var ema_diff_volume = Number(linedata[10])
 
+                var openband = 0.5
+                if (sd_lastprice>9) {
+                    //开仓边界是0.5，
+                    openband = 0.5
+                }
+                else{
+                    //开仓边界是1
+                    openband = 1
+                }
+                if (lastprice > middle -openband*sd && lastprice < middle + openband*sd) {
+                    diff_volume_array.push(diff_volume)
+                    ema_diff_volume_array.push(ema_diff_volume)
+                    diff_openinterest_array.push(diff_openinterest)
+                    ema_openinterest_array.push(ema_openinterest)
+                    spread_array.push(spread)
+                }
+                else{
+                    diff_volume_array.push(0)
+                    diff_openinterest_array.push(0)
+                    ema_openinterest_array.push(0)
+                    ema_diff_volume_array.push(0)
+                    spread_array.push(0)
+                }
+
                 // if (lastprice > middle -0.5*sd && lastprice < middle + 0.5*sd) {
                     // if (diff_volume <= 00) {
                     //     diff_volume =0
                     // }
-                    if (diff_volume >300) {
-                        diff_volume =300
-                    }
-                    if (diff_volume != 0) {
-                       diff_volume_array.push(diff_volume)
-                       diff_volume_times_array.push(time)   
-                    }
+                    // if (diff_volume <300) {
+                    //     diff_volume =300
+                    // }
+                    // if (diff_volume >300) {
+                    //     diff_volume =300
+                    // }
+                    // if (diff_volume != 0) {
+                       // diff_volume_array.push(diff_volume)
+                       // diff_volume_times_array.push(time)   
+                    // }
 
                     // if (ema_openinterest >500) {
                     //     ema_openinterest_array.push(500)
@@ -539,22 +566,22 @@
                     //     ema_openinterest_array.push(-500)
                     // }
                     // else{
-                        ema_openinterest_array.push(ema_openinterest)
+                        // ema_openinterest_array.push(ema_openinterest)
                     // }
                     // if (ema_diff_volume >500) {
                     //     ema_diff_volume_array.push(500)
                     // }
                     // else{
-                        ema_diff_volume_array.push(ema_diff_volume)
+                        // ema_diff_volume_array.push(ema_diff_volume)
 
                     // }
 
-                    openinterest_array.push(diff_openinterest)
+                    // openinterest_array.push(diff_openinterest)
                     // if (spread <=100 && spread >0) {
                     //     spread_array.push(0)
                     // }
                     // else{
-                        spread_array.push(spread)
+                        // spread_array.push(spread)
                     // }
                     
                     
@@ -635,7 +662,7 @@
             diff_volume_option.series[0].data = diff_volume_array
 
             openinterest_option.xAxis.data = times_array
-            openinterest_option.series[0].data = openinterest_array
+            openinterest_option.series[0].data = diff_openinterest_array
 
             spread_option.xAxis.data = times_array
             spread_option.series[0].data = spread_array
@@ -666,8 +693,8 @@
         sd_lastprice_myChart.setOption(sd_lastprice_option)
         rsi_myChart.setOption(rsi_option);
 
-        ema_diff_volume_drawing.setOption(ema_diff_volume_option)
-        ema_diff_openinterest_drawing.setOption(ema_openinterest_option)
+        // ema_diff_volume_drawing.setOption(ema_diff_volume_option)
+        // ema_diff_openinterest_drawing.setOption(ema_openinterest_option)
 
          // 使用刚指定的配置项和数据显示图表。
          

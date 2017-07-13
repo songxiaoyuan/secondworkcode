@@ -126,19 +126,18 @@ class BandAndTrigger(object):
 		
 		self._now_sd_val =bf.get_sd_data(self._now_md_price[TIME], self._lastprice_array,self._param_period)	
 		
-		diff_volume = self._now_md_price[VOLUME] - self._pre_md_price[VOLUME]
-		diff_openinterest = self._now_md_price[OPENINTEREST] - self._pre_md_price[OPENINTEREST]
-
 		# self.f.write(str(self._now_md_price[TIME])+","+str(lastprice)+","+str(self._now_middle_value)+","+str(self._now_sd_val)+","+str(self._ris_data)+"\n")
 		diff_volume = self._now_md_price[VOLUME] - self._pre_md_price[VOLUME]
-
 		diff_interest = self._now_md_price[OPENINTEREST] - self._pre_md_price[OPENINTEREST]
-
 		diff_turnover = self._now_md_price[TURNONER] - self._pre_md_price[TURNONER]
+		
 		if diff_volume ==0:
 			return True
 		avg_price = float(diff_turnover)/diff_volume/self._multiple
-		spread = 100*(self._pre_md_price[ASKPRICE1] - avg_price)/(self._pre_md_price[ASKPRICE1] - self._pre_md_price[BIDPRICE1])
+		if self._pre_md_price[ASKPRICE1] != self._pre_md_price[BIDPRICE1]:
+			spread = 100*(self._pre_md_price[ASKPRICE1] - avg_price)/(self._pre_md_price[ASKPRICE1] - self._pre_md_price[BIDPRICE1])
+		else:
+			spread = 0
 
 		open_time = self.is_trend_open_time()
 		close_time = self.is_trend_close_time()
@@ -180,7 +179,7 @@ class BandAndTrigger(object):
 		# else:
 		open_val = self._param_open_edge
 		is_band_open = bf.is_band_open_time(self._direction,self._now_md_price[LASTPRICE],
-											self._now_middle_value,self._now_sd_val,open_val)
+											self._now_middle_value,self._now_sd_val,open_val,self._sd_lastprice)
 		# return is_band_open
 		if is_band_open ==False:
 			return False

@@ -12,8 +12,10 @@ TIME = 20
 LONG =1
 SHORT =0
 
-def is_band_open_time(direction,lastprice,middle_val,sd_val,open_edge):
+def is_band_open_time(direction,lastprice,middle_val,sd_val,open_edge,sd_lastprice):
 	# this is used to judge is time to band open
+	if 10000*(sd_val/lastprice) <=sd_lastprice:
+		open_edge = open_edge*2
 	if direction ==LONG:
 		upval = middle_val + open_edge*sd_val
 		if lastprice > middle_val and lastprice < upval:
@@ -56,6 +58,8 @@ def is_trigger_up_time(now_md_price,pre_md_price,spread_edge,multiple):
 		return False
 
 	avg_price = float(diff_turnover)/diff_volume/multiple
+	if pre_md_price[ASKPRICE1] == pre_md_price[BIDPRICE1]:
+		return False
 	tmp = 100*(avg_price - pre_md_price[BIDPRICE1])/(pre_md_price[ASKPRICE1] - pre_md_price[BIDPRICE1])
 	# print str(diff_volume) + " , " + str(diff_turnover) + " , " +str(multiple) + " , " + str(avg_price) 
 	if tmp >= spread_edge:
