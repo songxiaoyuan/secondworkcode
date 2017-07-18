@@ -84,7 +84,7 @@ def main(filename):
 
 	for band_type in xrange(0,7):
 		if band_type ==0:
-			# continue
+			continue
 			mesg = "完全按照1退出，3退出。15进入"
 			print mesg
 			file.write(mesg+"\n")
@@ -94,7 +94,7 @@ def main(filename):
 			param_dict["sd_lastprice"] =0
 			create_band_obj(csv_data,param_dict)
 		elif band_type ==1:
-			# continue
+			continue
 			mesg = "1，3退出，sd／last price <9 不平，15进入"
 			print mesg
 			file.write(mesg+"\n")
@@ -104,7 +104,7 @@ def main(filename):
 			param_dict["sd_lastprice"] =9
 			create_band_obj(csv_data,param_dict)
 		elif band_type ==2:
-			# continue
+			continue
 			mesg = "完全按照1退出，3退出。18进入"
 			print mesg
 			file.write(mesg+"\n")
@@ -114,7 +114,7 @@ def main(filename):
 			param_dict["sd_lastprice"] =0
 			create_band_obj(csv_data,param_dict)
 		elif band_type ==3:
-			# continue
+			continue
 			mesg = "1，3退出，sd／last price <9 不平，18进入"
 			print mesg
 			file.write(mesg+"\n")
@@ -125,26 +125,29 @@ def main(filename):
 			create_band_obj(csv_data,param_dict)
 		elif band_type ==4:
 			# continue
-			mesg = "完全按照1退出，3退出。20进入"
-			print mesg
-			file.write(mesg+"\n")
-			param_dict["band_loss_edge"] =1
-			param_dict["band_profit_edge"] =3
-			param_dict["volume_open_edge"] =20
-			param_dict["sd_lastprice"] =0
-			create_band_obj(csv_data,param_dict)
-		elif band_type ==5:
-			# continue
-			mesg = "1，3退出，sd／last price <9 不平，20进入"
+			mesg = "完全按照1退出，3退出。20进入 周期3600"
 			print mesg
 			file.write(mesg+"\n")
 			param_dict["band_loss_edge"] =1
 			param_dict["band_profit_edge"] =3
 			param_dict["volume_open_edge"] =20
 			param_dict["sd_lastprice"] =9
+			param_dict["rsi_bar_period"] =50
+			create_band_obj(csv_data,param_dict)
+		elif band_type ==5:
+			# continue
+			mesg = "1，3退出，sd／last price <9 不平，20进入 周期2000"
+			print mesg
+			file.write(mesg+"\n")
+			param_dict["band_loss_edge"] =1
+			param_dict["band_profit_edge"] =3
+			param_dict["volume_open_edge"] =20
+			param_dict["sd_lastprice"] =9
+			param_dict["rsi_bar_period"] =50
+			param_dict["band_period"] =2000
 			create_band_obj(csv_data,param_dict)
 		elif band_type ==6:
-			# continue
+			continue
 			mesg = "根据1退出 3退出,添加Max draw down"
 			print mesg
 			file.write(mesg+"\n")
