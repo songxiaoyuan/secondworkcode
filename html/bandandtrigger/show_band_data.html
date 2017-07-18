@@ -46,7 +46,7 @@
 
         // document.getElementById("diff_volume_drawing").style.display="none";
         // document.getElementById("diff_openinterest_drawing").style.display="none";
-        document.getElementById("sddrawing").style.display="none";
+        // document.getElementById("sddrawing").style.display="none";
         // document.getElementById("sd_lastprice_rawing").style.display="none";
 
         filedata =''
@@ -529,13 +529,72 @@
                     //开仓边界是1
                     openband = 1
                 }
-                if (lastprice > middle -openband*sd && lastprice < middle + openband*sd) {
-                    diff_volume_array.push(diff_volume)
-                    ema_diff_volume_array.push(ema_diff_volume)
-                    diff_openinterest_array.push(diff_openinterest)
-                    ema_openinterest_array.push(ema_openinterest)
-                    spread_array.push(spread)
+                // 这个是long的情况
+                if (lastprice > middle && lastprice < middle + openband*sd) {
+                    if (ema_diff_volume>300 && ema_openinterest > 0 && spread >= 90) {
+                        if (ema_diff_volume >600) {
+                            ema_diff_volume = 600
+                        }
+                        if (spread > 150) {
+                            spread =150
+                        }
+                        else if (spread < -150) {
+                            spread = -150
+                        }
+                        if (ema_openinterest > 500) {
+                            ema_openinterest =500
+                        }
+                        else if (ema_openinterest < -500) {
+                            ema_openinterest = -500
+                        }
+                       diff_volume_array.push(diff_volume)
+                       ema_diff_volume_array.push(ema_diff_volume)
+                       diff_openinterest_array.push(diff_openinterest)
+                       ema_openinterest_array.push(ema_openinterest)
+                       spread_array.push(spread) 
+                    }
+                    else{
+                        diff_volume_array.push(0)
+                        diff_openinterest_array.push(0)
+                        ema_openinterest_array.push(0)
+                        ema_diff_volume_array.push(0)
+                        spread_array.push(0)
+                    }
+                    
                 }
+                // 这个是short的情况
+                // if (lastprice < middle && lastprice > middle - openband*sd) {
+                //     if (ema_diff_volume>300 && ema_openinterest > 0 && spread <=10) {
+                //         if (ema_diff_volume >600) {
+                //             ema_diff_volume = 600
+                //         }
+                //         if (spread > 150) {
+                //             spread =150
+                //         }
+                //         else if (spread < -150) {
+                //             spread = -150
+                //         }
+                //         if (ema_openinterest > 500) {
+                //             ema_openinterest =500
+                //         }
+                //         else if (ema_openinterest < -500) {
+                //             ema_openinterest = -500
+                //         }
+                //        diff_volume_array.push(diff_volume)
+                //        ema_diff_volume_array.push(ema_diff_volume)
+                //        diff_openinterest_array.push(diff_openinterest)
+                //        ema_openinterest_array.push(ema_openinterest)
+                //        spread_array.push(spread) 
+                //     }
+                //     else{
+                //         diff_volume_array.push(0)
+                //         diff_openinterest_array.push(0)
+                //         ema_openinterest_array.push(0)
+                //         ema_diff_volume_array.push(0)
+                //         spread_array.push(0)
+                //     }
+                    
+                // }
                 else{
                     diff_volume_array.push(0)
                     diff_openinterest_array.push(0)
@@ -649,7 +708,7 @@
 
             rsi_option.xAxis.data = rsi_times_array
             rsi_option.series[0].data = rsi_array
-            rsi_option.series[1].data = rsi_array_3
+            // rsi_option.series[1].data = rsi_array_3
 
             sd_option.xAxis.data = times_array
             sd_option.series[0].data = sd_array

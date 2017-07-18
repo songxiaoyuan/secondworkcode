@@ -83,24 +83,36 @@ def is_trigger_down_time(now_md_price,pre_md_price,spread_edge,multiple):
 	return False
 
 def is_trigger_size_open_time(direction,now_md_price,pre_md_price,volume_open_edge,
-							openinterest_edge,spread_edge,multiple):
+							openinterest_edge,spread_edge,multiple,
+							diff_volume_array,diff_open_interest_array,
+							diff_spread_array,diff_period):
 	# this is used to judge the time of trigger size to open
 	# print now_md_price[VOLUME] - pre_md_price[VOLUME]
-	if now_md_price[VOLUME] - pre_md_price[VOLUME] < volume_open_edge:
-		return False
-	tmp = now_md_price[OPENINTEREST] - pre_md_price[OPENINTEREST]
-	# if tmp >0 and tmp <=openinterest_edge:
+	# if now_md_price[VOLUME] - pre_md_price[VOLUME] < volume_open_edge:
 	# 	return False
-	# if tmp < 0  and (0-tmp) <=openinterest_edge :
+	# tmp = now_md_price[OPENINTEREST] - pre_md_price[OPENINTEREST]
+	# # if tmp >0 and tmp <=openinterest_edge:
+	# # 	return False
+	# # if tmp < 0  and (0-tmp) <=openinterest_edge :
+	# # 	return False
+	# if now_md_price[OPENINTEREST] - pre_md_price[OPENINTEREST] <= openinterest_edge:
 	# 	return False
-	if now_md_price[OPENINTEREST] - pre_md_price[OPENINTEREST] <= openinterest_edge:
+	# # return True
+	# if direction ==LONG:
+	# 	return is_trigger_up_time(now_md_price,pre_md_price,spread_edge,multiple)
+	# elif direction ==SHORT:
+	# 	return is_trigger_down_time(now_md_price,pre_md_price,spread_edge,multiple)
+	# return False
+	ema_diff_volume = get_ema_data_2(diff_volume_array,diff_period)
+	if ema_diff_volume < volume_open_edge:
 		return False
-	# return True
-	if direction ==LONG:
-		return is_trigger_up_time(now_md_price,pre_md_price,spread_edge,multiple)
-	elif direction ==SHORT:
-		return is_trigger_down_time(now_md_price,pre_md_price,spread_edge,multiple)
-	return False
+	ema_diff_openinerest = get_sum(diff_open_interest_array,diff_period)
+	if ema_diff_openinerest < openinterest_edge:
+		return False
+	ema_spread = get_weighted_mean(diff_spread_array,diff_volume_array,diff_period)
+	if ema_spread < spread_edge:
+		return False
+	return True
 
 def is_trigger_size_close_time(direction,now_md_price,pre_md_price,volume_open_edge,
 							openinterest_edge,spread_edge,multiple):
@@ -231,7 +243,28 @@ def is_max_draw_down(direction,cur_price,open_price,multiple,max_profit,limit_ma
 	else:
 		return (False,max_profit)
 
+def get_sum(num_array,period):
+	ret = 0
+	l = len(num_array)
+	for i in xrange(l-1,-1,-1):
+		if i >= (l - period):
+			ret +=num_array[i]
+	return ret
 
+def get_weighted_mean(target_array,weight_array,period):
+	if len(target_array) != len(weight_array):
+		print "basic_fun.py: the target array is not == weight array"
+		return 0
+	l = len(target_array)
+	total_sum = 0
+	weight_sum = 0
+	for i in xrange(l-1,-1,-1):
+		if i >= (l - period):
+			total_sum += (target_array[i]*weight_array[i])
+			weight_sum += weight_array[i]
+	if total_sum ==0 or weight_sum ==0:
+		return 0
+	return float(total_sum)/weight_sum
 
 if __name__=='__main__': 
 	print "this is basic fun like c++ so"

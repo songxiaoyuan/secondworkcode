@@ -69,8 +69,8 @@ def main(filename):
 	# 			,"volume_open_edge":900,"limit_max_draw_down":0,"multiple":10,"file":file
 	# 			,"sd_lastprice":100,"open_interest_edge":0,"spread":100}
 	# 这个是锌的 tick 5
-	param_dict = {"limit_max_profit":125,"limit_max_loss":30,"rsi_bar_period":50
-				,"limit_rsi_data":80,"rsi_period":10
+	param_dict = {"limit_max_profit":125,"limit_max_loss":30,"rsi_bar_period":100
+				,"limit_rsi_data":80,"rsi_period":10,"band_period_begin":3600,"diff_period":1
 				,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":3600
 				,"volume_open_edge":120,"limit_max_draw_down":0,"multiple":5,"file":file
 				,"sd_lastprice":0,"open_interest_edge":0,"spread":100}
@@ -95,7 +95,7 @@ def main(filename):
 			create_band_obj(csv_data,param_dict)
 		elif band_type ==1:
 			# continue
-			mesg = "1，3退出，sd／last price <9 不平，100进入"
+			mesg = "1，3退出，sd／last price <9 不平，diff_period =1,100进入"
 			print mesg
 			file.write(mesg+"\n")
 			param_dict["band_loss_edge"] =1
@@ -104,14 +104,16 @@ def main(filename):
 			param_dict["sd_lastprice"] =9
 			create_band_obj(csv_data,param_dict)
 		elif band_type ==2:
-			continue
-			mesg = "完全按照1退出，3退出。120进入"
+			# continue
+			mesg = "完全按照1退出，3退出。 diff_period 6,diff_volume=6,spread=90,volume_edge=40"
 			print mesg
 			file.write(mesg+"\n")
 			param_dict["band_loss_edge"] =1
 			param_dict["band_profit_edge"] =3
-			param_dict["volume_open_edge"] =120
-			param_dict["sd_lastprice"] =0
+			param_dict["volume_open_edge"] =40
+			param_dict["sd_lastprice"] =9
+			param_dict["diff_period"] =6
+			param_dict["spread"] =90
 			create_band_obj(csv_data,param_dict)
 		elif band_type ==3:
 			continue
@@ -164,7 +166,7 @@ if __name__=='__main__':
 	# data1 = [20170630,20170629,20170628,20170627,20170623,20170622,20170621,20170620,20170619,20170616]
 	# data2 =[20170703,20170704,20170705,20170706]
 	# data = data1+ data2
-	data = [20170713]
+	data = [20170717]
 	for item in data:
 		path = "zn1709_"+ str(item)
 		print path

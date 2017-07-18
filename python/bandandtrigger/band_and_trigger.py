@@ -23,6 +23,11 @@ class BandAndTrigger(object):
 		self._now_middle_value =0
 		self._now_sd_val = 0
 
+		self._diff_volume_array = []
+		self._diff_open_interest_array = []
+		self._diff_spread_array = []
+		self._diff_period =param_dic["diff_period"]
+
 		self._max_profit = 0
 		self._limit_max_draw_down = param_dic["limit_max_draw_down"]
 		self._limit_max_profit = param_dic["limit_max_profit"]
@@ -51,6 +56,7 @@ class BandAndTrigger(object):
 		self._param_loss_edge = param_dic["band_loss_edge"]
 		self._param_close_edge =param_dic["band_profit_edge"]
 		self._param_period = param_dic["band_period"]
+		self._param_period_begin = param_dic["band_period_begin"]
 		
 		# if the sd is too small like is smaller than _param_limit_sd_value,
 		# the open edge and close edge will bigger 
@@ -109,7 +115,7 @@ class BandAndTrigger(object):
 				self._ris_data =bf.get_rsi_data2(tmpdiff,self._rsi_array,self._rsi_period)
 				# self._ris_data = 0
 
-		if len(self._lastprice_array)-1 < self._param_period:
+		if len(self._lastprice_array)-1 < self._param_period_begin:
 			# this is we dont start the period.
 			ema_period = len(self._lastprice_array)
 			pre_ema_val = bf.get_ema_data(lastprice,self._pre_ema_val,ema_period)
@@ -117,27 +123,42 @@ class BandAndTrigger(object):
 			# save the pre_ema_val and return
 			return True
 
-		# start the judge
-		if self._moving_theo =="EMA":
+		if len(self._lastprice_array)-1> self._param_period_begin and len(self._lastprice_array)-1 < self._param_period:
 			self._now_middle_value = bf.get_ema_data(lastprice,self._pre_ema_val,self._param_period)
 			self._pre_ema_val = self._now_middle_value
+			self._now_sd_val =bf.get_sd_data(self._now_md_price[TIME], self._lastprice_array,len(self._lastprice_array)-1)	
 		else:
-			self._now_middle_value = bf.get_ma_data(self._lastprice_array,self._param_period)
-		
-		self._now_sd_val =bf.get_sd_data(self._now_md_price[TIME], self._lastprice_array,self._param_period)	
-		
+		# start the judge
+			if self._moving_theo =="EMA":
+				self._now_middle_value = bf.get_ema_data(lastprice,self._pre_ema_val,self._param_period)
+				self._pre_ema_val = self._now_middle_value
+			else:
+				self._now_middle_value = bf.get_ma_data(self._lastprice_array,self._param_period)
+			
+			self._now_sd_val =bf.get_sd_data(self._now_md_price[TIME], self._lastprice_array,self._param_period)	
+			
 		# self.f.write(str(self._now_md_price[TIME])+","+str(lastprice)+","+str(self._now_middle_value)+","+str(self._now_sd_val)+","+str(self._ris_data)+"\n")
 		diff_volume = self._now_md_price[VOLUME] - self._pre_md_price[VOLUME]
 		diff_interest = self._now_md_price[OPENINTEREST] - self._pre_md_price[OPENINTEREST]
 		diff_turnover = self._now_md_price[TURNONER] - self._pre_md_price[TURNONER]
+
+		self._diff_volume_array.append(diff_volume)
+		self._diff_open_interest_array.append(diff_interest)
 		
 		if diff_volume ==0:
+			self._diff_spread_array.append(0)
 			return True
 		avg_price = float(diff_turnover)/diff_volume/self._multiple
-		if self._pre_md_price[ASKPRICE1] != self._pre_md_price[BIDPRICE1]:
+		if self._direction ==SHORT:
 			spread = 100*(self._pre_md_price[ASKPRICE1] - avg_price)/(self._pre_md_price[ASKPRICE1] - self._pre_md_price[BIDPRICE1])
 		else:
-			spread = 0
+			spread = 100*(avg_price - self._pre_md_price[BIDPRICE1])/(self._pre_md_price[ASKPRICE1] - self._pre_md_price[BIDPRICE1])
+		self._diff_spread_array.append(spread)
+
+
+		ema_diff_volume = bf.get_ema_data_2(self._diff_volume_array,self._diff_period)
+		ema_diff_openinerest = bf.get_sum(self._diff_open_interest_array,self._diff_period)
+		ema_spread = bf.get_weighted_mean(self._diff_spread_array,self._diff_volume_array,self._diff_period)
 
 		open_time = self.is_trend_open_time()
 		close_time = self.is_trend_close_time()
@@ -151,7 +172,7 @@ class BandAndTrigger(object):
 			self._open_lastprice = self._now_md_price[LASTPRICE]
 			self._max_profit = 0
 			mesg= "the time of open: "+self._now_md_price[TIME] + ",the price: " + str(self._now_md_price[LASTPRICE])
-			mesg1 = "the diff volume: "+str(diff_volume)+", the interest: " + str(diff_interest) + ", the spread: "+ str(spread)
+			mesg1 = "the diff volume: "+str(ema_diff_volume)+", the interest: " + str(ema_diff_openinerest) + ", the spread: "+ str(ema_spread)
 			self._file.write(mesg+"\n")
 			self._file.write(mesg1+"\n")
 			# print "the diff volume is:" + str(self._now_md_price[VOLUME] - self._pre_md_price[VOLUME])
@@ -185,7 +206,9 @@ class BandAndTrigger(object):
 			return False
 		is_trigger_open = bf.is_trigger_size_open_time(self._direction,self._now_md_price,self._pre_md_price,
 													self._param_volume_open_edge,self._param_open_interest_edge,
-													self._param_spread,self._multiple)
+													self._param_spread,self._multiple,self._diff_volume_array,
+													self._diff_open_interest_array,
+													self._diff_spread_array,self._diff_period)
 		return is_trigger_open
 
 	def is_trend_close_time(self):

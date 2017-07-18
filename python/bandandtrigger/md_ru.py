@@ -76,8 +76,8 @@ def main(filename):
 	# 			,"sd_lastprice":0,"open_interest_edge":0,"spread":100}
 
 	# 这个是橡胶的 tick 5
-	param_dict = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
-				,"limit_rsi_data":80,"rsi_period":14
+	param_dict = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":100
+				,"limit_rsi_data":70,"rsi_period":10,"band_period_begin":1200,"diff_period":6
 				,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":3600
 				,"volume_open_edge":180,"limit_max_draw_down":0,"multiple":10,"file":file
 				,"sd_lastprice":0,"open_interest_edge":0,"spread":100}
@@ -95,12 +95,12 @@ def main(filename):
 			create_band_obj(csv_data,param_dict)
 		elif band_type ==1:
 			# continue
-			mesg = "1，3退出，sd／last price <9 不平，150进入"
+			mesg = "1，3退出，sd／last price <9 不平，100进入"
 			print mesg
 			file.write(mesg+"\n")
 			param_dict["band_loss_edge"] =1
 			param_dict["band_profit_edge"] =3
-			param_dict["volume_open_edge"] =150
+			param_dict["volume_open_edge"] =100
 			param_dict["sd_lastprice"] =9
 			create_band_obj(csv_data,param_dict)
 		elif band_type ==2:
@@ -164,7 +164,7 @@ if __name__=='__main__':
 	# data1 = [20170630,20170629,20170628,20170627,20170623,20170622,20170621,20170620,20170619,20170616]
 	# data2 =[20170703,20170704,20170705,20170706]
 	# data = data1+ data2
-	data = [20170713]
+	data = [20170717]
 	for item in data:
 		path = "ru1709_"+ str(item)
 		print path
