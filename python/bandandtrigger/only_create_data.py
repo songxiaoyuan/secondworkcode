@@ -15,41 +15,41 @@ SHORT =0
 
 
 # 这个是铅的
-# param_dict = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
-# 			,"limit_rsi_data":80,"rsi_period":14
-# 			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":3600
-# 			,"volume_open_edge":20,"limit_max_draw_down":0,"multiple":5,"file":file
-# 			,"sd_lastprice":100,"open_interest_edge":0,"spread":100}
+param_dict_pb = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":50
+			,"limit_rsi_data":75,"rsi_period":10,"band_period_begin":1200,"diff_period":6
+			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":3600
+			,"volume_open_edge":20,"limit_max_draw_down":0,"multiple":5,"file":file
+			,"sd_lastprice":100,"open_interest_edge":0,"spread":100}
 # 这个是螺纹钢的
-# param_dict = {"limit_max_profit":25,"limit_max_loss":10,"rsi_bar_period":120
-# 			,"limit_rsi_data":80,"rsi_period":14
-# 			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":3600
-# 			,"volume_open_edge":900,"limit_max_draw_down":0,"multiple":10,"file":file
-# 			,"sd_lastprice":100,"open_interest_edge":0,"spread":100}
+param_dict_rb = {"limit_max_profit":25,"limit_max_loss":10,"rsi_bar_period":100
+			,"limit_rsi_data":80,"rsi_period":10,"band_period_begin":1200,"diff_period":6
+			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":3600
+			,"volume_open_edge":900,"limit_max_draw_down":0,"multiple":10,"file":file
+			,"sd_lastprice":100,"open_interest_edge":0,"spread":100}
 
 # 这个是锌的
-# param_dic = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
-# 			,"limit_rsi_data":80,"rsi_period":14
-# 			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":3600
-# 			,"volume_open_edge":100,"limit_max_draw_down":0,"multiple":5,"file":file
-# 			,"sd_lastprice":0,"open_interest_edge":0,"spread":100}
+param_dic_zn = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":100
+			,"limit_rsi_data":80,"rsi_period":10,"band_period_begin":1200,"diff_period":6
+			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":3600
+			,"volume_open_edge":100,"limit_max_draw_down":0,"multiple":5,"file":file
+			,"sd_lastprice":0,"open_interest_edge":0,"spread":100}
 # 这个是橡胶的
-param_dic = {"limit_max_profit":250,"limit_max_loss":100,"rsi_bar_period":120
-			,"limit_rsi_data":80,"rsi_period":14
+param_dic_ru = {"limit_max_profit":250,"limit_max_loss":100,"rsi_bar_period":100
+			,"limit_rsi_data":70,"rsi_period":10,"band_period_begin":1200,"diff_period":6
 			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":3600
 			,"volume_open_edge":120,"limit_max_draw_down":0,"multiple":10,"file":file
 			,"sd_lastprice":0,"open_interest_edge":0,"spread":100}
+
 class BandAndTrigger(object):
 	"""docstring for BandAndTrigger"""
-	def __init__(self):
+	def __init__(self,param_dic):
 		super(BandAndTrigger, self).__init__()
 
 		self._write_to_csv_data = []
 
 		self._diff_volume_array = []
-		self._diff_period =30
+		self._diff_period =param_dic["diff_period"]
 		self._diff_open_interest_array = []
-
 		self._diff_spread_array = []
 
 		self._pre_md_price = []
@@ -128,12 +128,13 @@ class BandAndTrigger(object):
 		lastprice = self._now_md_price[LASTPRICE]
 		self._lastprice_array.append(lastprice)
 		# print lastprice
-
 		if len(self._pre_md_price) ==0:
 			self._rsi_array.append(0)
 			self._pre_rsi_lastprice = lastprice
 			self._ris_data = -1
 		else:
+			if self._pre_md_price[ASKPRICE1] == self._pre_md_price[BIDPRICE1]:
+				return True
 			# self._rsi_array.append(lastprice - self._pre_md_price[LASTPRICE])
 			if self._now_bar_rsi_tick >= self._rsi_bar_period:
 				# 表示已经到了一个bar的周期。
@@ -145,8 +146,8 @@ class BandAndTrigger(object):
 			else:
 				self._now_bar_rsi_tick +=1
 				tmpdiff = lastprice - self._pre_rsi_lastprice
-				# self._ris_data =bf.get_rsi_data2(tmpdiff,self._rsi_array,self._rsi_period)
-				self._ris_data = 0
+				self._ris_data =bf.get_rsi_data2(tmpdiff,self._rsi_array,self._rsi_period)
+				# self._ris_data = 0
 
 			if self._now_bar_rsi_tick_3 >= self._rsi_bar_period:
 				# 表示已经到了一个bar的周期。
@@ -188,31 +189,36 @@ class BandAndTrigger(object):
 		
 		# self._ris_data = bf.get_rsi_data(self._rsi_array,self._rsi_period)
 		self._now_sd_val =bf.get_sd_data(self._now_md_price[TIME], self._lastprice_array,self._param_period)
+		
 		diff_volume = self._now_md_price[VOLUME] - self._pre_md_price[VOLUME]
-
 		diff_interest = self._now_md_price[OPENINTEREST] - self._pre_md_price[OPENINTEREST]
-
 		diff_turnover = self._now_md_price[TURNONER] - self._pre_md_price[TURNONER]
+
 		self._diff_volume_array.append(diff_volume)
+		# 直接就是diff_interest
 		if diff_interest <0:
-			self._diff_open_interest_array.append(0 - diff_interest)
+			self._diff_open_interest_array.append(diff_interest)
 		else:
 			self._diff_open_interest_array.append(diff_interest)
 
 		ema_diff_volume = bf.get_ema_data_2(self._diff_volume_array,self._diff_period)
-		ema_diff_openinterest = bf.get_ema_data_2(self._diff_open_interest_array,self._diff_period)
+		ema_diff_openinterest = bf.get_sum(self._diff_open_interest_array,self._diff_period)
 
 		if diff_volume ==0:
-			return True
-		avg_price = float(diff_turnover)/diff_volume/self._multiple
-		# if lastprice > self._now_middle_value:
-		spread = 100*(avg_price - self._pre_md_price[BIDPRICE1])/(self._pre_md_price[ASKPRICE1] - self._pre_md_price[BIDPRICE1])
-		# else:
-			# spread = 100*(self._pre_md_price[ASKPRICE1] - avg_price)/(self._pre_md_price[ASKPRICE1] - self._pre_md_price[BIDPRICE1])
+			spread =0
+			self._diff_spread_array.append(spread)
+		else:
 
-		self._diff_spread_array.append(spread)
-		spread = bf.get_ema_data_2(self._diff_spread_array,self._diff_period)
-		tmpsd_lastprice = 1000*self._now_sd_val/self._now_md_price[LASTPRICE]
+			avg_price = float(diff_turnover)/diff_volume/self._multiple
+			# if lastprice > self._now_middle_value:
+			# if self._pre_md_price[ASKPRICE1] != self._pre_md_price[BIDPRICE1]:
+			# 注意，现在算的只是和买一价的位置关系。
+			spread = 100*(avg_price - self._pre_md_price[BIDPRICE1])/(self._pre_md_price[ASKPRICE1] - self._pre_md_price[BIDPRICE1])
+			self._diff_spread_array.append(spread)
+			spread = bf.get_weighted_mean(self._diff_spread_array,self._diff_volume_array,self._diff_period)
+		
+
+		tmpsd_lastprice = 10000*self._now_sd_val/self._now_md_price[LASTPRICE]
 		tmp_to_csv = [self._now_md_price[TIME],self._now_md_price[LASTPRICE],self._now_middle_value,
 					self._now_sd_val,self._ris_data,diff_volume,self._ris_data_3,tmpsd_lastprice
 					,diff_interest,spread,ema_diff_volume,ema_diff_openinterest]
@@ -229,7 +235,15 @@ def main(filename):
 	# read_data_from_csv(pth)
 	f = open(path,'rb')
 	reader = csv.reader(f)
-	bt = BandAndTrigger()
+	if "pb" in filename:
+		# print "this is pb"
+		bt = BandAndTrigger(param_dict_pb)
+	elif "zn" in filename:
+		bt = BandAndTrigger(param_dic_zn)
+	elif "ru" in filename:
+		bt = BandAndTrigger(param_dic_ru)
+	else:
+		bt=BandAndTrigger(param_dict_rb)
 	for row in reader:
 		bt.get_md_data(row)
 		# tranfer the string to float
@@ -244,12 +258,9 @@ if __name__=='__main__':
 	data1 = [20170630,20170629,20170628,20170627,20170623,20170622,20170621,20170620,20170619,20170616]
 	data2 =[20170703,20170704,20170705,20170706]
 	data = data1+ data2
-	# data = [20170707]
-	# instrumentid_array = ["ru1709","rb1710","zn1708","pb1708"]
-	# instrumentid_array = ["ru1709"]
+	# data = [20170717]
+	instrumentid_array = ["ru1709","rb1710","zn1709","pb1708"]
 	# instrumentid_array = ["rb1710"]
-	# instrumentid_array = ["zn1708"]
-	instrumentid_array = ["pb1708"]
 	for item in data:
 		for instrumentid in instrumentid_array:
 			path = instrumentid+ "_"+str(item)

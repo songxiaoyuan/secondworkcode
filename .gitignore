@@ -3,3 +3,4 @@ python/data/*
 .DS_Store
 **/*.txt
 *.DS_Store
+**/*.png
