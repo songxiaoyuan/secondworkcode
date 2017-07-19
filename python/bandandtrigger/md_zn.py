@@ -110,10 +110,11 @@ def main(filename):
 			file.write(mesg+"\n")
 			param_dict["band_loss_edge"] =1
 			param_dict["band_profit_edge"] =3
-			param_dict["volume_open_edge"] =40
+			param_dict["volume_open_edge"] =30
 			param_dict["sd_lastprice"] =9
 			param_dict["diff_period"] =6
-			param_dict["spread"] =90
+			param_dict["spread"] =95
+			param_dict["open_interest_edge"] = 0
 			create_band_obj(csv_data,param_dict)
 		elif band_type ==3:
 			continue
@@ -166,7 +167,7 @@ if __name__=='__main__':
 	# data1 = [20170630,20170629,20170628,20170627,20170623,20170622,20170621,20170620,20170619,20170616]
 	# data2 =[20170703,20170704,20170705,20170706]
 	# data = data1+ data2
-	data = [20170717]
+	data = [20170718]
 	for item in data:
 		path = "zn1709_"+ str(item)
 		print path
