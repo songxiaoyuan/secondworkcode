@@ -22,7 +22,7 @@ param_dict_pb = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":50
 			,"sd_lastprice":100,"open_interest_edge":0,"spread":100}
 # 这个是螺纹钢的
 param_dict_rb = {"limit_max_profit":25,"limit_max_loss":10,"rsi_bar_period":100
-			,"limit_rsi_data":80,"rsi_period":10,"band_period_begin":1200,"diff_period":6
+			,"limit_rsi_data":80,"rsi_period":10,"band_period_begin":360000,"diff_period":6
 			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":3600
 			,"volume_open_edge":900,"limit_max_draw_down":0,"multiple":10,"file":file
 			,"sd_lastprice":100,"open_interest_edge":0,"spread":100}
@@ -256,10 +256,10 @@ def main(filename):
 
 if __name__=='__main__':
 	data1 = [20170630,20170629,20170628,20170627,20170623,20170622,20170621,20170620,20170619,20170616]
-	data2 =[20170703,20170704,20170705,20170706]
+	data2 =[20170703,20170704,20170705,20170706,20170707,20170711,20170712,20170713,20170714,20170717]
 	data = data1+ data2
 	# data = [20170717]
-	instrumentid_array = ["ru1709","rb1710","zn1709","pb1708"]
+	instrumentid_array = ["ru1709","zn1709","pb1708"]
 	# instrumentid_array = ["rb1710"]
 	for item in data:
 		for instrumentid in instrumentid_array:
