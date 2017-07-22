@@ -24,18 +24,25 @@ def fun_dict(dic):
 	f = dic["f"]
 	f.write("this is fun dic")
 
+def adddic(dic):
+	dic[2] = 1
 
 def main():
-	f = open("test.txt","w")
+	# f = open("test.txt","w")
 	# for x in xrange(1,10):
 	# 	if x%2 ==0:
 	# 		write_fun1(f)
 	# 	else:
 	# 		write_fun2(f)
 	# f.close()
-	dic ={"a":"bb","c":"dd","f":f}
-	fun_dict(dic)
-	f.close()
+	# dic ={"a":"bb","c":"dd","f":f}
+	# fun_dict(dic)
+	# f.close()
+	dic = dict()
+	dic[3] = 45
+	print dic[3]
+	adddic(dic)
+	print dic[2]
 
 if __name__=='__main__': 
 	main()

@@ -174,6 +174,17 @@ def get_sd_data(time,price_array,period):
 	tmpsum = float(tmpsum)/period
 	return math.sqrt(tmpsum)
 
+def get_sd_data_by_map(price_map,period):
+	tmpsum =0
+	for item in price_map:
+		tmpsum = tmpsum + (item*price_map[item])
+	avg = float(tmpsum)/period
+	tmpsum = 0
+	for item in price_map:
+		tmpsum += ((item - avg)* (item - avg)*price_map[item])
+	tmpsum = float(tmpsum)/period
+	return math.sqrt(tmpsum) 
+
 def get_rsi_data(rsi_array,period):
 	# get the current rsi ,the array is the increase and low val
 	if len(rsi_array) ==0:
@@ -265,6 +276,39 @@ def get_weighted_mean(target_array,weight_array,period):
 	if total_sum ==0 or weight_sum ==0:
 		return 0
 	return float(total_sum)/weight_sum
+
+def write_config_info(pre_ema_val,lastprice_array,rsi_array,rsi_array_period,config_path):
+	config_file = open(config_file,"w")
+	line1 = "pre_ema_val:"+str(pre_ema_val)
+	line2 = "lastpricearray:"
+	for i in lastprice_array:
+		line2 = line2 + ","+str(i)
+	line3 = "rsiarray:"
+	for i in xrange(rsi_array_period-1,len(rsi_array)):
+		line3 = line3 + "," + str(rsi_array[i])
+	write_lines = [line1,line2,line3]
+	config_file.writelines(write_lines)
+	config_file.close()
+
+def get_config_info(pre_ema_val_array,lastprice_array,rsi_array,config_path):
+	config_file = open(config_path)
+	lines = config_file.readlines()
+	for line in line3:
+		if "pre_ema_val" in line:
+			print "this is pre_ema_val"
+			line = line.split(',')
+			pre_ema_val_array =line[1:]
+		elif "lastpricearray" in line:
+			print "this is lastprice array"
+			line = line.split(',')
+			lastprice_array =line[1:]
+		elif "rsiarray" in line:
+			print "this is rsiarray"
+			line = line.split(',')
+			rsi_array =line[1:]
+		else:
+			print "this is not the config line"
+	config_file.close()
 
 if __name__=='__main__': 
 	print "this is basic fun like c++ so"
