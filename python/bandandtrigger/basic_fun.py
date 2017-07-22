@@ -12,10 +12,10 @@ TIME = 20
 LONG =1
 SHORT =0
 
-def is_band_open_time(direction,lastprice,middle_val,sd_val,open_edge,sd_lastprice):
+def is_band_open_time(direction,lastprice,middle_val,sd_val,open_edge,limit_sd,limit_sd_open_edge):
 	# this is used to judge is time to band open
-	if 10000*(sd_val/lastprice) <=sd_lastprice:
-		open_edge = open_edge*2
+	if sd_val <=limit_sd:
+		open_edge = limit_sd_open_edge
 	if direction ==LONG:
 		upval = middle_val + open_edge*sd_val
 		if lastprice > middle_val and lastprice < upval:
@@ -26,10 +26,10 @@ def is_band_open_time(direction,lastprice,middle_val,sd_val,open_edge,sd_lastpri
 			return True
 	return False
 
-def is_band_close_time(direction,lastprice,middle_val,sd_val,open_edge,close_edge,cur_rsi_data,limit_rsi_data,sd_lastprice):
+def is_band_close_time(direction,lastprice,middle_val,sd_val,open_edge,close_edge,cur_rsi_data,limit_rsi_data,limit_sd,limit_sd_close_edge):
 	# this is used to judge is time to band is close time
-	if 10000*(sd_val/lastprice) <=sd_lastprice:
-		return False
+	if sd_val <= limit_sd:
+		open_edge = limit_sd_close_edge
 	if direction ==LONG:
 		profitval = middle_val + close_edge*sd_val
 		lossvla = middle_val - open_edge*sd_val

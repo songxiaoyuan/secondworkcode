@@ -22,7 +22,7 @@ param_dict_pb = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":50
 			,"sd_lastprice":100,"open_interest_edge":0,"spread":100}
 # 这个是螺纹钢的
 param_dict_rb = {"limit_max_profit":25,"limit_max_loss":10,"rsi_bar_period":100
-			,"limit_rsi_data":80,"rsi_period":10,"band_period_begin":1200,"diff_period":6
+			,"limit_rsi_data":80,"rsi_period":10,"band_period_begin":3600,"diff_period":6
 			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":3600
 			,"volume_open_edge":900,"limit_max_draw_down":0,"multiple":10,"file":file
 			,"sd_lastprice":100,"open_interest_edge":0,"spread":100}
@@ -221,7 +221,7 @@ class BandAndTrigger(object):
 		tmpsd_lastprice = 10000*self._now_sd_val/self._now_md_price[LASTPRICE]
 		tmp_to_csv = [self._now_md_price[TIME],self._now_md_price[LASTPRICE],self._now_middle_value,
 					self._now_sd_val,self._ris_data,diff_volume,self._ris_data_3,tmpsd_lastprice
-					,diff_interest,spread,ema_diff_volume,ema_diff_openinterest]
+					,diff_interest,spread,ema_diff_volume,ema_diff_openinterest,self._diff_spread_array[-1]]
 		self._write_to_csv_data.append(tmp_to_csv)
 
 		return True
@@ -258,7 +258,7 @@ if __name__=='__main__':
 	# data1 = [20170630,20170629,20170628,20170627,20170623,20170622,20170621,20170620,20170619,20170616]
 	# data2 =[20170703,20170704,20170705,20170706]
 	# data = data1+ data2
-	data = [20170718]
+	data = [20170721]
 	instrumentid_array = ["ru1709","rb1710","zn1709","pb1708"]
 	# instrumentid_array = ["rb1710"]
 	for item in data:

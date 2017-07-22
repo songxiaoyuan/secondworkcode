@@ -61,7 +61,8 @@ def main(filename):
 				,"limit_rsi_data":75,"rsi_period":10,"band_period_begin":3600,"diff_period":1
 				,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":3600
 				,"volume_open_edge":20,"limit_max_draw_down":0,"multiple":5,"file":file
-				,"sd_lastprice":100,"open_interest_edge":0,"spread":100}
+				,"sd_lastprice":100,"open_interest_edge":0,"spread":100,"limit_sd":20,"limit_sd_open_edge":1
+				,"limit_sd_close_edge":3}
 	# 这个是螺纹钢的 tick 1
 	# param_dict = {"limit_max_profit":25,"limit_max_loss":10,"rsi_bar_period":120
 	# 			,"limit_rsi_data":80,"rsi_period":14
@@ -169,7 +170,7 @@ if __name__=='__main__':
 	# data1 = [20170630,20170629,20170628,20170627,20170623,20170622,20170621,20170620,20170619,20170616]
 	# data2 =[20170703,20170704,20170705,20170706]
 	# data = data1+ data2
-	data = [20170718]
+	data = [20170721]
 	for item in data:
 		path = "pb1708_"+ str(item)
 		print path

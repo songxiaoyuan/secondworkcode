@@ -74,6 +74,10 @@ class BandAndTrigger(object):
 
 		self._sd_lastprice = param_dic["sd_lastprice"]
 
+		self._limit_sd = param_dic["limit_sd"]
+		self._limit_sd_open_edge = param_dic["limit_sd_open_edge"]
+		self._limit_sd_close_edge = param_dic["limit_sd_close_edge"]
+
 		self._file = param_dic["file"]
 
 
@@ -200,7 +204,8 @@ class BandAndTrigger(object):
 		# else:
 		open_val = self._param_open_edge
 		is_band_open = bf.is_band_open_time(self._direction,self._now_md_price[LASTPRICE],
-											self._now_middle_value,self._now_sd_val,open_val,self._sd_lastprice)
+											self._now_middle_value,self._now_sd_val,open_val,
+											self._limit_sd,self._limit_sd_open_edge)
 		# return is_band_open
 		if is_band_open ==False:
 			return False
@@ -262,7 +267,7 @@ class BandAndTrigger(object):
 		close_val = self._param_close_edge
 		is_band_close = bf.is_band_close_time(self._direction,self._now_md_price[LASTPRICE],
 											self._now_middle_value,self._now_sd_val,loss_val,close_val
-											,self._ris_data,self._limit_rsi_data,self._sd_lastprice)
+											,self._ris_data,self._limit_rsi_data,self._limit_sd,self._limit_sd_close_edge)
 		return is_band_close
 		
 
