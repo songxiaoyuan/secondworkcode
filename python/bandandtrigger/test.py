@@ -26,6 +26,11 @@ def fun_dict(dic):
 
 def adddic(dic):
 	dic[2] = 1
+def fixarray(array):
+	array.pop(0)
+	array = [1]
+	print "the fun of is :"
+	print array
 
 def main():
 	# f = open("test.txt","w")
@@ -38,11 +43,17 @@ def main():
 	# dic ={"a":"bb","c":"dd","f":f}
 	# fun_dict(dic)
 	# f.close()
-	dic = dict()
-	dic[3] = 45
-	print dic[3]
-	adddic(dic)
-	print dic[2]
+	# dic = dict()
+	# dic[3] = 45
+	# print dic[3]
+	# adddic(dic)
+	# print dic[2]
+	array = [1,2,3,4,5]
+	print array
+	array.pop(0)
+	print array
+	fixarray(array)
+	print array
 
 if __name__=='__main__': 
 	main()

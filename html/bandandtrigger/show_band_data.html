@@ -511,17 +511,16 @@
                 var sd = Number(linedata[3])
                 var rsi = Number(linedata[4])
                 var diff_volume = Number(linedata[5])
-                var rsi3 = Number(linedata[6])
-                var sd_lastprice = Number(linedata[7])
 
-                var diff_openinterest = Number(linedata[8])
-                var spread = Number(linedata[9])
-
-                var ema_openinterest = Number(linedata[11])
-                var ema_diff_volume = Number(linedata[10])
+                var diff_openinterest = Number(linedata[6])
+                var normal_spread = Number(linedata[7])
+                var ema_diff_volume = Number(linedata[8])
+                var ema_openinterest = Number(linedata[9])
+                var spread = Number(linedata[10])
+                
 
                 var openband = 0.5
-                if (sd_lastprice>9) {
+                if (sd>4) {
                     //开仓边界是0.5，
                     openband = 0.5
                 }
@@ -660,7 +659,6 @@
                     
                 times_array.push(time)
                 sd_array.push(sd)
-                sd_lastprice_array.push(sd_lastprice)
 
 
                 // ema_openinterest_array.push(ema_openinterest)
@@ -669,7 +667,6 @@
                 if (rsi >0) {
                     rsi_times_array.push(time)
                     rsi_array.push(rsi)
-                    rsi_array_3.push(rsi3)
                 }
 
                 if (MIN > lastprice) {

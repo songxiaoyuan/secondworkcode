@@ -62,7 +62,7 @@ def main(filename):
 				,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":3600
 				,"volume_open_edge":20,"limit_max_draw_down":0,"multiple":5,"file":file
 				,"sd_lastprice":100,"open_interest_edge":0,"spread":100,"limit_sd":20,"limit_sd_open_edge":1
-				,"limit_sd_close_edge":3}
+				,"limit_sd_close_edge":3,"config_file":"../config/pb1708"}
 	# 这个是螺纹钢的 tick 1
 	# param_dict = {"limit_max_profit":25,"limit_max_loss":10,"rsi_bar_period":120
 	# 			,"limit_rsi_data":80,"rsi_period":14
@@ -136,7 +136,7 @@ def main(filename):
 			param_dict["rsi_bar_period"] =50
 			create_band_obj(csv_data,param_dict)
 		elif band_type ==5:
-			# continue
+			continue
 			mesg = "1，3退出，sd／last price <9 不平，20进入 ema 参数的。"
 			print mesg
 			file.write(mesg+"\n")

@@ -84,14 +84,20 @@ class BandAndTrigger(object):
 		if len(self._lastprice_array) ==0:
 			print "this is init function"
 			tmp_pre_ema_array = []
-			bf.get_config_info(tmp_pre_ema_array,self._lastprice_array,self._rsi_array,self._config_file)
-			self._pre_ema_val = tmp_pre_ema_array[0]
+			tmp_rsi_lastprice = []
+			bf.get_config_info(tmp_pre_ema_array,self._lastprice_array,self._rsi_array,tmp_rsi_lastprice,self._config_file)
+			if len(tmp_pre_ema_array)==0:
+				self._pre_ema_val = 0
+				self._pre_rsi_lastprice = 0 
+			else:
+				self._pre_ema_val = tmp_pre_ema_array[0]
+				self._pre_rsi_lastprice = tmp_rsi_lastprice[0]
 
 
 	def __del__(self):
 		print "this is the over function"
 		bf.write_config_info(self._pre_ema_val,self._lastprice_array
-			,self._rsi_array,self._rsi_period,self._config_file)
+			,self._rsi_array,self._rsi_period,self._now_md_price[LASTPRICE],self._config_file)
 
 	# get the md data ,every line;
 	def get_md_data(self,md_array):

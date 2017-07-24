@@ -277,35 +277,52 @@ def get_weighted_mean(target_array,weight_array,period):
 		return 0
 	return float(total_sum)/weight_sum
 
-def write_config_info(pre_ema_val,lastprice_array,rsi_array,rsi_array_period,config_path):
-	config_file = open(config_file,"w")
-	line1 = "pre_ema_val:"+str(pre_ema_val)
+def write_config_info(pre_ema_val,lastprice_array,rsi_array,rsi_array_period,pre_rsi_lastprice,config_path):
+	config_file = open(config_path,"w")
+	line1 = "pre_ema_val:,"+str(pre_ema_val)
 	line2 = "lastpricearray:"
 	for i in lastprice_array:
 		line2 = line2 + ","+str(i)
 	line3 = "rsiarray:"
-	for i in xrange(rsi_array_period-1,len(rsi_array)):
+	for i in xrange(len(rsi_array)-rsi_array_period,len(rsi_array)):
 		line3 = line3 + "," + str(rsi_array[i])
-	write_lines = [line1,line2,line3]
+	line4 = "pre_rsi_lastprice:,"+str(pre_rsi_lastprice)
+	write_lines = [line1+'\n',line2+'\n',line3+'\n',line4+'\n']
 	config_file.writelines(write_lines)
 	config_file.close()
 
-def get_config_info(pre_ema_val_array,lastprice_array,rsi_array,config_path):
+def get_config_info(pre_ema_val_array,lastprice_array,lastprice_dic,rsi_array,rsi_pre_lastprice_array,config_path):
+	try:
+		config_file = open(config_path)
+	except Exception as e:
+		config_file = open(config_path,"w")
+		return
 	config_file = open(config_path)
 	lines = config_file.readlines()
-	for line in line3:
+	for line in lines:
 		if "pre_ema_val" in line:
 			print "this is pre_ema_val"
 			line = line.split(',')
-			pre_ema_val_array =line[1:]
+			pre_ema_val_array.append(float(line[1].strip()))
 		elif "lastpricearray" in line:
 			print "this is lastprice array"
-			line = line.split(',')
-			lastprice_array =line[1:]
+			line = line.split(',')[1:]
+			for tmp in line:
+				tmp = float(tmp.strip())
+				if tmp not in lastprice_dic:
+					lastprice_dic[tmp] =1
+				else:
+					lastprice_dic[tmp] +=1
+				lastprice_array.append(tmp)
+			# print "the length of lastprice is: " + str(len(lastprice_array))
 		elif "rsiarray" in line:
 			print "this is rsiarray"
-			line = line.split(',')
-			rsi_array =line[1:]
+			line = line.split(',')[1:]
+			for tmp in line:
+				rsi_array.append(float(tmp.strip()))
+		elif "pre_rsi_lastprice" in line:
+			print "this is the pre rsi lastprice"
+			rsi_pre_lastprice_array.append(float(line.split(',')[1].strip()))
 		else:
 			print "this is not the config line"
 	config_file.close()
