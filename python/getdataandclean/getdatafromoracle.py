@@ -48,34 +48,6 @@ def getSortedData(data):
 
 	return ret
 
-def cleanMdData(data):
-	ret = []
-	amBegin = 9*3600
-	amEnd = 11*3600+30*60
-	pmBegin = 13*3600+30*60
-	pmEnd = 15*3600
-	amRestBegin = 10*3600+15*60
-	amRestEnd = 10*3600+30*60
-
-	for line in data:
-		# print line
-		timeLine = line[20].split(":")
-		# print timeLine
-		# tick = line[21]
-		nowTime = int(timeLine[0])*3600+int(timeLine[1])*60+int(timeLine[2])
-		# print nowTime
-		# print time
-		# import pdb
-		# pdb.set_trace()
-		if nowTime<amBegin:
-			continue
-		if nowTime>pmEnd:
-			break
-		# if int(line[22]) ==0 or int(line[4]) ==3629:
-		# 	continue
-		ret.append(line)
-
-	return ret
 
 def getSqlData(myday,instrumentid): 
 
@@ -93,8 +65,6 @@ def getSqlData(myday,instrumentid):
 		icresult = cursor.fetchall()
 		# get the data and sort it.
 		sortedlist = sorted(icresult, key = lambda x: (x[20], int(x[21])))
-		# remove the 00:00 and 21:00 data,we dont need it
-		# cleandata = cleanMdData(sortedlist)
 		cleandata = getSortedData(sortedlist)
 		filename='../data/'+"%s_"%instrumentid
 		filename=filename+str(date)+'.csv'

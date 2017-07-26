@@ -134,12 +134,7 @@ class BandAndTrigger(object):
 		self._now_md_price = md_array
 
 		lastprice = self._now_md_price[LASTPRICE]
-		# self._lastprice_array.append(lastprice)
-		# print lastprice
 		if len(self._pre_md_price) ==0:
-			self._rsi_array.append(0)
-			self._pre_rsi_lastprice = lastprice
-			self._ris_data = -1
 			return
 		else:
 			# self._rsi_array.append(lastprice - self._pre_md_price[LASTPRICE])
@@ -157,6 +152,7 @@ class BandAndTrigger(object):
 				# self._ris_data = 0
 
 		self._lastprice_array.append(lastprice)
+
 		if len(self._lastprice_array) <= self._param_period:
 			# this is we dont start the period.
 			# print  "the lastprice length is small: " +str(len(self._lastprice_array))
@@ -186,60 +182,13 @@ class BandAndTrigger(object):
 		else:
 			self._now_middle_value = bf.get_ma_data(self._lastprice_array,self._param_period)
 		
-
-		
-		# self._ris_data = bf.get_rsi_data(self._rsi_array,self._rsi_period)
-		# self._now_sd_val =bf.get_sd_data(self._now_md_price[TIME], self._lastprice_array,self._param_period)
 		self._now_sd_val =bf.get_sd_data_by_map(self._lastprice_map,self._param_period)	
-
-		diff_volume = self._now_md_price[VOLUME] - self._pre_md_price[VOLUME]
-		diff_interest = self._now_md_price[OPENINTEREST] - self._pre_md_price[OPENINTEREST]
-		diff_turnover = self._now_md_price[TURNONER] - self._pre_md_price[TURNONER]
-
-		self._diff_volume_array.append(diff_volume)
-		self._diff_open_interest_array.append(diff_interest)
-		# 直接就是diff_interest
-		ema_diff_volume = bf.get_ema_data_2(self._diff_volume_array,self._diff_period)
-		ema_diff_openinterest = bf.get_sum(self._diff_open_interest_array,self._diff_period)
-
-		if diff_volume ==0:
-			spread =0
-			self._diff_spread_array.append(spread)
-		else:
-
-			avg_price = float(diff_turnover)/diff_volume/self._multiple
-			# if lastprice > self._now_middle_value:
-			# if self._pre_md_price[ASKPRICE1] != self._pre_md_price[BIDPRICE1]:
-			# 注意，现在算的只是和买一价的位置关系。
-			spread = 100*(avg_price - self._pre_md_price[BIDPRICE1])/(self._pre_md_price[ASKPRICE1] - self._pre_md_price[BIDPRICE1])
-			self._diff_spread_array.append(spread)
-			spread = bf.get_weighted_mean(self._diff_spread_array,self._diff_volume_array,self._diff_period)
-		
-
-		tmpsd_lastprice = 10000*self._now_sd_val/self._now_md_price[LASTPRICE]
-		tmp_to_csv = [self._now_md_price[TIME],self._now_md_price[LASTPRICE],self._now_middle_value,
-					self._now_sd_val,self._ris_data,diff_volume
-					,diff_interest,spread,ema_diff_volume,ema_diff_openinterest,self._diff_spread_array[-1]]
-		# print tmp_to_csv
-		self._write_to_csv_data.append(tmp_to_csv)
-
+	
 		return True
-
-	def get_to_csv_data(self):
-		return self._write_to_csv_data
 
 
 def start_create_config(instrumentid,data):
 	bt = BandAndTrigger(nameDict[instrumentid]["param"])
-	# if "pb" in instrumentid:
-	# 	# print "this is pb"
-	# 	bt = BandAndTrigger(param_dict_pb)
-	# elif "zn" in instrumentid:
-	# 	bt = BandAndTrigger(param_dic_zn)
-	# elif "ru" in instrumentid:
-	# 	bt = BandAndTrigger(param_dic_ru)
-	# else:
-	# 	bt=BandAndTrigger(param_dict_rb)
 	for row in data:
 		bt.get_md_data(row)
 		# tranfer the string to float
@@ -275,8 +224,8 @@ def getSortedData(data):
 		ret.append(line)
 	for line in zero:
 		ret.append(line)
-	# for line in day:
-	# 	ret.append(line)
+	for line in day:
+		ret.append(line)
 
 	return ret
 
@@ -284,23 +233,18 @@ def getSqlData(myday,instrumentid):
 
 	conn = cx_Oracle.connect('hq','hq','114.251.16.210:9921/quota')    
 	cursor = conn.cursor () 
-	for index in xrange(0,1):
-		date=myday+index
-		print date
 
-		mysql="select *from hyqh.quotatick where TRADINGDAY = '%s' AND instr(INSTRUMENTID,'%s')>0" % (date,instrumentid)
+	mysql="select *from hyqh.quotatick where TRADINGDAY = '%s' AND instr(INSTRUMENTID,'%s')>0" % (mayday,instrumentid)
 
-		print mysql
-		cursor.execute (mysql)  
+	print mysql
+	cursor.execute (mysql)  
 
-		icresult = cursor.fetchall()
-		# get the data and sort it.
-		sortedlist = sorted(icresult, key = lambda x: (x[20], int(x[21])))
-		# remove the 00:00 and 21:00 data,we dont need it
-		# cleandata = cleanMdData(sortedlist)
-		cleandata = getSortedData(sortedlist)
-		# instrumentid = str(myday)+instrumentid
-		start_create_config(instrumentid,cleandata)
+	icresult = cursor.fetchall()
+	# get the data and sort it.
+	sortedlist = sorted(icresult, key = lambda x: (x[20], int(x[21])))
+	cleandata = getSortedData(sortedlist)
+	# instrumentid = str(myday)+instrumentid
+	start_create_config(instrumentid,cleandata)
 
 if __name__=='__main__':
 	# data1 = [20170630,20170629,20170628,20170627,20170623,20170622,20170621,20170620,20170619,20170616]
