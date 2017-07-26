@@ -27,7 +27,7 @@ param_dict_rb = {"limit_max_profit":25,"limit_max_loss":10,"rsi_bar_period":100
 			,"limit_rsi_data":80,"rsi_period":10,"diff_period":1
 			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
 			,"volume_open_edge":900,"limit_max_draw_down":0,"multiple":10,"file":file
-			,"sd_lastprice":100,"open_interest_edge":0,"spread":100,"config_file":321}
+			,"sd_lastprice":100,"open_interest_edge":0,"spread":100,"config_file":320}
 
 # 这个是锌的
 param_dic_zn = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":100
