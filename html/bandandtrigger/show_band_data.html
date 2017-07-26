@@ -520,19 +520,20 @@
                 
 
                 var openband = 0.5
-                if (sd>4) {
+                if (sd>3) {
                     //开仓边界是0.5，
                     openband = 0.5
                 }
                 else{
                     //开仓边界是1
-                    openband = 1
+                    openband = 1.5
                 }
                 // 这个是long的情况
                 if (lastprice > middle && lastprice < middle + openband*sd) {
-                    // if (ema_diff_volume>300 && ema_openinterest > 0 && spread >= 90) {
-                        if (ema_diff_volume >600) {
-                            ema_diff_volume = 600
+                    if (diff_volume>500 && diff_openinterest > 0 && normal_spread >= 100) {
+                        console.log(time)
+                        if (ema_diff_volume >900) {
+                            ema_diff_volume = 900
                         }
                         if (spread > 150) {
                             spread =150
@@ -551,14 +552,14 @@
                        diff_openinterest_array.push(diff_openinterest)
                        ema_openinterest_array.push(ema_openinterest)
                        spread_array.push(spread) 
-                    // }
-                    // else{
-                    //     diff_volume_array.push(0)
-                    //     diff_openinterest_array.push(0)
-                    //     ema_openinterest_array.push(0)
-                    //     ema_diff_volume_array.push(0)
-                    //     spread_array.push(0)
-                    // }
+                    }
+                    else{
+                        diff_volume_array.push(0)
+                        diff_openinterest_array.push(0)
+                        ema_openinterest_array.push(0)
+                        ema_diff_volume_array.push(0)
+                        spread_array.push(0)
+                    }
                     
                 }
                 // 这个是short的情况

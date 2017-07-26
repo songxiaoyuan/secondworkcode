@@ -17,26 +17,26 @@ SHORT =0
 # 这个是铅的
 param_dict_pb = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":50
 			,"limit_rsi_data":75,"rsi_period":10,"diff_period":1
-			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
+			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":3600
 			,"volume_open_edge":20,"limit_max_draw_down":0,"multiple":5,"file":file
 			,"sd_lastprice":100,"open_interest_edge":0,"spread":100,"config_file":"../config/pb1709"}
 # 这个是螺纹钢的
 param_dict_rb = {"limit_max_profit":25,"limit_max_loss":10,"rsi_bar_period":100
 			,"limit_rsi_data":80,"rsi_period":10,"diff_period":1
-			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
+			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":3600
 			,"volume_open_edge":900,"limit_max_draw_down":0,"multiple":10,"file":file
 			,"sd_lastprice":100,"open_interest_edge":0,"spread":100,"config_file":"../config/rb1710"}
 
 # 这个是锌的
 param_dic_zn = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":100
 			,"limit_rsi_data":80,"rsi_period":10,"diff_period":1
-			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
+			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":3600
 			,"volume_open_edge":100,"limit_max_draw_down":0,"multiple":5,"file":file
 			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":"../config/zn1709"}
 # 这个是橡胶的
 param_dic_ru = {"limit_max_profit":250,"limit_max_loss":100,"rsi_bar_period":100
 			,"limit_rsi_data":70,"rsi_period":10,"diff_period":1
-			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
+			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":3600
 			,"volume_open_edge":120,"limit_max_draw_down":0,"multiple":10,"file":file
 			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":"../config/ru1709"}
 
@@ -263,9 +263,9 @@ if __name__=='__main__':
 	# data1 = [20170630,20170629,20170628,20170627,20170623,20170622,20170621,20170620,20170619,20170616]
 	# data2 =[20170703,20170704,20170705,20170706,20170707,20170711,20170712,20170713,20170714,20170717]
 	# data = data1+ data2
-	data = [20170724]
-	# instrumentid_array = ["ru1709","rb1710","zn1709","pb1709"]
-	instrumentid_array = ["ru1709"]
+	data = [20170725]
+	instrumentid_array = ["ru1709","rb1710","zn1709","pb1709"]
+	# instrumentid_array = ["ru1709"]
 	for item in data:
 		for instrumentid in instrumentid_array:
 			path = instrumentid+ "_"+str(item)
