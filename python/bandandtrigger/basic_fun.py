@@ -286,7 +286,7 @@ def write_config_info(pre_ema_val,lastprice_array,rsi_array,rsi_array_period,pre
 	line3 = "rsiarray:"
 	for i in xrange(len(rsi_array)-rsi_array_period,len(rsi_array)):
 		line3 = line3 + "," + str(rsi_array[i])
-	line4 = "pre_rsi_lastprice:,"+str(pre_rsi_lastprice)
+	line4 = "pre_rsi_val:,"+str(pre_rsi_lastprice)
 	write_lines = [line1+'\n',line2+'\n',line3+'\n',line4+'\n']
 	config_file.writelines(write_lines)
 	config_file.close()
@@ -320,7 +320,7 @@ def get_config_info(pre_ema_val_array,lastprice_array,lastprice_dic,rsi_array,rs
 			line = line.split(',')[1:]
 			for tmp in line:
 				rsi_array.append(float(tmp.strip()))
-		elif "pre_rsi_lastprice" in line:
+		elif "pre_rsi_val" in line:
 			print "this is the pre rsi lastprice"
 			rsi_pre_lastprice_array.append(float(line.split(',')[1].strip()))
 		else:
