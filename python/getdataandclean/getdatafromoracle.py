@@ -39,10 +39,10 @@ def getSortedData(data):
 			night.append(line)
 		# if int(line[22]) ==0 or int(line[4]) ==3629:
 		# 	continue
-	for line in night:
-		ret.append(line)
-	for line in zero:
-		ret.append(line)
+	# for line in night:
+	# 	ret.append(line)
+	# for line in zero:
+	# 	ret.append(line)
 	for line in day:
 		ret.append(line)
 
@@ -77,11 +77,20 @@ def getSqlData(myday,instrumentid):
 
 if __name__=='__main__': 
 	# data1 = [20170630,20170629,20170628,20170627,20170623,20170622,20170621,20170620,20170619,20170616]
+<<<<<<< HEAD
 	# data2 =[20170703,20170704,20170705,20170706,20170707,20170711,20170712,20170713,20170714,20170717]
 	# data = data1+ data2
 	data=[20170727]
 	instrumentid_array = ["ru1709","rb1710","zn1709","pb1709"]
 	# instrumentid_array = ["pb1708"]
+=======
+	# data2 =[20170711,20170712,20170713,20170714,20170717]
+	# data3 =[20170718,20170719,20170720,20170721,20170724,20170725,20170726]
+	# data = data2+ data3
+	data=[20170727]
+	# instrumentid_array = ["ru1709","rb1710","zn1709","pb1709"]
+	instrumentid_array = ["rb1710"]
+>>>>>>> cb3a4b45c86f8f8da53d428d6975576178b776ff
 	for myday in data:
 		# pass
 		for instrumentid in instrumentid_array:
