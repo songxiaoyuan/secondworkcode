@@ -234,7 +234,7 @@ def getSqlData(myday,instrumentid):
 	conn = cx_Oracle.connect('hq','hq','114.251.16.210:9921/quota')    
 	cursor = conn.cursor () 
 
-	mysql="select *from hyqh.quotatick where TRADINGDAY = '%s' AND instr(INSTRUMENTID,'%s')>0" % (mayday,instrumentid)
+	mysql="select *from hyqh.quotatick where TRADINGDAY = '%s' AND instr(INSTRUMENTID,'%s')>0" % (str(myday),instrumentid)
 
 	print mysql
 	cursor.execute (mysql)  
