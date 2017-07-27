@@ -11,6 +11,42 @@ BIDPRICE1 = 22
 ASKPRICE1 =24
 TIME = 20
 
+
+
+def getSortedData(data):
+	ret = []
+	night = []
+	zero = []
+	day = []
+	nightBegin = 21*3600
+	nightEnd = 23*3600+59*60+60
+	zeroBegin = 0
+	zeroEnd = 9*3600 - 100
+	dayBegin = 9*3600
+	dayEnd = 15*3600
+
+	for line in data:
+		# print line
+		timeLine = line[20].split(":")
+		# print timeLine
+		nowTime = int(timeLine[0])*3600+int(timeLine[1])*60+int(timeLine[2])
+
+		if nowTime >= zeroBegin and nowTime <zeroEnd:
+			zero.append(line)
+		elif nowTime >= dayBegin and nowTime <= dayEnd:
+			day.append(line)
+		elif nowTime >=nightBegin and nowTime <=nightEnd:
+			night.append(line)
+		# if int(line[22]) ==0 or int(line[4]) ==3629:
+		# 	continue
+	# for line in night:
+	# 	ret.append(line)
+	# for line in zero:
+	# 	ret.append(line)
+	for line in day:
+		ret.append(line)
+
+	return ret
 # read the md data from csv, it uesd to like the csv
 def read_data_from_csv(path):
 	f = open(path,'rb')
@@ -19,6 +55,8 @@ def read_data_from_csv(path):
 	for row in reader:
 		# obj.get_md_data(row)
 		ret.append(row)
+	# only get the day data
+	ret = getSortedData(ret)
 	return ret
 
 def start_to_run_md(band_obj,data):
@@ -56,32 +94,15 @@ def main(filename):
 	csv_data = read_data_from_csv(path)
 	path = filename+"_trade.txt"
 	file = open(path,"w")
-	# 这个是铅的 tick 5
-	# param_dict = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
-	# 			,"limit_rsi_data":80,"rsi_period":14
-	# 			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":3600
-	# 			,"volume_open_edge":20,"limit_max_draw_down":0,"multiple":5,"file":file
-	# 			,"sd_lastprice":100,"open_interest_edge":0,"spread":100}
-	# 这个是螺纹钢的 tick 1
-	param_dict = {"limit_max_profit":25,"limit_max_loss":6,"rsi_bar_period":100
-				,"limit_rsi_data":80,"rsi_period":10,"band_period_begin":3600,"diff_period":1
-				,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":3600
-				,"volume_open_edge":900,"limit_max_draw_down":0,"multiple":10,"file":file
-				,"sd_lastprice":100,"open_interest_edge":0,"spread":100,"limit_sd":4,"limit_sd_open_edge":1
-				,"limit_sd_close_edge":3}
-	# 这个是锌的 tick 5
-	# param_dict = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
-	# 			,"limit_rsi_data":80,"rsi_period":14
-	# 			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":3600
-	# 			,"volume_open_edge":120,"limit_max_draw_down":0,"multiple":5,"file":file
-	# 			,"sd_lastprice":0,"open_interest_edge":0,"spread":100}
 
-	# 这个是橡胶的 tick 5
-	# param_dict = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
-	# 			,"limit_rsi_data":80,"rsi_period":14
-	# 			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":3600
-	# 			,"volume_open_edge":180,"limit_max_draw_down":0,"multiple":10,"file":file
-	# 			,"sd_lastprice":0,"open_interest_edge":0,"spread":100}
+	# 这个是螺纹钢的 tick 1
+	param_dict = {"limit_max_profit":25,"limit_max_loss":6
+				,"rsi_bar_period":100,"limit_rsi_data":80,"rsi_period":10
+				,"diff_period":1
+				,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
+				,"limit_max_draw_down":0,"multiple":10,"file":file
+				,"open_interest_edge":0,"spread":100,"volume_open_edge":900
+				,"limit_sd":4,"limit_sd_open_edge":1,"limit_sd_close_edge":3,"config_file":320}
 
 	for band_type in xrange(0,7):
 		if band_type ==0:
@@ -96,7 +117,7 @@ def main(filename):
 			create_band_obj(csv_data,param_dict)
 		elif band_type ==1:
 			# continue
-			mesg = "1，3退出，sd／last price <9 不平，diff_period =1 900进入"
+			mesg = "1，3退出，diff_period =1 900进入,limit sd = 4"
 			print mesg
 			file.write(mesg+"\n")
 			param_dict["band_loss_edge"] =1
@@ -168,7 +189,7 @@ if __name__=='__main__':
 	# data1 = [20170630,20170629,20170628,20170627,20170623,20170622,20170621,20170620,20170619,20170616]
 	# data2 =[20170703,20170704,20170705,20170706,20170707,20170711,20170712,20170713,20170714,20170717]
 	# data = data1+data2
-	data = [20170720]
+	data = [20170727]
 	for item in data:
 		path = "rb1710_"+ str(item)
 		print path

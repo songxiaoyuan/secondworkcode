@@ -58,10 +58,6 @@ class BandAndTrigger(object):
 		self._param_close_edge =param_dic["band_profit_edge"]
 		self._param_period = param_dic["band_period"]
 		
-		# if the sd is too small like is smaller than _param_limit_sd_value,
-		# the open edge and close edge will bigger 
-		# self._param_limit_sd_value = limit_sd_val
-		# self._param_limit_bigger = 0
 
 		# trigger param
 		self._param_volume_open_edge = param_dic["volume_open_edge"]
@@ -72,8 +68,6 @@ class BandAndTrigger(object):
 		self._profit = 0
 		self._ris_data = 0
 
-		self._sd_lastprice = param_dic["sd_lastprice"]
-
 		self._limit_sd = param_dic["limit_sd"]
 		self._limit_sd_open_edge = param_dic["limit_sd_open_edge"]
 		self._limit_sd_close_edge = param_dic["limit_sd_close_edge"]
@@ -82,9 +76,10 @@ class BandAndTrigger(object):
 		self._config_file = param_dic["config_file"]
 
 		if len(self._lastprice_array) ==0:
-			print "this is init function"
+			print "this is init function " + str(self._config_file)
 			tmp_pre_ema_array = []
 			tmp_rsi_lastprice = []
+			config_file = "../config_server/"+str(self._config_file)
 			bf.get_config_info(tmp_pre_ema_array,self._lastprice_array,self._lastprice_map
 				,self._rsi_array,tmp_rsi_lastprice,config_file)
 			if len(tmp_pre_ema_array)==0:
@@ -97,8 +92,8 @@ class BandAndTrigger(object):
 
 	def __del__(self):
 		print "this is the over function"
-		bf.write_config_info(self._pre_ema_val,self._lastprice_array
-			,self._rsi_array,self._rsi_period,self._now_md_price[LASTPRICE],self._config_file)
+		# bf.write_config_info(self._pre_ema_val,self._lastprice_array
+		# 	,self._rsi_array,self._rsi_period,self._now_md_price[LASTPRICE],self._config_file)
 
 	# get the md data ,every line;
 	def get_md_data(self,md_array):
@@ -118,9 +113,7 @@ class BandAndTrigger(object):
 		# print lastprice
 
 		if len(self._pre_md_price) ==0:
-			self._rsi_array.append(0)
-			self._pre_rsi_lastprice = lastprice
-			self._ris_data = -1
+			return
 			# self._rsi_array.append(0)
 		else:
 			# self._rsi_array.append(lastprice - self._pre_md_price[LASTPRICE])
