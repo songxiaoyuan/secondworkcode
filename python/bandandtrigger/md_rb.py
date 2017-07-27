@@ -122,8 +122,7 @@ def main(filename):
 			file.write(mesg+"\n")
 			param_dict["band_loss_edge"] =1
 			param_dict["band_profit_edge"] =3
-			param_dict["volume_open_edge"] =900
-			param_dict["sd_lastprice"] =9
+			param_dict["volume_open_edge"] =500
 			create_band_obj(csv_data,param_dict)
 		elif band_type ==2:
 			continue
