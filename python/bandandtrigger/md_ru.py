@@ -96,11 +96,11 @@ def main(filename):
 	file = open(path,"w")
 
 	# 这个是螺纹钢的 tick 1
-	param_dict = {"limit_max_profit":250,"limit_max_loss":60
+	param_dict = {"limit_max_profit":250,"limit_max_loss":60,"multiple":10
 				,"rsi_bar_period":100,"limit_rsi_data":80,"rsi_period":10
 				,"diff_period":1
 				,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
-				,"limit_max_draw_down":0,"multiple":10,"file":file
+				,"limit_max_draw_down":0,"file":file
 				,"open_interest_edge":0,"spread":100,"volume_open_edge":900
 				,"limit_sd":20,"limit_sd_open_edge":1,"limit_sd_close_edge":3,"config_file":334}
 
