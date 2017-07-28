@@ -40,11 +40,11 @@ param_dic_ru = {"limit_max_profit":250,"limit_max_loss":100,"rsi_bar_period":100
 			,"limit_rsi_data":70,"rsi_period":10,"diff_period":1
 			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
 			,"volume_open_edge":120,"limit_max_draw_down":0,"multiple":10,"file":file
-			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":334}
+			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":330}
 
 nameDict = {
 	"rb1710":{"param":param_dict_rb},
-	"ru1709":{"param":param_dic_ru},
+	"ru1801":{"param":param_dic_ru},
 	"zn1709":{"param":param_dic_zn},
 	"pb1709":{"param":param_dict_pb}
 }
@@ -254,7 +254,7 @@ if __name__=='__main__':
 	# data2 =[20170703,20170704,20170705,20170706,20170707,20170711,20170712,20170713,20170714,20170717]
 	# data = data1+ data2
 	data = [20170728]
-	instrumentid_array = ["ru1709","rb1710","zn1709","pb1709"]
+	instrumentid_array = ["ru1801","rb1710","zn1709","pb1709"]
 	# instrumentid_array = ["rb1710"]
 	for item in data:
 		for instrumentid in instrumentid_array:

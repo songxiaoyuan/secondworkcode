@@ -37,7 +37,7 @@ param_dic_ru = {"limit_max_profit":250,"limit_max_loss":100,"rsi_bar_period":100
 			,"limit_rsi_data":70,"rsi_period":10,"diff_period":1
 			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
 			,"volume_open_edge":120,"limit_max_draw_down":0,"multiple":10,"file":file
-			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":334}
+			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":330}
 
 nameDict = {
 	"rb1710":{"param":param_dict_rb},
@@ -261,9 +261,9 @@ if __name__=='__main__':
 	# data2 =[20170711,20170712,20170713,20170714,20170717]
 	# data3 =[20170718,20170719,20170720,20170721,20170724,20170725,20170726]
 	# data = data2+ data3
-	data = [20170724,20170725,20170726,20170727]
-	# instrumentid_array = ["ru1709","rb1710","zn1709","pb1709"]
-	instrumentid_array = ["ru1801"]
+	data = [20170727,20170728]
+	# instrumentid_array = ["ru1801","rb1710","zn1709","pb1709"]
+	instrumentid_array = ["rb1710","zn1709","pb1709"]
 	for item in data:
 		for instrumentid in instrumentid_array:
 			path = instrumentid+ "_"+str(item)
