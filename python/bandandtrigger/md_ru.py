@@ -102,7 +102,7 @@ def main(filename):
 				,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
 				,"limit_max_draw_down":0,"file":file
 				,"open_interest_edge":0,"spread":100,"volume_open_edge":900
-				,"limit_sd":20,"limit_sd_open_edge":1,"limit_sd_close_edge":3,"config_file":334}
+				,"limit_sd":20,"limit_sd_open_edge":1,"limit_sd_close_edge":3,"config_file":330}
 
 	for band_type in xrange(0,7):
 		if band_type ==0:
@@ -190,7 +190,7 @@ if __name__=='__main__':
 	# data = data1+data2
 	data = [20170728]
 	for item in data:
-		path = "ru1709_"+ str(item)
+		path = "ru1801_"+ str(item)
 		print path
 		main(path)	
 	# print WRITETOFILE

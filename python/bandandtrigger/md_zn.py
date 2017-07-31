@@ -65,7 +65,7 @@ def start_to_run_md(band_obj,data):
 
 def create_band_obj(data,param_dict):
 	file = param_dict["file"]
-	for i in xrange(0,2):
+	for i in xrange(1,2):
 		param_dict["direction"] = i
 		band_and_trigger_obj = band_and_trigger.BandAndTrigger(param_dict)
 		if i==0:
@@ -123,6 +123,7 @@ def main(filename):
 			param_dict["band_loss_edge"] =1
 			param_dict["band_profit_edge"] =3
 			param_dict["volume_open_edge"] =100
+			param_dict["limit_max_draw_down"] = 0
 			create_band_obj(csv_data,param_dict)
 		elif band_type ==2:
 			continue

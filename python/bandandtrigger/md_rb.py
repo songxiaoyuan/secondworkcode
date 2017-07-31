@@ -122,7 +122,7 @@ def main(filename):
 			file.write(mesg+"\n")
 			param_dict["band_loss_edge"] =1
 			param_dict["band_profit_edge"] =3
-			param_dict["volume_open_edge"] =900
+			param_dict["volume_open_edge"] =500
 			create_band_obj(csv_data,param_dict)
 		elif band_type ==2:
 			continue
@@ -188,7 +188,7 @@ if __name__=='__main__':
 	# data1 = [20170630,20170629,20170628,20170627,20170623,20170622,20170621,20170620,20170619,20170616]
 	# data2 =[20170703,20170704,20170705,20170706,20170707,20170711,20170712,20170713,20170714,20170717]
 	# data = data1+data2
-	data = [20170728]
+	data = [20170727]
 	for item in data:
 		path = "rb1710_"+ str(item)
 		print path

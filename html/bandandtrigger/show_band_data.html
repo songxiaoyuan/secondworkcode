@@ -43,8 +43,8 @@
 <script type="text/javascript">
 
 
-        // document.getElementById("diff_volume_drawing").style.display="none";
-        // document.getElementById("diff_openinterest_drawing").style.display="none";
+        document.getElementById("rsidrawing").style.display="none";
+        // document.getElementById("sddrawing").style.display="none";
         // document.getElementById("sddrawing").style.display="none";
         // document.getElementById("ema_spread_drawing").style.display="none";
 
@@ -507,8 +507,8 @@
                 var middle = Number(linedata[2])
                 var sd = Number(linedata[3])
                 var rsi = Number(linedata[4])
-                var diff_volume = Number(linedata[5])
 
+                var diff_volume = Number(linedata[5])
                 var diff_openinterest = Number(linedata[6])
                 var spread = Number(linedata[7])
                 var ema_diff_volume = Number(linedata[8])
@@ -523,11 +523,11 @@
                 }
                 else{
                     //开仓边界是1
-                    openband = 2
+                    openband = 1
                 }
                 // 这个是long的情况
                 if (lastprice > middle && lastprice < middle + openband*sd) {
-                    if (diff_volume>20 && diff_openinterest > 0 && spread >= 100) {
+                    if (diff_volume>100 && diff_openinterest > 0 && spread >= 100) {
                         console.log(time)
                         if (ema_diff_volume >900) {
                             ema_diff_volume = 900
@@ -562,8 +562,8 @@
                     
                 }
                 // 这个是short的情况
-                // if (lastprice < middle && lastprice > middle - openband*sd) {
-                //     if (diff_volume>900 && diff_openinterest > 0 && spread >= 100) {
+                // else if (lastprice < middle && lastprice > middle - openband*sd) {
+                //     if (diff_volume>100 && diff_openinterest > 0 && spread <= 0) {
                 //         console.log(time)
                 //         if (ema_diff_volume >900) {
                 //             ema_diff_volume = 900

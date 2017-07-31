@@ -130,8 +130,9 @@ class BandAndTrigger(object):
 				self._ris_data =bf.get_rsi_data2(tmpdiff,self._rsi_array,self._rsi_period)
 				# self._ris_data = 0
 
-		self._lastprice_array.append(lastprice)
+		
 		if len(self._lastprice_array) < self._param_period:
+			self._lastprice_array.append(lastprice)
 			# this is we dont start the period.
 			ema_period = len(self._lastprice_array)
 			pre_ema_val = bf.get_ema_data(lastprice,self._pre_ema_val,ema_period)
@@ -142,16 +143,17 @@ class BandAndTrigger(object):
 			else:
 				self._lastprice_map[lastprice] +=1
 			return True
+		else:
+			self._lastprice_array.append(lastprice)
+			front_lastprice = self._lastprice_array[0]
+			self._lastprice_array.pop(0)
+			if front_lastprice != lastprice:
+				if lastprice not in self._lastprice_map :
+					self._lastprice_map[lastprice] = 1
+				else:
+					self._lastprice_map[lastprice] +=1
 
-		front_lastprice = self._lastprice_array[0]
-		self._lastprice_array.pop(0)
-		if front_lastprice != lastprice:
-			if lastprice not in self._lastprice_map :
-				self._lastprice_map[lastprice] = 1
-			else:
-				self._lastprice_map[lastprice] +=1
-
-			self._lastprice_map[front_lastprice] -=1
+				self._lastprice_map[front_lastprice] -=1
 
 		# start the judge
 		if self._moving_theo =="EMA":
@@ -169,7 +171,10 @@ class BandAndTrigger(object):
 
 		self._diff_volume_array.append(diff_volume)
 		self._diff_open_interest_array.append(diff_interest)
-		
+
+		# data_mesg = self._now_md_price[TIME]+","+str(lastprice)+","+str(self._now_middle_value)+","+str(self._now_sd_val)+","+str(diff_volume)+","+str(diff_interest)+","+str(self._ris_data)
+		# self._file.write(data_mesg+"\n")
+
 		if diff_volume ==0:
 			self._diff_spread_array.append(0)
 			return True
@@ -188,8 +193,7 @@ class BandAndTrigger(object):
 		open_time = self.is_trend_open_time()
 		close_time = self.is_trend_close_time()
 		# close_time = False
-
-
+		
 		if open_time and self._now_interest < self._limit_interest:
 		# if open_time:
 			self._now_interest +=1
