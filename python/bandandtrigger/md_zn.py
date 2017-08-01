@@ -65,7 +65,7 @@ def start_to_run_md(band_obj,data):
 
 def create_band_obj(data,param_dict):
 	file = param_dict["file"]
-	for i in xrange(1,2):
+	for i in xrange(0,2):
 		param_dict["direction"] = i
 		band_and_trigger_obj = band_and_trigger.BandAndTrigger(param_dict)
 		if i==0:
@@ -122,7 +122,7 @@ def main(filename):
 			file.write(mesg+"\n")
 			param_dict["band_loss_edge"] =1
 			param_dict["band_profit_edge"] =3
-			param_dict["volume_open_edge"] =100
+			param_dict["volume_open_edge"] =80
 			param_dict["limit_max_draw_down"] = 0
 			create_band_obj(csv_data,param_dict)
 		elif band_type ==2:
@@ -189,7 +189,7 @@ if __name__=='__main__':
 	# data1 = [20170630,20170629,20170628,20170627,20170623,20170622,20170621,20170620,20170619,20170616]
 	# data2 =[20170703,20170704,20170705,20170706,20170707,20170711,20170712,20170713,20170714,20170717]
 	# data = data1+data2
-	data = [20170728]
+	data = [20170731]
 	for item in data:
 		path = "zn1709_"+ str(item)
 		print path
