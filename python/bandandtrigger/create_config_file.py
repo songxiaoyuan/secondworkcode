@@ -225,10 +225,10 @@ def getSortedData(data):
 	night = sorted(night, key = lambda x: (x[20], int(x[21])))
 	zero = sorted(zero, key = lambda x: (x[20], int(x[21])))
 	day = sorted(day, key = lambda x: (x[20], int(x[21])))
-	# for line in night:
-	# 	ret.append(line)
-	# for line in zero:
-	# 	ret.append(line)
+	for line in night:
+		ret.append(line)
+	for line in zero:
+		ret.append(line)
 	for line in day:
 		ret.append(line)
 
@@ -255,7 +255,7 @@ if __name__=='__main__':
 	# data1 = [20170630,20170629,20170628,20170627,20170623,20170622,20170621,20170620,20170619,20170616]
 	# data2 =[20170703,20170704,20170705,20170706,20170707,20170711,20170712,20170713,20170714,20170717]
 	# data = data1+ data2
-	data = [20170731]
+	data = [20170801]
 	instrumentid_array = ["ru1801","rb1710","zn1709","pb1709"]
 	# instrumentid_array = ["ru1801"]
 	for item in data:
