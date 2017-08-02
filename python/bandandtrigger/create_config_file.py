@@ -29,12 +29,24 @@ param_dict_rb = {"limit_max_profit":25,"limit_max_loss":10,"rsi_bar_period":100
 			,"volume_open_edge":900,"limit_max_draw_down":0,"multiple":10,"file":file
 			,"sd_lastprice":100,"open_interest_edge":0,"spread":100,"config_file":320}
 
+param_dict_rb_3600 = {"limit_max_profit":25,"limit_max_loss":10,"rsi_bar_period":100
+			,"limit_rsi_data":80,"rsi_period":10,"diff_period":1
+			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":3600
+			,"volume_open_edge":900,"limit_max_draw_down":0,"multiple":10,"file":file
+			,"sd_lastprice":100,"open_interest_edge":0,"spread":100,"config_file":322}
+
 # 这个是橡胶的
 param_dic_ru = {"limit_max_profit":250,"limit_max_loss":100,"rsi_bar_period":100
 			,"limit_rsi_data":70,"rsi_period":10,"diff_period":1
 			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
 			,"volume_open_edge":120,"limit_max_draw_down":0,"multiple":10,"file":file
 			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":330}
+
+param_dic_ru_3600 = {"limit_max_profit":250,"limit_max_loss":100,"rsi_bar_period":100
+			,"limit_rsi_data":70,"rsi_period":10,"diff_period":1
+			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":3600
+			,"volume_open_edge":120,"limit_max_draw_down":0,"multiple":10,"file":file
+			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":332}
 			
 # 这个是锌的
 param_dic_zn = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":100
@@ -43,12 +55,18 @@ param_dic_zn = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":100
 			,"volume_open_edge":100,"limit_max_draw_down":0,"multiple":5,"file":file
 			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":346}
 
+param_dic_zn_3600 = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":100
+			,"limit_rsi_data":80,"rsi_period":10,"diff_period":1
+			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":3600
+			,"volume_open_edge":100,"limit_max_draw_down":0,"multiple":5,"file":file
+			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":348}
+
 
 nameDict = {
-	"rb1710":{"param":param_dict_rb},
-	"ru1801":{"param":param_dic_ru},
-	"zn1709":{"param":param_dic_zn},
-	"pb1709":{"param":param_dict_pb}
+	"rb1710":{"param":[param_dict_rb,param_dict_rb_3600]},
+	"ru1801":{"param":[param_dic_ru,param_dic_ru_3600]},
+	"zn1709":{"param":[param_dic_zn,param_dic_zn_3600]},
+	"pb1709":{"param":[param_dict_pb]}
 }
 
 class BandAndTrigger(object):
@@ -95,7 +113,7 @@ class BandAndTrigger(object):
 			print "this is init function"
 			tmp_pre_ema_array = []
 			tmp_rsi_lastprice = []
-			config_file = "../config_server/"+str(self._config_file)
+			config_file = "../config_server_test/"+str(self._config_file)
 			bf.get_config_info(tmp_pre_ema_array,self._lastprice_array,self._lastprice_map
 				,self._rsi_array,tmp_rsi_lastprice,config_file)
 			if len(tmp_pre_ema_array)==0:
@@ -113,11 +131,11 @@ class BandAndTrigger(object):
 
 	def __del__(self):
 		print "this is the over function"
-		config_file = "../config_server/"+str(self._config_file)
+		config_file = "../config_server_test/"+str(self._config_file)
 		bf.write_config_info(self._pre_ema_val,self._lastprice_array
 			,self._rsi_array,self._rsi_period,self._now_md_price[LASTPRICE],config_file)
 
-		config_file = "../config_server/"+str(self._config_file+1)
+		config_file = "../config_server_test/"+str(self._config_file+1)
 		bf.write_config_info(self._pre_ema_val,self._lastprice_array
 			,self._rsi_array,self._rsi_period,self._now_md_price[LASTPRICE],config_file)
 
@@ -193,10 +211,11 @@ class BandAndTrigger(object):
 
 
 def start_create_config(instrumentid,data):
-	bt = BandAndTrigger(nameDict[instrumentid]["param"])
-	for row in data:
-		bt.get_md_data(row)
-		# tranfer the string to float
+	for param in nameDict[instrumentid]["param"]:
+		bt = BandAndTrigger(param)
+		for row in data:
+			bt.get_md_data(row)
+			# tranfer the string to float
 
 
 def getSortedData(data):
