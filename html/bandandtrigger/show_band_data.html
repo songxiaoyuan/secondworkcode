@@ -494,6 +494,7 @@
             }
         }
 
+
         // 根据传入的参数进行画图，
         function startdraw(){
             // 首先确定一些基本的参数。确定要选择的几条线，然后和周期的评价指标，ema还是ma。
@@ -517,7 +518,7 @@
                 
 
                 var openband = 0.5
-                if (sd>20) {
+                if (sd>4) {
                     //开仓边界是0.5，
                     openband = 0.5
                 }
@@ -527,7 +528,7 @@
                 }
                 // 这个是long的情况
                 if (lastprice > middle && lastprice < middle + openband*sd) {
-                    if (diff_volume>100 && diff_openinterest > 0 && spread >= 100) {
+                    if (ema_diff_volume>500 && ema_spread >= 100) {
                         console.log(time)
                         if (ema_diff_volume >900) {
                             ema_diff_volume = 900
@@ -562,41 +563,41 @@
                     
                 }
                 // 这个是short的情况
-                // else if (lastprice < middle && lastprice > middle - openband*sd) {
-                //     if (diff_volume>100 && diff_openinterest > 0 && spread <= 0) {
-                //         console.log(time)
-                //         if (ema_diff_volume >900) {
-                //             ema_diff_volume = 900
-                //         }
-                //         if (spread > 150) {
-                //             spread =150
-                //         }
-                //         else if (spread < -150) {
-                //             spread = -150
-                //         }
-                //         if (ema_openinterest > 500) {
-                //             ema_openinterest =500
-                //         }
-                //         else if (ema_openinterest < -500) {
-                //             ema_openinterest = -500
-                //         }
-                //        diff_volume_array.push(diff_volume)
-                //        ema_diff_volume_array.push(ema_diff_volume)
-                //        diff_openinterest_array.push(diff_openinterest)
-                //        ema_openinterest_array.push(ema_openinterest)
-                //        spread_array.push(spread) 
-                //        ema_spread_array.push(ema_spread)
-                //     }
-                //     else{
-                //         diff_volume_array.push(0)
-                //         diff_openinterest_array.push(0)
-                //         ema_openinterest_array.push(0)
-                //         ema_diff_volume_array.push(0)
-                //         spread_array.push(0)
-                //         ema_spread_array.push(0)
-                //     }
+                else if (lastprice < middle && lastprice > middle - openband*sd) {
+                    if (ema_diff_volume>500  && ema_spread <= 0) {
+                        console.log(time)
+                        if (ema_diff_volume >900) {
+                            ema_diff_volume = 900
+                        }
+                        if (spread > 150) {
+                            spread =150
+                        }
+                        else if (spread < -150) {
+                            spread = -150
+                        }
+                        if (ema_openinterest > 500) {
+                            ema_openinterest =500
+                        }
+                        else if (ema_openinterest < -500) {
+                            ema_openinterest = -500
+                        }
+                       diff_volume_array.push(diff_volume)
+                       ema_diff_volume_array.push(ema_diff_volume)
+                       diff_openinterest_array.push(diff_openinterest)
+                       ema_openinterest_array.push(ema_openinterest)
+                       spread_array.push(spread) 
+                       ema_spread_array.push(ema_spread)
+                    }
+                    else{
+                        diff_volume_array.push(0)
+                        diff_openinterest_array.push(0)
+                        ema_openinterest_array.push(0)
+                        ema_diff_volume_array.push(0)
+                        spread_array.push(0)
+                        ema_spread_array.push(0)
+                    }
                     
-                // }
+                }
                 else{
                     diff_volume_array.push(0)
                     diff_openinterest_array.push(0)

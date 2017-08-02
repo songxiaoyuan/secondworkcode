@@ -16,7 +16,7 @@ SHORT =0
 # 这个是铅的
 param_dict_pb = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":50
 			,"limit_rsi_data":75,"rsi_period":10,"diff_period":1
-			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
+			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":3600
 			,"volume_open_edge":20,"limit_max_draw_down":0,"multiple":5,"file":file
 			,"sd_lastprice":100,"open_interest_edge":0,"spread":100,"config_file":310}
 # 这个是螺纹钢的
@@ -109,8 +109,8 @@ class BandAndTrigger(object):
 	def __del__(self):
 		print "this is the over function " + str(self._config_file)
 		config_file = "../config_pic/"+str(self._config_file)
-		bf.write_config_info(self._pre_ema_val,self._lastprice_array
-			,self._rsi_array,self._rsi_period,self._now_md_price[LASTPRICE],config_file)
+		# bf.write_config_info(self._pre_ema_val,self._lastprice_array
+		# 	,self._rsi_array,self._rsi_period,self._now_md_price[LASTPRICE],config_file)
 
 
 	# get the md data ,every line;
@@ -236,6 +236,41 @@ def clean_night_data(data):
 		# 	continue
 	return ret
 
+def getSortedData(data):
+	ret = []
+	night = []
+	zero = []
+	day = []
+	nightBegin = 21*3600
+	nightEnd = 23*3600+59*60+60
+	zeroBegin = 0
+	zeroEnd = 9*3600 - 100
+	dayBegin = 9*3600
+	dayEnd = 15*3600
+
+	for line in data:
+		# print line
+		timeLine = line[20].split(":")
+		# print timeLine
+		nowTime = int(timeLine[0])*3600+int(timeLine[1])*60+int(timeLine[2])
+
+		if nowTime >= zeroBegin and nowTime <zeroEnd:
+			zero.append(line)
+		elif nowTime >= dayBegin and nowTime <= dayEnd:
+			day.append(line)
+		elif nowTime >=nightBegin and nowTime <=nightEnd:
+			night.append(line)
+		# if int(line[22]) ==0 or int(line[4]) ==3629:
+		# 	continue
+	# for line in night:
+	# 	ret.append(line)
+	# for line in zero:
+	# 	ret.append(line)
+	for line in day:
+		ret.append(line)
+
+	return ret
+
 def main(filename):
 	path = "../data/"+filename+".csv"
 	# read_data_from_csv(pth)
@@ -243,6 +278,9 @@ def main(filename):
 	instrumentid = filename.split("_")[0]
 	print "the instrument id is: "+instrumentid
 	reader = csv.reader(f)
+
+	reader =getSortedData(reader)
+	
 	bt = BandAndTrigger(nameDict[instrumentid]["param"])
 	for row in reader:
 		bt.get_md_data(row)
@@ -261,9 +299,9 @@ if __name__=='__main__':
 	# data2 =[20170711,20170712,20170713,20170714,20170717]
 	# data3 =[20170718,20170719,20170720,20170721,20170724,20170725,20170726]
 	# data = data2+ data3
-	data = [20170727,20170728]
-	# instrumentid_array = ["ru1801","rb1710","zn1709","pb1709"]
-	instrumentid_array = ["zn1709"]
+	data = [20170801]
+	instrumentid_array = ["ru1801","rb1710","zn1709","pb1709"]
+	# instrumentid_array = ["zn1709"]
 	for item in data:
 		for instrumentid in instrumentid_array:
 			path = instrumentid+ "_"+str(item)

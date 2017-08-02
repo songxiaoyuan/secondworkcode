@@ -39,10 +39,10 @@ def getSortedData(data):
 			night.append(line)
 		# if int(line[22]) ==0 or int(line[4]) ==3629:
 		# 	continue
-	for line in night:
-		ret.append(line)
-	for line in zero:
-		ret.append(line)
+	# for line in night:
+	# 	ret.append(line)
+	# for line in zero:
+	# 	ret.append(line)
 	for line in day:
 		ret.append(line)
 
