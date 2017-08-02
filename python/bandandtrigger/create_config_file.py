@@ -19,7 +19,7 @@ SHORT =0
 # 这个是铅的
 param_dict_pb = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":50
 			,"limit_rsi_data":75,"rsi_period":10,"diff_period":1
-			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
+			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":3600
 			,"volume_open_edge":20,"limit_max_draw_down":0,"multiple":5,"file":file
 			,"sd_lastprice":100,"open_interest_edge":0,"spread":100,"config_file":310}
 # 这个是螺纹钢的
@@ -153,6 +153,9 @@ class BandAndTrigger(object):
 				self._ris_data =bf.get_rsi_data2(tmpdiff,self._rsi_array,self._rsi_period)
 				# self._ris_data = 0
 
+		# if len(self._lastprice_array) > self._param_period:
+		# 	self._lastprice_array.pop(0)
+
 		self._lastprice_array.append(lastprice)
 
 		if len(self._lastprice_array) <= self._param_period:
@@ -255,9 +258,9 @@ if __name__=='__main__':
 	# data1 = [20170630,20170629,20170628,20170627,20170623,20170622,20170621,20170620,20170619,20170616]
 	# data2 =[20170703,20170704,20170705,20170706,20170707,20170711,20170712,20170713,20170714,20170717]
 	# data = data1+ data2
-	data = [20170801]
+	data = [20170802]
 	instrumentid_array = ["ru1801","rb1710","zn1709","pb1709"]
-	# instrumentid_array = ["ru1801"]
+	# instrumentid_array = ["pb1709"]
 	for item in data:
 		for instrumentid in instrumentid_array:
 			getSqlData(item,instrumentid)	
