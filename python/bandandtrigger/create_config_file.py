@@ -113,7 +113,7 @@ class BandAndTrigger(object):
 			print "this is init function"
 			tmp_pre_ema_array = []
 			tmp_rsi_lastprice = []
-			config_file = "../config_server_test/"+str(self._config_file)
+			config_file = "../config_server/"+str(self._config_file)
 			bf.get_config_info(tmp_pre_ema_array,self._lastprice_array,self._lastprice_map
 				,self._rsi_array,tmp_rsi_lastprice,config_file)
 			if len(tmp_pre_ema_array)==0:
@@ -131,11 +131,11 @@ class BandAndTrigger(object):
 
 	def __del__(self):
 		print "this is the over function"
-		config_file = "../config_server_test/"+str(self._config_file)
+		config_file = "../config_server/"+str(self._config_file)
 		bf.write_config_info(self._pre_ema_val,self._lastprice_array
 			,self._rsi_array,self._rsi_period,self._now_md_price[LASTPRICE],config_file)
 
-		config_file = "../config_server_test/"+str(self._config_file+1)
+		config_file = "../config_server/"+str(self._config_file+1)
 		bf.write_config_info(self._pre_ema_val,self._lastprice_array
 			,self._rsi_array,self._rsi_period,self._now_md_price[LASTPRICE],config_file)
 
@@ -247,10 +247,10 @@ def getSortedData(data):
 	night = sorted(night, key = lambda x: (x[20], int(x[21])))
 	zero = sorted(zero, key = lambda x: (x[20], int(x[21])))
 	day = sorted(day, key = lambda x: (x[20], int(x[21])))
-	for line in night:
-		ret.append(line)
-	for line in zero:
-		ret.append(line)
+	# for line in night:
+	# 	ret.append(line)
+	# for line in zero:
+	# 	ret.append(line)
 	for line in day:
 		ret.append(line)
 
