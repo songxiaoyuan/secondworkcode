@@ -1,0 +1,330 @@
+<html>
+<head>
+	<meta charset="UTF-8">
+	<script src="./echarts.min.js"></script>
+	<script src="./jquery-3.2.1.min.js"></script>
+</head>
+
+<body style="width: 100%;height:100%;">
+<div>
+
+<div id="setting">
+	<div style="float: left;">
+        <input type="file" id="file" onchange="handleFiles(this.files)"/>
+		<!-- <div style="float: left;">合约代码</div>
+		<input type="text" id="contractcode" value="pb1707" style="float: left;"> -->
+	</div>
+	<div style="float: left;">
+		<button type="button" onclick="startdraw()">draw</button>
+	</div>
+</div>
+<br>
+<br>
+<br>
+<br>
+
+<div id="rbdrawing" style="width: 3000px;height:500px;"></div>
+<div id="rbsumdrawing" style="width: 3000px;height:500px;"></div>
+
+<div id="rudrawing" style="width: 3000px;height:300px;"></div>
+<div id="rusumdrawing" style="width: 3000px;height:300px;"></div>
+
+<div id="totaldrawing" style="width: 3000px;height:300px;"></div>
+
+
+<script type="text/javascript">
+
+
+        // document.getElementById("rudrawing").style.display="none";
+        // document.getElementById("sddrawing").style.display="none";
+        // document.getElementById("sddrawing").style.display="none";
+        // document.getElementById("ema_spread_drawing").style.display="none";
+
+        filedata =''
+        var rb_myChart = echarts.init(document.getElementById('rbdrawing'));
+        var rb_sum_myChart = echarts.init(document.getElementById('rbsumdrawing'));
+
+        var ru_myChart = echarts.init(document.getElementById('rudrawing'));
+        var ru_sum_myChart = echarts.init(document.getElementById('rusumdrawing'));
+
+        var total_myChart = echarts.init(document.getElementById('totaldrawing'));
+
+        times_array= []
+
+        rb_array = []
+        rb_sum_array = []
+
+        ru_array = []
+        ru_sum_array = []
+
+        total_array = []
+
+
+        rb_option = {
+            toolbox: {
+                show : true,
+                feature : {
+                    mark : {show: true},
+                    dataView : {show: true, readOnly: false},
+                    magicType : {show: true, type: ['line', 'bar']},
+                    restore : {show: true},
+                    saveAsImage : {show: true}
+                }
+            },
+            tooltip : {
+                trigger: 'axis'
+            },
+            title: {
+                text: 'rb'
+            },
+            legend: {
+                data:['profit']
+            },
+            xAxis: {
+                type: 'category',
+                // data: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
+            },
+            yAxis: {
+                type: 'value'
+            }, 
+            series : [
+                {
+                    name:'profit',
+                    type:'line',
+                    // data:[120, 132, 101, 134, 90, 230, 210]
+                }
+            ]          
+        };
+
+        rb_sum_option = {
+            toolbox: {
+                show : true,
+                feature : {
+                    mark : {show: true},
+                    dataView : {show: true, readOnly: false},
+                    magicType : {show: true, type: ['line', 'bar']},
+                    restore : {show: true},
+                    saveAsImage : {show: true}
+                }
+            },
+            tooltip : {
+                trigger: 'axis'
+            },
+            title: {
+                text: 'rb_sum'
+            },
+            legend: {
+                 data:['rb_sum']
+            },
+            xAxis: {
+                type: 'category',
+                // data: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
+            },
+            yAxis: {
+                type: 'value'
+            },  
+            series : [
+                {
+                    name:'rb_sum',
+                    type:'line',
+                    // data:[120, 132, 101, 134, 90, 230, 210]
+                }
+            ]       
+        };
+
+        ru_option = {
+            toolbox: {
+                show : true,
+                feature : {
+                    mark : {show: true},
+                    dataView : {show: true, readOnly: false},
+                    magicType : {show: true, type: ['line', 'bar']},
+                    restore : {show: true},
+                    saveAsImage : {show: true}
+                }
+            },
+            tooltip : {
+                trigger: 'axis'
+            },
+            title: {
+                text: 'ru'
+            },
+            legend: {
+                 data:['ru']
+            },
+            xAxis: {
+                type: 'category',
+                // data: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
+            },
+            yAxis: {
+                type: 'value'
+            },  
+            series : [
+                {
+                    name:'ru',
+                    type:'line',
+                    // data:[120, 132, 101, 134, 90, 230, 210]
+                }
+            ]       
+        };
+
+        ru_sum_option = {
+            toolbox: {
+                show : true,
+                feature : {
+                    mark : {show: true},
+                    dataView : {show: true, readOnly: false},
+                    magicType : {show: true, type: ['line', 'bar']},
+                    restore : {show: true},
+                    saveAsImage : {show: true}
+                }
+            },
+            tooltip : {
+                trigger: 'axis'
+            },
+            title: {
+                text: 'ru_sum'
+            },
+            legend: {
+                 data:['ru_sum']
+            },
+            xAxis: {
+                type: 'category',
+                // data: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
+            },
+            yAxis: {
+                type: 'value'
+            },  
+            series : [
+                {
+                    name:'ru_sum',
+                    type:'line',
+                    // data:[120, 132, 101, 134, 90, 230, 210]
+                }
+            ]       
+        };
+
+
+        total_option = {
+            toolbox: {
+                show : true,
+                feature : {
+                    mark : {show: true},
+                    dataView : {show: true, readOnly: false},
+                    magicType : {show: true, type: ['line', 'bar']},
+                    restore : {show: true},
+                    saveAsImage : {show: true}
+                }
+            },
+            tooltip : {
+                trigger: 'axis'
+            },
+            title: {
+                text: 'total'
+            },
+            legend: {
+                 data:['total']
+            },
+            xAxis: {
+                type: 'category',
+                // data: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
+            },
+            yAxis: {
+                type: 'value'
+            },  
+            series : [
+                {
+                    name:'total',
+                    type:'line',
+                    // data:[120, 132, 101, 134, 90, 230, 210]
+                }
+            ]       
+        };
+
+        // 根据input的file标签读取出相对应的csv的数据。
+        function  handleFiles(files)
+        {
+          if(files.length)
+          {
+             var file = files[0];
+             var reader = new FileReader();
+             reader.onload = function()
+             {
+                 // document.getElementById("filecontent").innerHTML = this.result;
+                 // console.log(this.result)
+                 var data = this.result
+                 filedata = data.split("\n")
+             };
+             reader.readAsText(file);
+          }
+        }
+
+
+        // 根据传入的参数进行画图，
+        function startdraw(){
+
+            var rb_sum =0
+            var ru_sum = 0
+
+            // 第一个数据是不要的，那个是一个标签
+            for (var i = 1; i < filedata.length; i++) {
+                var linedata = filedata[i].split(',')
+                // 首先判断是不是已经达到我们所需要的周期了，如果还没有达到，那么就继续等着，不然就开始计算数据。
+                var time = linedata[0]
+
+                var rb = Number(linedata[1])
+                var ru = Number(linedata[2])
+                
+                times_array.push(time)
+
+                rb_array.push(rb)
+                rb_sum += rb
+                rb_sum_array.push(rb_sum)
+
+                ru_array.push(ru)
+                ru_sum += ru
+                ru_sum_array.push(ru_sum)
+
+                total_array.push(ru_sum + rb_sum)
+
+
+                if (time==NaN) {
+                    break
+                }
+            }
+
+            rb_option.xAxis.data = times_array
+            rb_option.series[0].data = rb_array
+
+            rb_sum_option.xAxis.data = times_array
+            rb_sum_option.series[0].data = rb_sum_array
+
+            ru_option.xAxis.data = times_array
+            ru_option.series[0].data = ru_array
+
+            ru_sum_option.xAxis.data = times_array
+            ru_sum_option.series[0].data = ru_sum_array
+
+            total_option.xAxis.data = times_array
+            total_option.series[0].data = total_array
+
+            rb_myChart.setOption(rb_option);
+            rb_sum_myChart.setOption(rb_sum_option)
+            ru_myChart.setOption(ru_option);
+            ru_sum_myChart.setOption(ru_sum_option)
+            total_myChart.setOption(total_option)
+        }
+
+        rb_myChart.setOption(rb_option);
+        rb_sum_myChart.setOption(rb_sum_option)
+        ru_myChart.setOption(ru_option);
+        ru_sum_myChart.setOption(ru_sum_option)
+        total_myChart.setOption(total_option)
+
+         
+</script>
+
+</div>
+
+</body>
+</html>

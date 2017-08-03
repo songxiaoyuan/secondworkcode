@@ -201,18 +201,23 @@ def main(filename):
 				"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,
 				 "file":file
 				,"open_interest_edge":0,"spread":100,"volume_open_edge":0
-				,"limit_sd":20,"limit_sd_open_edge":1,"limit_sd_close_edge":3}
-
-	for band_type in xrange(0,1):
-		if band_type ==0:
-			# continue
-			mesg = "1，3退出，500进入,limit sd = 4"
-			print mesg
-			file.write(mesg+"\n")
-			param_dict["band_loss_edge"] =1
-			param_dict["band_profit_edge"] =3
-			param_dict["volume_open_edge"] =100
-			create_band_obj(csv_data,param_dict)
+				,"limit_sd":4,"limit_sd_open_edge":1,"limit_sd_close_edge":3}
+	if "rb" in filename:
+		param_dict["volume_open_edge"] =900
+		param_dict["limit_sd"] =4
+	elif "ru" in filename:
+		param_dict["volume_open_edge"] =100
+		param_dict["limit_sd"] =20
+	elif "pb" in filename:
+		param_dict["volume_open_edge"] =20
+		param_dict["limit_sd"] =20
+	elif "zn" in filename:
+		param_dict["volume_open_edge"] =100
+		param_dict["limit_sd"] =25
+	else:
+		print "the instrument is not in the parm " + filename
+		return
+	create_band_obj(csv_data,param_dict)
 	file.close()
 
 
@@ -222,9 +227,12 @@ if __name__=='__main__':
 	# data1 = [20170630,20170629,20170628,20170627,20170623,20170622,20170621,20170620,20170619,20170616]
 	# data =[20170711,20170712,20170713,20170714,20170717,20170718,20170719,20170720,20170721,20170724,20170725,20170726,20170727,20170728]
 	# data = data1+data2
-	data = [20170802]
+	data = [20170803]
+	# instrumentid = ["rb1710","ru1801","zn1709","pb1709"]
+	instrumentid = ["ru1801"]
 	for item in data:
-		path = "zn1709_"+ str(item)
-		print path
-		main(path)	
-	# print WRITETOFILE
+		for instrument in instrumentid:
+			path = instrument + "_"+ str(item)
+			print path
+			main(path)	
+		# print WRITETOFILE
