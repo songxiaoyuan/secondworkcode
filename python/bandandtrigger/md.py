@@ -191,9 +191,9 @@ def create_band_obj(data,param_dict):
 
 
 def main(filename):
-	path = "../tmp/"+filename+"_band_data.csv"
+	path = "../data/"+filename+"_band_data.csv"
 	csv_data = read_data_from_csv(path)
-	path = "../outdata/"+filename+"_trade_normal.txt"
+	path = "../outdata/"+filename+"_trade.txt"
 	file = open(path,"w")
 
 	# 这个是螺纹钢的 tick 1
@@ -201,7 +201,7 @@ def main(filename):
 				"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,
 				 "file":file
 				,"open_interest_edge":0,"spread":100,"volume_open_edge":0
-				,"limit_sd":4,"limit_sd_open_edge":1,"limit_sd_close_edge":3}
+				,"limit_sd":20,"limit_sd_open_edge":1,"limit_sd_close_edge":3}
 
 	for band_type in xrange(0,1):
 		if band_type ==0:
@@ -211,7 +211,7 @@ def main(filename):
 			file.write(mesg+"\n")
 			param_dict["band_loss_edge"] =1
 			param_dict["band_profit_edge"] =3
-			param_dict["volume_open_edge"] =1000
+			param_dict["volume_open_edge"] =100
 			create_band_obj(csv_data,param_dict)
 	file.close()
 
@@ -220,11 +220,11 @@ def main(filename):
 if __name__=='__main__': 
 	# main("ru1709_20170622")
 	# data1 = [20170630,20170629,20170628,20170627,20170623,20170622,20170621,20170620,20170619,20170616]
-	data =[20170711,20170712,20170713,20170714,20170717,20170718,20170719,20170720,20170721,20170724,20170725,20170726,20170727,20170728]
+	# data =[20170711,20170712,20170713,20170714,20170717,20170718,20170719,20170720,20170721,20170724,20170725,20170726,20170727,20170728]
 	# data = data1+data2
-	# data = [20170726]
+	data = [20170802]
 	for item in data:
-		path = "rb1710_"+ str(item)
+		path = "zn1709_"+ str(item)
 		print path
 		main(path)	
 	# print WRITETOFILE
