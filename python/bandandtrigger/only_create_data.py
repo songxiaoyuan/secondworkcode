@@ -299,7 +299,7 @@ if __name__=='__main__':
 	# data2 =[20170711,20170712,20170713,20170714,20170717]
 	# data3 =[20170718,20170719,20170720,20170721,20170724,20170725,20170726]
 	# data = data2+ data3
-	data = [20170801]
+	data = [20170803]
 	instrumentid_array = ["ru1801","rb1710","zn1709","pb1709"]
 	# instrumentid_array = ["zn1709"]
 	for item in data:
