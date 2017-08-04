@@ -247,10 +247,10 @@ def getSortedData(data):
 	night = sorted(night, key = lambda x: (x[20], int(x[21])))
 	zero = sorted(zero, key = lambda x: (x[20], int(x[21])))
 	day = sorted(day, key = lambda x: (x[20], int(x[21])))
-	for line in night:
-		ret.append(line)
-	for line in zero:
-		ret.append(line)
+	# for line in night:
+	# 	ret.append(line)
+	# for line in zero:
+	# 	ret.append(line)
 	for line in day:
 		ret.append(line)
 
