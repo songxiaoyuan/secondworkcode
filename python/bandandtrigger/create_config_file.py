@@ -54,13 +54,13 @@ param_dic_zn = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":100
 			,"limit_rsi_data":80,"rsi_period":10,"diff_period":1
 			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
 			,"volume_open_edge":100,"limit_max_draw_down":0,"multiple":5,"file":file
-			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":346}
+			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":340}
 
 param_dic_zn_3600 = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":100
 			,"limit_rsi_data":80,"rsi_period":10,"diff_period":1
 			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":3600
 			,"volume_open_edge":100,"limit_max_draw_down":0,"multiple":5,"file":file
-			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":348}
+			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":342}
 
 # 这个是锌的
 param_dic_cu = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
@@ -88,13 +88,27 @@ param_dic_hc_3600 = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period"
 			,"volume_open_edge":100,"limit_max_draw_down":0,"multiple":1,"file":file
 			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":382}
 
+# 这个是锌的
+param_dic_i = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
+			,"limit_rsi_data":80,"rsi_period":14,"diff_period":1
+			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
+			,"volume_open_edge":100,"limit_max_draw_down":0,"multiple":100,"file":file
+			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":350}
+
+param_dic_i_3600 = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
+			,"limit_rsi_data":80,"rsi_period":14,"diff_period":1
+			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":3600
+			,"volume_open_edge":100,"limit_max_draw_down":0,"multiple":100,"file":file
+			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":352}
+
 
 nameDict = {
-	"rb1710":{"param":[param_dict_rb,param_dict_rb_3600]},
+	"rb1801":{"param":[param_dict_rb,param_dict_rb_3600]},
 	"ru1801":{"param":[param_dic_ru,param_dic_ru_3600]},
-	"zn1709":{"param":[param_dic_zn,param_dic_zn_3600]},
+	"zn1710":{"param":[param_dic_zn,param_dic_zn_3600]},
 	"cu1710":{"param":[param_dic_cu,param_dic_cu_3600]},
 	"hc1710":{"param":[param_dic_hc,param_dic_hc_3600]},
+	"i1801":{"param":[param_dic_i,param_dic_i_3600]},
 	"pb1709":{"param":[param_dict_pb]}
 }
 
@@ -276,12 +290,12 @@ def getSortedData(data):
 	night = sorted(night, key = lambda x: (x[20], int(x[21])))
 	zero = sorted(zero, key = lambda x: (x[20], int(x[21])))
 	day = sorted(day, key = lambda x: (x[20], int(x[21])))
-	# for line in night:
-	# 	ret.append(line)
-	# for line in zero:
-	# 	ret.append(line)
-	for line in day:
+	for line in night:
 		ret.append(line)
+	for line in zero:
+		ret.append(line)
+	# for line in day:
+	# 	ret.append(line)
 
 	return ret
 
@@ -317,9 +331,9 @@ if __name__=='__main__':
 	# data1 = [20170630,20170629,20170628,20170627,20170623,20170622,20170621,20170620,20170619,20170616]
 	# data2 =[20170703,20170704,20170705,20170706,20170707,20170711,20170712,20170713,20170714,20170717]
 	# data = data1+ data2
-	data = [20170807]
-	instrumentid_array = ["ru1801","rb1710","zn1709","pb1709","cu1710","hc1710"]
-	# instrumentid_array = ["cu1710","hc1710"]
+	data = [20170808]
+	instrumentid_array = ["ru1801","rb1801","zn1710","pb1709","cu1710","hc1710","i1801"]
+	# instrumentid_array = ["zn1710","i1801"]
 	for item in data:
 		for instrumentid in instrumentid_array:
 			getSqlData(item,instrumentid)	
