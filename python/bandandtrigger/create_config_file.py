@@ -254,6 +254,9 @@ class BandAndTrigger(object):
 
 
 def start_create_config(instrumentid,data):
+	print "start create the config file of " + instrumentid
+	if instrumentid not in nameDict:
+		print "the instrument id " + instrumentid + " is not in the dict"
 	for param in nameDict[instrumentid]["param"]:
 		bt = BandAndTrigger(param)
 		for row in data:
@@ -294,8 +297,8 @@ def getSortedData(data):
 		ret.append(line)
 	for line in zero:
 		ret.append(line)
-	# for line in day:
-	# 	ret.append(line)
+	for line in day:
+		ret.append(line)
 
 	return ret
 
@@ -311,7 +314,7 @@ def getSqlData(myday,instrumentid):
 	conn = cx_Oracle.connect('hq','hq','114.251.16.210:9921/quota')    
 	cursor = conn.cursor () 
 
-	mysql="select *from hyqh.quotatick where TRADINGDAY = '%s' AND instr(INSTRUMENTID,'%s')>0" % (str(myday),instrumentid)
+	mysql="select *from hyqh.quotatick where TRADINGDAY = '%s' AND INSTRUMENTID = '%s'" % (str(myday),instrumentid)
 
 	print mysql
 	cursor.execute (mysql)  
@@ -331,11 +334,11 @@ if __name__=='__main__':
 	# data1 = [20170630,20170629,20170628,20170627,20170623,20170622,20170621,20170620,20170619,20170616]
 	# data2 =[20170703,20170704,20170705,20170706,20170707,20170711,20170712,20170713,20170714,20170717]
 	# data = data1+ data2
-	data = [20170808]
+	data = [20170809]
 	instrumentid_array = ["ru1801","rb1801","zn1710","pb1709","cu1710","hc1710","i1801"]
-	# instrumentid_array = ["zn1710","i1801"]
+	# instrumentid_array = ["i1801"]
 	for item in data:
 		for instrumentid in instrumentid_array:
 			getSqlData(item,instrumentid)	
 
-	# copy_file()
+	copy_file()
