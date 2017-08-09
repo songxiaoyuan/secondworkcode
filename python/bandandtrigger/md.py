@@ -214,6 +214,14 @@ def main(filename):
 	elif "zn" in filename:
 		param_dict["volume_open_edge"] =100
 		param_dict["limit_sd"] =25
+	elif "cu" in filename:
+		param_dict["volume_open_edge"] =100
+		param_dict["band_loss_edge"] =0.5
+		param_dict["limit_sd"] =40
+	elif "i" in filename:
+		param_dict["volume_open_edge"] =900
+		param_dict["band_loss_edge"] =0.5
+		param_dict["limit_sd"] =2
 	else:
 		print "the instrument is not in the parm " + filename
 		return
@@ -227,9 +235,9 @@ if __name__=='__main__':
 	# data1 = [20170630,20170629,20170628,20170627,20170623,20170622,20170621,20170620,20170619,20170616]
 	# data =[20170711,20170712,20170713,20170714,20170717,20170718,20170719,20170720,20170721,20170724,20170725,20170726,20170727,20170728]
 	# data = data1+data2
-	data = [20170804]
+	data = [20170808]
 	# instrumentid = ["rb1710","ru1801","zn1709","pb1709"]
-	instrumentid = ["rb1710"]
+	instrumentid = ["cu1710"]
 	for item in data:
 		for instrument in instrumentid:
 			path = instrument + "_"+ str(item)

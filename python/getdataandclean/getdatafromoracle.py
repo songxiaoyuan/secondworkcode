@@ -60,7 +60,7 @@ def getSqlData(myday,instrumentid):
 		date=myday+index
 		print date
 
-		mysql="select *from hyqh.quotatick where TRADINGDAY = '%s' AND instr(INSTRUMENTID,'%s')>0" % (date,instrumentid)
+		mysql="select *from hyqh.quotatick where TRADINGDAY = '%s' AND INSTRUMENTID = '%s' " % (date,instrumentid)
 
 		print mysql
 		cursor.execute (mysql)  
@@ -83,9 +83,9 @@ if __name__=='__main__':
 	# data2 =[20170711,20170712,20170713,20170714,20170717]
 	# data3 =[20170718,20170719,20170720,20170721,20170724,20170725,20170726]
 	# data = data2+ data3
-	data = [20170804]
-	instrumentid_array = ["ru1801","rb1710","zn1709","pb1709"]
-	# instrumentid_array = ["ru1801"]
+	data = [20170808]
+	# instrumentid_array = ["ru1801","rb1710","zn1709","pb1709"]
+	instrumentid_array = ["i1801"]
 	for myday in data:
 		# pass
 		for instrumentid in instrumentid_array:
