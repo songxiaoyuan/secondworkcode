@@ -31,7 +31,7 @@ param_dic_zn = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
 			,"limit_rsi_data":80,"rsi_period":14,"diff_period":1
 			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
 			,"volume_open_edge":100,"limit_max_draw_down":0,"multiple":5,"file":file
-			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":346}
+			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":340}
 # 这个是橡胶的
 param_dic_ru = {"limit_max_profit":250,"limit_max_loss":100,"rsi_bar_period":120
 			,"limit_rsi_data":70,"rsi_period":14,"diff_period":1
@@ -56,9 +56,9 @@ param_dict_i = {"limit_max_profit":10000,"limit_max_loss":10000,"multiple":100
 			,"limit_sd":2,"limit_sd_open_edge":1,"limit_sd_close_edge":3,"config_file":350}
 
 nameDict = {
-	"rb1710":{"param":param_dict_rb},
+	"rb1801":{"param":param_dict_rb},
 	"ru1801":{"param":param_dic_ru},
-	"zn1709":{"param":param_dic_zn},
+	"zn1710":{"param":param_dic_zn},
 	"cu1710":{"param":param_dict_cu},
 	"i1801":{"param":param_dict_i},
 	"pb1709":{"param":param_dict_pb}
@@ -317,9 +317,9 @@ if __name__=='__main__':
 	# data2 =[20170711,20170712,20170713,20170714,20170717]
 	# data3 =[20170718,20170719,20170720,20170721,20170724,20170725,20170726]
 	# data = data2+ data3
-	data = [20170808]
+	data = [20170809]
 	# instrumentid_array = ["ru1801","rb1710","zn1709","pb1709"]
-	instrumentid_array = ["i1801"]
+	instrumentid_array = ["rb1801"]
 	for item in data:
 		for instrumentid in instrumentid_array:
 			path = instrumentid+ "_"+str(item)

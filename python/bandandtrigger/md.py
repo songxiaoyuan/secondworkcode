@@ -80,7 +80,6 @@ class BandAndTrigger(object):
 		self._ema_spread = self._spread
 
 
-
 		open_time = self.is_trend_open_time()
 		close_time = self.is_trend_close_time()
 		# close_time = False
@@ -198,22 +197,26 @@ def main(filename):
 
 	# 这个是螺纹钢的 tick 1
 	param_dict = {"limit_rsi_data":80,
-				"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,
+				"band_open_edge":0.5,"band_loss_edge":0.5,"band_profit_edge":3,
 				 "file":file
 				,"open_interest_edge":0,"spread":100,"volume_open_edge":0
 				,"limit_sd":4,"limit_sd_open_edge":1,"limit_sd_close_edge":3}
 	if "rb" in filename:
 		param_dict["volume_open_edge"] =900
 		param_dict["limit_sd"] =5
+		param_dict["open_interest_edge"] =1
+		param_dict["spread"] =99
 	elif "ru" in filename:
 		param_dict["volume_open_edge"] =100
 		param_dict["limit_sd"] =20
 	elif "pb" in filename:
 		param_dict["volume_open_edge"] =20
-		param_dict["limit_sd"] =20
+		param_dict["limit_sd"] =25
+		param_dict["open_interest_edge"] =1
 	elif "zn" in filename:
 		param_dict["volume_open_edge"] =100
 		param_dict["limit_sd"] =25
+		param_dict["open_interest_edge"] =1
 	elif "cu" in filename:
 		param_dict["volume_open_edge"] =100
 		param_dict["band_loss_edge"] =0.5
@@ -235,9 +238,9 @@ if __name__=='__main__':
 	# data1 = [20170630,20170629,20170628,20170627,20170623,20170622,20170621,20170620,20170619,20170616]
 	# data =[20170711,20170712,20170713,20170714,20170717,20170718,20170719,20170720,20170721,20170724,20170725,20170726,20170727,20170728]
 	# data = data1+data2
-	data = [20170808]
+	data = [20170809]
 	# instrumentid = ["rb1710","ru1801","zn1709","pb1709"]
-	instrumentid = ["cu1710"]
+	instrumentid = ["rb1801"]
 	for item in data:
 		for instrument in instrumentid:
 			path = instrument + "_"+ str(item)
