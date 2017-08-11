@@ -8,7 +8,9 @@ VOLUME = 11
 OPENINTEREST = 13
 TURNONER = 12
 BIDPRICE1 = 22
+BIDPRICE1VOLUME = 23
 ASKPRICE1 =24
+ASKPRICE1VOLUME =25
 TIME = 20
 LONG =1
 SHORT =0
@@ -109,8 +111,8 @@ class BandAndTrigger(object):
 	def __del__(self):
 		print "this is the over function " + str(self._config_file)
 		config_file = "../config_pic/"+str(self._config_file)
-		# bf.write_config_info(self._pre_ema_val,self._lastprice_array
-		# 	,self._rsi_array,self._rsi_period,self._now_md_price[LASTPRICE],config_file)
+		bf.write_config_info(self._pre_ema_val,self._lastprice_array
+			,self._rsi_array,self._rsi_period,self._now_md_price[LASTPRICE],config_file)
 
 
 	# get the md data ,every line;
@@ -209,7 +211,8 @@ class BandAndTrigger(object):
 		
 		tmp_to_csv = [self._now_md_price[TIME],self._now_md_price[LASTPRICE],round(self._now_middle_value,2),
 					round(self._now_sd_val,2),round(self._ris_data,2),diff_volume,diff_interest,round(spread,2),
-					round(ema_diff_volume,2),round(ema_diff_openinterest,2),round(self._diff_spread_array[-1],2)]
+					round(ema_diff_volume,2),round(ema_diff_openinterest,2),round(self._diff_spread_array[-1],2)
+					,self._now_md_price[BIDPRICE1VOLUME],self._now_md_price[ASKPRICE1VOLUME]]
 		# print tmp_to_csv
 		self._write_to_csv_data.append(tmp_to_csv)
 
@@ -262,10 +265,10 @@ def getSortedData(data):
 			night.append(line)
 		# if int(line[22]) ==0 or int(line[4]) ==3629:
 		# 	continue
-	# for line in night:
-	# 	ret.append(line)
-	# for line in zero:
-	# 	ret.append(line)
+	for line in night:
+		ret.append(line)
+	for line in zero:
+		ret.append(line)
 	for line in day:
 		ret.append(line)
 
@@ -296,12 +299,12 @@ def main(filename):
 
 if __name__=='__main__':
 	# data1 = [20170630,20170629,20170628,20170627,20170623,20170622,20170621,20170620,20170619,20170616]
-	# data2 =[20170711,20170712,20170713,20170714,20170717]
-	# data3 =[20170718,20170719,20170720,20170721,20170724,20170725,20170726]
-	# data = data2+ data3
-	data = [20170803]
-	instrumentid_array = ["ru1801","rb1710","zn1709","pb1709"]
-	# instrumentid_array = ["zn1709"]
+	data2 =[20170724,20170725,20170726,20170727,20170728]
+	data3 =[20170731,20170801,20170802,20170803,20170804,20170807,20170808,20170809]
+	data = data2+ data3
+	# data = [20170803]
+	# instrumentid_array = ["ru1801","rb1710","zn1709","pb1709"]
+	instrumentid_array = ["ru1801"]
 	for item in data:
 		for instrumentid in instrumentid_array:
 			path = instrumentid+ "_"+str(item)
