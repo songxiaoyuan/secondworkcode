@@ -44,7 +44,7 @@
 
 
         document.getElementById("rsidrawing").style.display="none";
-        // document.getElementById("sddrawing").style.display="none";
+        document.getElementById("sddrawing").style.display="none";
         // document.getElementById("sddrawing").style.display="none";
         // document.getElementById("ema_spread_drawing").style.display="none";
 
@@ -518,7 +518,7 @@
                 
 
                 var openband = 0.5
-                if (sd>4) {
+                if (sd>20) {
                     //开仓边界是0.5，
                     openband = 0.5
                 }
@@ -528,7 +528,7 @@
                 }
                 // 这个是long的情况
                 if (lastprice > middle && lastprice < middle + openband*sd) {
-                    if (ema_diff_volume>500 && ema_spread >= 100) {
+                    if (ema_diff_volume>300 && ema_openinterest>0 && ema_spread >= 100) {
                         console.log(time)
                         if (ema_diff_volume >900) {
                             ema_diff_volume = 900
@@ -564,7 +564,7 @@
                 }
                 // 这个是short的情况
                 else if (lastprice < middle && lastprice > middle - openband*sd) {
-                    if (ema_diff_volume>500  && ema_spread <= 0) {
+                    if (ema_diff_volume>300 && ema_openinterest>0  && ema_spread <= 0) {
                         console.log(time)
                         if (ema_diff_volume >900) {
                             ema_diff_volume = 900

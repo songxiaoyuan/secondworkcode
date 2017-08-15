@@ -24,7 +24,7 @@ param_dict_rb = {"limit_max_profit":25,"limit_max_loss":10,"rsi_bar_period":120
 			,"limit_rsi_data":80,"rsi_period":14,"diff_period":1
 			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
 			,"volume_open_edge":900,"limit_max_draw_down":0,"multiple":10,"file":file
-			,"sd_lastprice":100,"open_interest_edge":0,"spread":100,"config_file":320}
+			,"sd_lastprice":100,"open_interest_edge":0,"spread":100,"config_file":399}
 
 # 这个是锌的
 param_dic_zn = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
@@ -104,19 +104,19 @@ class BandAndTrigger(object):
 		self._file = param_dic["file"]
 		self._config_file = param_dic["config_file"]
 
-		if len(self._lastprice_array) ==0:
-			print "this is init function " + str(self._config_file)
-			tmp_pre_ema_array = []
-			tmp_rsi_lastprice = []
-			config_file = "../config_pic/"+str(self._config_file)
-			bf.get_config_info(tmp_pre_ema_array,self._lastprice_array,self._lastprice_map
-				,self._rsi_array,tmp_rsi_lastprice,config_file)
-			if len(tmp_pre_ema_array)==0:
-				self._pre_ema_val = 0
-				self._pre_rsi_lastprice = 0 
-			else:
-				self._pre_ema_val = tmp_pre_ema_array[0]
-				self._pre_rsi_lastprice = tmp_rsi_lastprice[0]
+		# if len(self._lastprice_array) ==0:
+		# 	print "this is init function " + str(self._config_file)
+		# 	tmp_pre_ema_array = []
+		# 	tmp_rsi_lastprice = []
+		# 	config_file = "../config_pic/"+str(self._config_file)
+		# 	bf.get_config_info(tmp_pre_ema_array,self._lastprice_array,self._lastprice_map
+		# 		,self._rsi_array,tmp_rsi_lastprice,config_file)
+		# 	if len(tmp_pre_ema_array)==0:
+		# 		self._pre_ema_val = 0
+		# 		self._pre_rsi_lastprice = 0 
+		# 	else:
+		# 		self._pre_ema_val = tmp_pre_ema_array[0]
+		# 		self._pre_rsi_lastprice = tmp_rsi_lastprice[0]
 		print self._pre_ema_val
 		print len(self._lastprice_array)
 		print self._rsi_array
@@ -280,10 +280,10 @@ def getSortedData(data):
 			night.append(line)
 		# if int(line[22]) ==0 or int(line[4]) ==3629:
 		# 	continue
-	# for line in night:
-	# 	ret.append(line)
-	# for line in zero:
-	# 	ret.append(line)
+	for line in night:
+		ret.append(line)
+	for line in zero:
+		ret.append(line)
 	for line in day:
 		ret.append(line)
 
@@ -307,7 +307,7 @@ def main(filename):
 	
 	data = bt.get_to_csv_data()
 
-	data = clean_night_data(data)
+	# data = clean_night_data(data)
 	path_new = "../data/"+filename+ "_band_data"+".csv"
 	bf.write_data_to_csv(path_new,data)
 
@@ -317,7 +317,7 @@ if __name__=='__main__':
 	# data2 =[20170711,20170712,20170713,20170714,20170717]
 	# data3 =[20170718,20170719,20170720,20170721,20170724,20170725,20170726]
 	# data = data2+ data3
-	data = [20170809]
+	data = [20170810]
 	# instrumentid_array = ["ru1801","rb1710","zn1709","pb1709"]
 	instrumentid_array = ["rb1801"]
 	for item in data:

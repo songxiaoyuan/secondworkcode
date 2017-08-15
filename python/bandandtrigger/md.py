@@ -35,7 +35,8 @@ class BandAndTrigger(object):
 		self._profit = 0
 
 		# band param
-		self._param_open_edge = param_dic["band_open_edge"]
+		self._param_open_edge1 = param_dic["band_open_edge1"]
+		self._param_open_edge2 = param_dic["band_open_edge2"]
 		self._param_loss_edge = param_dic["band_loss_edge"]
 		self._param_close_edge =param_dic["band_profit_edge"]		
 
@@ -75,9 +76,9 @@ class BandAndTrigger(object):
 		self._ema_diff_volume = float(md_array[EMA_DIFF_VOLUME])
 		self._ema_diff_openinterest = float(md_array[EMA_DIFF_OPENINTEREST])
 		self._ema_spread = float(md_array[EMA_SPREAD])
-		self._ema_diff_volume = self._diff_volume
-		self._ema_diff_openinterest = self._diff_openinterest
-		self._ema_spread = self._spread
+		# self._ema_diff_volume = self._diff_volume
+		# self._ema_diff_openinterest = self._diff_openinterest
+		# self._ema_spread = self._spread
 
 
 		open_time = self.is_trend_open_time()
@@ -110,9 +111,10 @@ class BandAndTrigger(object):
 
 	def is_trend_open_time(self):
 
-		open_val = self._param_open_edge
-		is_band_open = bf.is_band_open_time(self._direction,self._lastprice,
-											self._now_middle_value,self._now_sd_val,open_val,
+		open_val1 = self._param_open_edge1
+		open_val2 = self._param_open_edge2
+		is_band_open = self.is_band_open_time(self._direction,self._lastprice,
+											self._now_middle_value,self._now_sd_val,open_val1,open_val2,
 											self._limit_sd,self._limit_sd_open_edge)
 		# return is_band_open
 		if is_band_open ==False:
@@ -145,10 +147,49 @@ class BandAndTrigger(object):
 		
 		loss_val = self._param_loss_edge
 		close_val = self._param_close_edge
-		is_band_close = bf.is_band_close_time(self._direction,self._lastprice,
+		is_band_close = self.is_band_close_time(self._direction,self._lastprice,
 											self._now_middle_value,self._now_sd_val,loss_val,close_val
 											,self._ris_data,self._limit_rsi_data,self._limit_sd,self._limit_sd_close_edge)
 		return is_band_close
+
+
+	def is_band_open_time(self,direction,lastprice,middle_val,sd_val,open_edge1,open_edge2,limit_sd,limit_sd_open_edge):
+		# this is used to judge is time to band open
+		if sd_val <=limit_sd:
+			open_edge = limit_sd_open_edge
+		if direction ==LONG:
+			upval = middle_val + open_edge2*sd_val
+			if lastprice > middle_val+open_edge1*sd_val and lastprice < upval:
+				return True
+		elif direction ==SHORT:
+			downval = middle_val - open_edge2*sd_val
+			if lastprice < middle_val - open_edge1*sd_val and lastprice > downval:
+				return True
+		return False
+
+	def is_band_close_time(self,direction,lastprice,middle_val,sd_val,open_edge,close_edge,cur_rsi_data,limit_rsi_data,limit_sd,limit_sd_close_edge):
+		# this is used to judge is time to band is close time
+		if sd_val <= limit_sd:
+			open_edge = limit_sd_close_edge
+		if direction ==LONG:
+			profitval = middle_val + close_edge*sd_val
+			lossvla = middle_val - open_edge*sd_val
+			# 尽量避免损失，如果达到止损条件，即使止损
+			if lastprice < lossvla:
+				return True
+			# 判断止盈条件，大于几倍的band，并且同时rsi大于80，然后可能在加上最大回撤的值。
+			# 因为ris是按照这个bar来计算的，所以应该一段时间判断一次，如果没有达到这个段的时间，应该就直接不平仓
+			if lastprice > profitval and cur_rsi_data >= limit_rsi_data and cur_rsi_data >=0:
+				return True
+		elif direction ==SHORT:
+			profitval = middle_val - close_edge*sd_val
+			lossval = middle_val + open_edge*sd_val
+			if lastprice > lossval:
+				return True
+			ris = 100 - cur_rsi_data
+			if lastprice < profitval and ris >= limit_rsi_data and cur_rsi_data >=0 :
+				return True
+		return False
 
 	def get_total_profit(self):
 		return  self._profit
@@ -172,9 +213,10 @@ def create_band_obj(data,param_dict):
 	file = param_dict["file"]
 	for i in xrange(0,2):
 		param_dict["direction"] = i
-		band_and_trigger_obj = BandAndTrigger(param_dict)
 		if i==0:
-			# continue
+			continue
+			param_dict["open_interest_edge"] =0
+			band_and_trigger_obj = BandAndTrigger(param_dict)
 			print "方向是short的交易情况:"
 			file.write("方向是short的交易情况:\n")
 			start_to_run_md(band_and_trigger_obj,data)
@@ -182,6 +224,8 @@ def create_band_obj(data,param_dict):
 			file.write(str(profit)+"\n")
 		else:
 			print "方向是long的交易情况："
+			param_dict["open_interest_edge"] =0
+			band_and_trigger_obj = BandAndTrigger(param_dict)
 			file.write("方向是long的交易情况：:\n")
 			start_to_run_md(band_and_trigger_obj,data)
 			profit = band_and_trigger_obj.get_total_profit()
@@ -196,25 +240,26 @@ def main(filename):
 	file = open(path,"w")
 
 	# 这个是螺纹钢的 tick 1
-	param_dict = {"limit_rsi_data":80,
-				"band_open_edge":0.5,"band_loss_edge":0.5,"band_profit_edge":3,
+	param_dict = {"limit_rsi_data":80,"band_open_edge1":0.5,
+				"band_open_edge2":1,"band_loss_edge":0,"band_profit_edge":3,
 				 "file":file
 				,"open_interest_edge":0,"spread":100,"volume_open_edge":0
-				,"limit_sd":4,"limit_sd_open_edge":1,"limit_sd_close_edge":3}
+				,"limit_sd":4,"limit_sd_open_edge":15,"limit_sd_close_edge":1.5}
 	if "rb" in filename:
 		param_dict["volume_open_edge"] =900
-		param_dict["limit_sd"] =5
-		param_dict["open_interest_edge"] =1
-		param_dict["spread"] =99
+		param_dict["limit_sd"] =20
+		param_dict["open_interest_edge"] =0
+		param_dict["spread"] =85
 	elif "ru" in filename:
 		param_dict["volume_open_edge"] =100
 		param_dict["limit_sd"] =20
+		param_dict["open_interest_edge"] =1
 	elif "pb" in filename:
 		param_dict["volume_open_edge"] =20
 		param_dict["limit_sd"] =25
 		param_dict["open_interest_edge"] =1
 	elif "zn" in filename:
-		param_dict["volume_open_edge"] =100
+		param_dict["volume_open_edge"] =300
 		param_dict["limit_sd"] =25
 		param_dict["open_interest_edge"] =1
 	elif "cu" in filename:
@@ -235,10 +280,10 @@ def main(filename):
 
 if __name__=='__main__': 
 	# main("ru1709_20170622")
-	# data1 = [20170630,20170629,20170628,20170627,20170623,20170622,20170621,20170620,20170619,20170616]
-	# data =[20170711,20170712,20170713,20170714,20170717,20170718,20170719,20170720,20170721,20170724,20170725,20170726,20170727,20170728]
-	# data = data1+data2
-	data = [20170809]
+	# data1 = [20170724,20170725,20170726,20170727,20170728]
+	# data =[20170731,20170801,20170802,20170803,20170804,20170807,20170808,20170809,20170810]
+	# data = data+data1
+	data = [20170810]
 	# instrumentid = ["rb1710","ru1801","zn1709","pb1709"]
 	instrumentid = ["rb1801"]
 	for item in data:

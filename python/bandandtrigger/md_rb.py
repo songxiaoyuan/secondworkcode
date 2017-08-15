@@ -39,10 +39,10 @@ def getSortedData(data):
 			night.append(line)
 		# if int(line[22]) ==0 or int(line[4]) ==3629:
 		# 	continue
-	# for line in night:
-	# 	ret.append(line)
-	# for line in zero:
-	# 	ret.append(line)
+	for line in night:
+		ret.append(line)
+	for line in zero:
+		ret.append(line)
 	for line in day:
 		ret.append(line)
 
@@ -96,13 +96,13 @@ def main(filename):
 	file = open(path,"w")
 
 	# 这个是螺纹钢的 tick 1
-	param_dict = {"limit_max_profit":250,"limit_max_loss":10,"multiple":10
-				,"rsi_bar_period":100,"limit_rsi_data":80,"rsi_period":10
-				,"diff_period":1
-				,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
+	param_dict = {"limit_max_profit":25000,"limit_max_loss":1000,"multiple":10
+				,"rsi_bar_period":120,"limit_rsi_data":80,"rsi_period":14
+				,"diff_period":10
+				,"band_open_edge1":0.5,"band_open_edge2":1,"band_loss_edge":0,"band_profit_edge":3,"band_period":7200
 				,"limit_max_draw_down":0,"file":file
-				,"open_interest_edge":0,"spread":100,"volume_open_edge":900
-				,"limit_sd":4,"limit_sd_open_edge":1,"limit_sd_close_edge":3,"config_file":320}
+				,"open_interest_edge":0,"spread":85,"volume_open_edge":900
+				,"limit_sd":4,"limit_sd_open_edge":1.5,"limit_sd_close_edge":0.5,"config_file":399}
 
 	for band_type in xrange(0,7):
 		if band_type ==0:
@@ -110,7 +110,7 @@ def main(filename):
 			mesg = "完全按照1退出，3退出。900进入"
 			print mesg
 			file.write(mesg+"\n")
-			param_dict["band_loss_edge"] =1
+			param_dict["band_loss_edge"] =0
 			param_dict["band_profit_edge"] =3
 			param_dict["volume_open_edge"] =900
 			param_dict["sd_lastprice"] =0
@@ -120,9 +120,9 @@ def main(filename):
 			mesg = "1，3退出，diff_period =1 900进入,limit sd = 4"
 			print mesg
 			file.write(mesg+"\n")
-			param_dict["band_loss_edge"] =1
+			param_dict["band_loss_edge"] =0
 			param_dict["band_profit_edge"] =3
-			param_dict["volume_open_edge"] =750
+			param_dict["volume_open_edge"] =900
 			create_band_obj(csv_data,param_dict)
 		elif band_type ==2:
 			continue
@@ -188,9 +188,9 @@ if __name__=='__main__':
 	# data1 = [20170630,20170629,20170628,20170627,20170623,20170622,20170621,20170620,20170619,20170616]
 	# data2 =[20170703,20170704,20170705,20170706,20170707,20170711,20170712,20170713,20170714,20170717]
 	# data = data1+data2
-	data = [20170802]
+	data = [20170810]
 	for item in data:
-		path = "rb1710_"+ str(item)
+		path = "rb1801_"+ str(item)
 		print path
 		main(path)	
 	# print WRITETOFILE

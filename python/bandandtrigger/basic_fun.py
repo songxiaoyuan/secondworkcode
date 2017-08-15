@@ -12,17 +12,17 @@ TIME = 20
 LONG =1
 SHORT =0
 
-def is_band_open_time(direction,lastprice,middle_val,sd_val,open_edge,limit_sd,limit_sd_open_edge):
+def is_band_open_time(direction,lastprice,middle_val,sd_val,open_edge1,open_edge2,limit_sd,limit_sd_open_edge):
 	# this is used to judge is time to band open
 	if sd_val <=limit_sd:
-		open_edge = limit_sd_open_edge
+		open_edge2 = limit_sd_open_edge
 	if direction ==LONG:
-		upval = middle_val + open_edge*sd_val
-		if lastprice > middle_val and lastprice < upval:
+		upval = middle_val + open_edge2*sd_val
+		if lastprice > middle_val + open_edge1*sd_val and lastprice < upval:
 			return True
 	elif direction ==SHORT:
-		downval = middle_val - open_edge*sd_val
-		if lastprice < middle_val and lastprice > downval:
+		downval = middle_val - open_edge2*sd_val
+		if lastprice < middle_val - open_edge1*sd_val and lastprice > downval:
 			return True
 	return False
 
@@ -103,7 +103,7 @@ def is_trigger_size_open_time(direction,now_md_price,pre_md_price,volume_open_ed
 	# elif direction ==SHORT:
 	# 	return is_trigger_down_time(now_md_price,pre_md_price,spread_edge,multiple)
 	# return False
-	ema_diff_volume = get_ema_data_2(diff_volume_array,diff_period)
+	ema_diff_volume = get_sum(diff_volume_array,diff_period)
 	if ema_diff_volume < volume_open_edge:
 		return False
 	ema_diff_openinerest = get_sum(diff_open_interest_array,diff_period)

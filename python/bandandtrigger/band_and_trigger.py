@@ -53,7 +53,8 @@ class BandAndTrigger(object):
 		self._limit_interest = 1
 
 		# band param
-		self._param_open_edge = param_dic["band_open_edge"]
+		self._param_open_edge1 = param_dic["band_open_edge1"]
+		self._param_open_edge2 = param_dic["band_open_edge2"]
 		self._param_loss_edge = param_dic["band_loss_edge"]
 		self._param_close_edge =param_dic["band_profit_edge"]
 		self._param_period = param_dic["band_period"]
@@ -186,7 +187,7 @@ class BandAndTrigger(object):
 		self._diff_spread_array.append(spread)
 
 
-		ema_diff_volume = bf.get_ema_data_2(self._diff_volume_array,self._diff_period)
+		ema_diff_volume = bf.get_sum(self._diff_volume_array,self._diff_period)
 		ema_diff_openinerest = bf.get_sum(self._diff_open_interest_array,self._diff_period)
 		ema_spread = bf.get_weighted_mean(self._diff_spread_array,self._diff_volume_array,self._diff_period)
 
@@ -227,9 +228,9 @@ class BandAndTrigger(object):
 		# 	# open_val = self._param_limit_bigger*self._param_open_edge
 		# 	open_val = self._param_open_edge
 		# else:
-		open_val = self._param_open_edge
+		open_val = self._param_open_edge1
 		is_band_open = bf.is_band_open_time(self._direction,self._now_md_price[LASTPRICE],
-											self._now_middle_value,self._now_sd_val,open_val,
+											self._now_middle_value,self._now_sd_val,open_val,self._param_open_edge2,
 											self._limit_sd,self._limit_sd_open_edge)
 		# return is_band_open
 		if is_band_open ==False:
