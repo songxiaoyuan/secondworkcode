@@ -22,29 +22,29 @@ param_dict_pb = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":50
 			,"volume_open_edge":20,"limit_max_draw_down":0,"multiple":5,"file":file
 			,"sd_lastprice":100,"open_interest_edge":0,"spread":100,"config_file":310}
 # 这个是螺纹钢的
-param_dict_rb = {"limit_max_profit":25,"limit_max_loss":10,"rsi_bar_period":100
-			,"limit_rsi_data":80,"rsi_period":10,"diff_period":1
+param_dict_rb = {"limit_max_profit":25,"limit_max_loss":10,"rsi_bar_period":120
+			,"limit_rsi_data":80,"rsi_period":14,"diff_period":1
 			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
 			,"volume_open_edge":900,"limit_max_draw_down":0,"multiple":10,"file":file
 			,"sd_lastprice":100,"open_interest_edge":0,"spread":100,"config_file":320}
 
 # 这个是锌的
-param_dic_zn = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":100
-			,"limit_rsi_data":80,"rsi_period":10,"diff_period":1
+param_dic_zn = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
+			,"limit_rsi_data":80,"rsi_period":14,"diff_period":1
 			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
 			,"volume_open_edge":100,"limit_max_draw_down":0,"multiple":5,"file":file
 			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":346}
 # 这个是橡胶的
-param_dic_ru = {"limit_max_profit":250,"limit_max_loss":100,"rsi_bar_period":100
-			,"limit_rsi_data":70,"rsi_period":10,"diff_period":1
+param_dic_ru = {"limit_max_profit":250,"limit_max_loss":100,"rsi_bar_period":120
+			,"limit_rsi_data":80,"rsi_period":14,"diff_period":1
 			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
 			,"volume_open_edge":120,"limit_max_draw_down":0,"multiple":10,"file":file
 			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":330}
 
 nameDict = {
-	"rb1710":{"param":param_dict_rb},
+	"rb1801":{"param":param_dict_rb},
 	"ru1801":{"param":param_dic_ru},
-	"zn1709":{"param":param_dic_zn},
+	"zn1710":{"param":param_dic_zn},
 	"pb1709":{"param":param_dict_pb}
 }
 
@@ -209,10 +209,12 @@ class BandAndTrigger(object):
 			self._diff_spread_array.append(spread)
 			spread = bf.get_weighted_mean(self._diff_spread_array,self._diff_volume_array,self._diff_period)
 		
+		avg = (int(self._now_md_price[BIDPRICE1VOLUME])+int(self._now_md_price[ASKPRICE1VOLUME]))/2
+
 		tmp_to_csv = [self._now_md_price[TIME],self._now_md_price[LASTPRICE],round(self._now_middle_value,2),
 					round(self._now_sd_val,2),round(self._ris_data,2),diff_volume,diff_interest,round(spread,2),
 					round(ema_diff_volume,2),round(ema_diff_openinterest,2),round(self._diff_spread_array[-1],2)
-					,self._now_md_price[BIDPRICE1VOLUME],self._now_md_price[ASKPRICE1VOLUME]]
+					,avg]
 		# print tmp_to_csv
 		self._write_to_csv_data.append(tmp_to_csv)
 
@@ -300,11 +302,11 @@ def main(filename):
 if __name__=='__main__':
 	# data1 = [20170630,20170629,20170628,20170627,20170623,20170622,20170621,20170620,20170619,20170616]
 	data2 =[20170724,20170725,20170726,20170727,20170728]
-	data3 =[20170731,20170801,20170802,20170803,20170804,20170807,20170808,20170809]
+	data3 =[20170731,20170801,20170802,20170803,20170804,20170807,20170808,20170809,20170810,20170811,20170814,20170815]
 	data = data2+ data3
 	# data = [20170803]
 	# instrumentid_array = ["ru1801","rb1710","zn1709","pb1709"]
-	instrumentid_array = ["ru1801"]
+	instrumentid_array = ["cu1710"]
 	for item in data:
 		for instrumentid in instrumentid_array:
 			path = instrumentid+ "_"+str(item)
