@@ -28,12 +28,6 @@ param_dict_rb = {"limit_max_profit":25,"limit_max_loss":10,"rsi_bar_period":120
 			,"volume_open_edge":900,"limit_max_draw_down":0,"multiple":10,"file":file
 			,"sd_lastprice":100,"open_interest_edge":0,"spread":100,"config_file":320}
 
-# 这个是锌的
-param_dic_zn = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
-			,"limit_rsi_data":80,"rsi_period":14,"diff_period":1
-			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
-			,"volume_open_edge":100,"limit_max_draw_down":0,"multiple":5,"file":file
-			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":346}
 # 这个是橡胶的
 param_dic_ru = {"limit_max_profit":250,"limit_max_loss":100,"rsi_bar_period":120
 			,"limit_rsi_data":80,"rsi_period":14,"diff_period":1
@@ -41,11 +35,40 @@ param_dic_ru = {"limit_max_profit":250,"limit_max_loss":100,"rsi_bar_period":120
 			,"volume_open_edge":120,"limit_max_draw_down":0,"multiple":10,"file":file
 			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":330}
 
+# 这个是锌的
+param_dic_zn = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
+			,"limit_rsi_data":80,"rsi_period":14,"diff_period":1
+			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
+			,"volume_open_edge":100,"limit_max_draw_down":0,"multiple":5,"file":file
+			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":340}
+
+
+param_dic_cu = {"limit_max_profit":25000,"limit_max_loss":10000,"rsi_bar_period":120
+			,"limit_rsi_data":80,"rsi_period":14,"diff_period":1
+			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
+			,"volume_open_edge":120,"limit_max_draw_down":0,"multiple":5,"file":file
+			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":390}
+
+param_dic_i = {"limit_max_profit":25000,"limit_max_loss":10000,"rsi_bar_period":120
+			,"limit_rsi_data":80,"rsi_period":14,"diff_period":1
+			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
+			,"volume_open_edge":120,"limit_max_draw_down":0,"multiple":100,"file":file
+			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":350}
+
+param_dic_hc = {"limit_max_profit":25000,"limit_max_loss":10000,"rsi_bar_period":120
+			,"limit_rsi_data":80,"rsi_period":14,"diff_period":1
+			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
+			,"volume_open_edge":120,"limit_max_draw_down":0,"multiple":10,"file":file
+			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":380}
+
 nameDict = {
 	"rb1801":{"param":param_dict_rb},
 	"ru1801":{"param":param_dic_ru},
 	"zn1710":{"param":param_dic_zn},
-	"pb1709":{"param":param_dict_pb}
+	"cu1710":{"param":param_dic_cu},
+	"i1801":{"param":param_dic_i},
+	"hc1801":{"param":param_dic_hc},
+	"pb1710":{"param":param_dict_pb}
 }
 
 class BandAndTrigger(object):
@@ -111,8 +134,8 @@ class BandAndTrigger(object):
 	def __del__(self):
 		print "this is the over function " + str(self._config_file)
 		config_file = "../config_pic/"+str(self._config_file)
-		bf.write_config_info(self._pre_ema_val,self._lastprice_array
-			,self._rsi_array,self._rsi_period,self._now_md_price[LASTPRICE],config_file)
+		# bf.write_config_info(self._pre_ema_val,self._lastprice_array
+		# 	,self._rsi_array,self._rsi_period,self._now_md_price[LASTPRICE],config_file)
 
 
 	# get the md data ,every line;
@@ -267,10 +290,10 @@ def getSortedData(data):
 			night.append(line)
 		# if int(line[22]) ==0 or int(line[4]) ==3629:
 		# 	continue
-	for line in night:
-		ret.append(line)
-	for line in zero:
-		ret.append(line)
+	# for line in night:
+	# 	ret.append(line)
+	# for line in zero:
+	# 	ret.append(line)
 	for line in day:
 		ret.append(line)
 
@@ -301,12 +324,12 @@ def main(filename):
 
 if __name__=='__main__':
 	# data1 = [20170630,20170629,20170628,20170627,20170623,20170622,20170621,20170620,20170619,20170616]
-	data2 =[20170724,20170725,20170726,20170727,20170728]
-	data3 =[20170731,20170801,20170802,20170803,20170804,20170807,20170808,20170809,20170810,20170811,20170814,20170815]
-	data = data2+ data3
-	# data = [20170803]
-	# instrumentid_array = ["ru1801","rb1710","zn1709","pb1709"]
-	instrumentid_array = ["cu1710"]
+	# data2 =[20170724,20170725,20170726,20170727,20170728]
+	# data3 =[20170731,20170801,20170802,20170803,20170804,20170807,20170808,20170809,20170810,20170811,20170814,20170815]
+	# data = data2+ data3
+	data = [20170817]
+	instrumentid_array =  ["ru1801","rb1801","zn1710","pb1710","cu1710","hc1801","i1801"]
+	# instrumentid_array = ["cu1710"]
 	for item in data:
 		for instrumentid in instrumentid_array:
 			path = instrumentid+ "_"+str(item)
