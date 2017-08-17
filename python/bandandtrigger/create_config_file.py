@@ -107,9 +107,9 @@ nameDict = {
 	"ru1801":{"param":[param_dic_ru,param_dic_ru_3600]},
 	"zn1710":{"param":[param_dic_zn,param_dic_zn_3600]},
 	"cu1710":{"param":[param_dic_cu,param_dic_cu_3600]},
-	"hc1710":{"param":[param_dic_hc,param_dic_hc_3600]},
+	"hc1801":{"param":[param_dic_hc,param_dic_hc_3600]},
 	"i1801":{"param":[param_dic_i,param_dic_i_3600]},
-	"pb1709":{"param":[param_dict_pb]}
+	"pb1710":{"param":[param_dict_pb]}
 }
 
 class BandAndTrigger(object):
@@ -336,9 +336,9 @@ if __name__=='__main__':
 	# data1 = [20170630,20170629,20170628,20170627,20170623,20170622,20170621,20170620,20170619,20170616]
 	# data2 =[20170703,20170704,20170705,20170706,20170707,20170711,20170712,20170713,20170714,20170717]
 	# data = data1+ data2
-	data = [20170815]
-	instrumentid_array = ["ru1801","rb1801","zn1710","pb1709","cu1710","hc1710","i1801"]
-	# instrumentid_array = ["i1801"]
+	data = [20170817]
+	instrumentid_array = ["ru1801","rb1801","zn1710","pb1710","cu1710","hc1801","i1801"]
+	# instrumentid_array = ["hc1801","pb1710"]
 	for item in data:
 		for instrumentid in instrumentid_array:
 			getSqlData(item,instrumentid)	

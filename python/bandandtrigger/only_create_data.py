@@ -29,18 +29,32 @@ param_dict_rb = {"limit_max_profit":25,"limit_max_loss":10,"rsi_bar_period":120
 			,"volume_open_edge":900,"limit_max_draw_down":0,"multiple":10,"file":file
 			,"sd_lastprice":100,"open_interest_edge":0,"spread":100,"config_file":320}
 
+# 这个是橡胶的
+param_dic_ru = {"limit_max_profit":250,"limit_max_loss":100,"rsi_bar_period":120
+			,"limit_rsi_data":80,"rsi_period":14,"diff_period":1
+			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
+			,"volume_open_edge":120,"limit_max_draw_down":0,"multiple":10,"file":file
+			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":330}
+
 # 这个是锌的
 param_dic_zn = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
 			,"limit_rsi_data":80,"rsi_period":14,"diff_period":1
 			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
 			,"volume_open_edge":100,"limit_max_draw_down":0,"multiple":5,"file":file
 			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":340}
-# 这个是橡胶的
-param_dic_ru = {"limit_max_profit":250,"limit_max_loss":100,"rsi_bar_period":120
-			,"limit_rsi_data":70,"rsi_period":14,"diff_period":1
+
+param_dic_cu = {"limit_max_profit":25000,"limit_max_loss":10000,"rsi_bar_period":120
+			,"limit_rsi_data":80,"rsi_period":14,"diff_period":1
 			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
-			,"volume_open_edge":120,"limit_max_draw_down":0,"multiple":10,"file":file
-			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":330}
+			,"volume_open_edge":120,"limit_max_draw_down":0,"multiple":5,"file":file
+			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":390}
+
+param_dic_i = {"limit_max_profit":25000,"limit_max_loss":10000,"rsi_bar_period":120
+			,"limit_rsi_data":80,"rsi_period":14,"diff_period":1
+			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
+			,"volume_open_edge":120,"limit_max_draw_down":0,"multiple":100,"file":file
+			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":350}
+
 
 param_dict_cu = {"limit_max_profit":10000,"limit_max_loss":10000,"multiple":5
 			,"rsi_bar_period":120,"limit_rsi_data":80,"rsi_period":14
@@ -140,8 +154,8 @@ class BandAndTrigger(object):
 	def __del__(self):
 		print "this is the over function " + str(self._config_file)
 		config_file = "../config_pic/"+str(self._config_file)
-		bf.write_config_info(self._pre_ema_val,self._lastprice_array
-			,self._rsi_array,self._rsi_period,self._now_md_price[LASTPRICE],config_file)
+		# bf.write_config_info(self._pre_ema_val,self._lastprice_array
+		# 	,self._rsi_array,self._rsi_period,self._now_md_price[LASTPRICE],config_file)
 
 
 	# get the md data ,every line;
@@ -302,10 +316,10 @@ def getSortedData(data):
 			night.append(line)
 		# if int(line[22]) ==0 or int(line[4]) ==3629:
 		# 	continue
-	for line in night:
-		ret.append(line)
-	for line in zero:
-		ret.append(line)
+	# for line in night:
+	# 	ret.append(line)
+	# for line in zero:
+	# 	ret.append(line)
 	for line in day:
 		ret.append(line)
 
@@ -351,7 +365,7 @@ if __name__=='__main__':
 
 
 	# data = [20170815]
-	# # instrumentid_array = ["ru1801","rb1801","zn1710","pb1710","hc1801","i1801"]
+	# # instrumentid_array = ["ru1801","rb1801","zn1710","pb1710","cu1710","hc1801","i1801"]
 	# instrumentid_array = ["ru1801","rb1801","zn1710","i1801"]
 	# for item in data:
 	# 	for instrumentid in instrumentid_array:
