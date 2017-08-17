@@ -2,13 +2,16 @@
 import csv
 import band_and_trigger
 import basic_fun as bf
+import os
 
 LASTPRICE = 4
 VOLUME = 11
 OPENINTEREST = 13
 TURNONER = 12
 BIDPRICE1 = 22
+BIDPRICE1VOLUME = 23
 ASKPRICE1 =24
+ASKPRICE1VOLUME =25
 TIME = 20
 LONG =1
 SHORT =0
@@ -21,10 +24,10 @@ param_dict_pb = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":50
 			,"sd_lastprice":100,"open_interest_edge":0,"spread":100,"config_file":310}
 # 这个是螺纹钢的
 param_dict_rb = {"limit_max_profit":25,"limit_max_loss":10,"rsi_bar_period":120
-			,"limit_rsi_data":80,"rsi_period":14,"diff_period":1
+			,"limit_rsi_data":80,"rsi_period":14,"diff_period":10
 			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
 			,"volume_open_edge":900,"limit_max_draw_down":0,"multiple":10,"file":file
-			,"sd_lastprice":100,"open_interest_edge":0,"spread":100,"config_file":399}
+			,"sd_lastprice":100,"open_interest_edge":0,"spread":100,"config_file":320}
 
 # 这个是锌的
 param_dic_zn = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
@@ -55,13 +58,22 @@ param_dict_i = {"limit_max_profit":10000,"limit_max_loss":10000,"multiple":100
 			,"open_interest_edge":0,"spread":100,"volume_open_edge":900
 			,"limit_sd":2,"limit_sd_open_edge":1,"limit_sd_close_edge":3,"config_file":350}
 
+param_dict_hc = {"limit_max_profit":10000,"limit_max_loss":10000,"multiple":10
+			,"rsi_bar_period":120,"limit_rsi_data":80,"rsi_period":14
+			,"diff_period":1
+			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
+			,"limit_max_draw_down":0,"file":file
+			,"open_interest_edge":0,"spread":100,"volume_open_edge":100
+			,"limit_sd":2,"limit_sd_open_edge":1,"limit_sd_close_edge":3,"config_file":380}
+
 nameDict = {
 	"rb1801":{"param":param_dict_rb},
 	"ru1801":{"param":param_dic_ru},
 	"zn1710":{"param":param_dic_zn},
 	"cu1710":{"param":param_dict_cu},
 	"i1801":{"param":param_dict_i},
-	"pb1709":{"param":param_dict_pb}
+	"hc1801":{"param":param_dict_hc},
+	"pb1710":{"param":param_dict_pb}
 }
 
 class BandAndTrigger(object):
@@ -82,6 +94,7 @@ class BandAndTrigger(object):
 		self._diff_volume_array = []
 		self._diff_open_interest_array = []
 		self._diff_spread_array = []
+		self._diff_turn_over_array = []
 		self._diff_period =param_dic["diff_period"]
 
 		self._multiple = param_dic["multiple"]
@@ -104,19 +117,19 @@ class BandAndTrigger(object):
 		self._file = param_dic["file"]
 		self._config_file = param_dic["config_file"]
 
-		# if len(self._lastprice_array) ==0:
-		# 	print "this is init function " + str(self._config_file)
-		# 	tmp_pre_ema_array = []
-		# 	tmp_rsi_lastprice = []
-		# 	config_file = "../config_pic/"+str(self._config_file)
-		# 	bf.get_config_info(tmp_pre_ema_array,self._lastprice_array,self._lastprice_map
-		# 		,self._rsi_array,tmp_rsi_lastprice,config_file)
-		# 	if len(tmp_pre_ema_array)==0:
-		# 		self._pre_ema_val = 0
-		# 		self._pre_rsi_lastprice = 0 
-		# 	else:
-		# 		self._pre_ema_val = tmp_pre_ema_array[0]
-		# 		self._pre_rsi_lastprice = tmp_rsi_lastprice[0]
+		if len(self._lastprice_array) ==0:
+			print "this is init function " + str(self._config_file)
+			tmp_pre_ema_array = []
+			tmp_rsi_lastprice = []
+			config_file = "../config_pic/"+str(self._config_file)
+			bf.get_config_info(tmp_pre_ema_array,self._lastprice_array,self._lastprice_map
+				,self._rsi_array,tmp_rsi_lastprice,config_file)
+			if len(tmp_pre_ema_array)==0:
+				self._pre_ema_val = 0
+				self._pre_rsi_lastprice = 0 
+			else:
+				self._pre_ema_val = tmp_pre_ema_array[0]
+				self._pre_rsi_lastprice = tmp_rsi_lastprice[0]
 		print self._pre_ema_val
 		print len(self._lastprice_array)
 		print self._rsi_array
@@ -127,8 +140,8 @@ class BandAndTrigger(object):
 	def __del__(self):
 		print "this is the over function " + str(self._config_file)
 		config_file = "../config_pic/"+str(self._config_file)
-		# bf.write_config_info(self._pre_ema_val,self._lastprice_array
-		# 	,self._rsi_array,self._rsi_period,self._now_md_price[LASTPRICE],config_file)
+		bf.write_config_info(self._pre_ema_val,self._lastprice_array
+			,self._rsi_array,self._rsi_period,self._now_md_price[LASTPRICE],config_file)
 
 
 	# get the md data ,every line;
@@ -208,26 +221,35 @@ class BandAndTrigger(object):
 
 		self._diff_volume_array.append(diff_volume)
 		self._diff_open_interest_array.append(diff_interest)
+		self._diff_turn_over_array.append(diff_turnover)
 		# 直接就是diff_interest
-		ema_diff_volume = bf.get_ema_data_2(self._diff_volume_array,self._diff_period)
+		# ema_diff_volume = bf.get_ema_data_2(self._diff_volume_array,self._diff_period)
+		ema_diff_volume = bf.get_sum(self._diff_volume_array,self._diff_period)
 		ema_diff_openinterest = bf.get_sum(self._diff_open_interest_array,self._diff_period)
+		ema_diff_turnonver = bf.get_sum(self._diff_turn_over_array,self._diff_period)
 
 		if diff_volume ==0:
 			spread =0
 			self._diff_spread_array.append(spread)
 		else:
 
-			avg_price = float(diff_turnover)/diff_volume/self._multiple
+			# avg_price = float(diff_turnover)/diff_volume/self._multiple
+			avg_price = float(ema_diff_turnonver)/ema_diff_volume/self._multiple
 			# if lastprice > self._now_middle_value:
 			# if self._pre_md_price[ASKPRICE1] != self._pre_md_price[BIDPRICE1]:
 			# 注意，现在算的只是和买一价的位置关系。
-			spread = 100*(avg_price - self._pre_md_price[BIDPRICE1])/(self._pre_md_price[ASKPRICE1] - self._pre_md_price[BIDPRICE1])
+			# spread = 100*(avg_price - self._pre_md_price[BIDPRICE1])/(self._pre_md_price[ASKPRICE1] - self._pre_md_price[BIDPRICE1])
+			# spread = 100*(avg_price - self._now_md_price[BIDPRICE1])/(self._now_md_price[ASKPRICE1] - self._now_md_price[BIDPRICE1])
+			spread = avg_price - self._now_md_price[LASTPRICE]
 			self._diff_spread_array.append(spread)
-			spread = bf.get_weighted_mean(self._diff_spread_array,self._diff_volume_array,self._diff_period)
+			# spread = bf.get_weighted_mean(self._diff_spread_array,self._diff_volume_array,self._diff_period)
 		
+		# avg = (int(self._now_md_price[BIDPRICE1VOLUME])+int(self._now_md_price[ASKPRICE1VOLUME]))/2
+
 		tmp_to_csv = [self._now_md_price[TIME],self._now_md_price[LASTPRICE],round(self._now_middle_value,2),
 					round(self._now_sd_val,2),round(self._ris_data,2),diff_volume,diff_interest,round(spread,2),
-					round(ema_diff_volume,2),round(ema_diff_openinterest,2),round(self._diff_spread_array[-1],2)]
+					round(ema_diff_volume,2),round(ema_diff_openinterest,2),round(self._diff_spread_array[-1],2)
+					]
 		# print tmp_to_csv
 		self._write_to_csv_data.append(tmp_to_csv)
 
@@ -290,7 +312,8 @@ def getSortedData(data):
 	return ret
 
 def main(filename):
-	path = "../data/"+filename+".csv"
+	# path = "../data/"+filename+".csv"
+	path = "../zn/"+filename
 	# read_data_from_csv(pth)
 	f = open(path,'rb')
 	instrumentid = filename.split("_")[0]
@@ -307,21 +330,31 @@ def main(filename):
 	
 	data = bt.get_to_csv_data()
 
-	# data = clean_night_data(data)
-	path_new = "../data/"+filename+ "_band_data"+".csv"
+	data = clean_night_data(data)
+	path_new = "../zn/"+filename+ "_band_data"+".csv"
 	bf.write_data_to_csv(path_new,data)
 
 
 if __name__=='__main__':
-	# data1 = [20170630,20170629,20170628,20170627,20170623,20170622,20170621,20170620,20170619,20170616]
-	# data2 =[20170711,20170712,20170713,20170714,20170717]
-	# data3 =[20170718,20170719,20170720,20170721,20170724,20170725,20170726]
+	# data2 =[20170724,20170725,20170726,20170727,20170728]
+	# data3 =[20170731,20170801,20170802,20170803,20170804,20170807,20170808,20170809]
 	# data = data2+ data3
-	data = [20170810]
-	# instrumentid_array = ["ru1801","rb1710","zn1709","pb1709"]
-	instrumentid_array = ["rb1801"]
-	for item in data:
-		for instrumentid in instrumentid_array:
-			path = instrumentid+ "_"+str(item)
-			print path
-			main(path)	
+	file_dir = "../zn"
+	for root, dirs, files in os.walk(file_dir):
+	    for file in files:
+	    	if "band_data" not in file and "csv" in file:
+	    		tmp_path = os.path.join(root,file)
+	    		tmp_path = tmp_path.split('/')[2]
+	    		print tmp_path
+	    		main(tmp_path)
+
+
+
+	# data = [20170815]
+	# # instrumentid_array = ["ru1801","rb1801","zn1710","pb1710","hc1801","i1801"]
+	# instrumentid_array = ["ru1801","rb1801","zn1710","i1801"]
+	# for item in data:
+	# 	for instrumentid in instrumentid_array:
+	# 		path = instrumentid+ "_"+str(item)
+	# 		print path
+	# 		main(path)	

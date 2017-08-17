@@ -40,14 +40,17 @@ def change_last_three_format(data):
 	volume_array = []
 	openinterest_array = []
 	spread_array = []
-	period = 4
+	avg_array = []
+	period = 10
 	for line in data:
 		volume_array.append(line[5])
 		openinterest_array.append(line[6])
 		spread_array.append(line[7])
+		avg_array.append(line[11])
 		line[8] = round(get_sum(volume_array,period),2)
 		line[9] = round(get_sum(openinterest_array,period),2)
-		line[10] = round(get_weighted_mean(spread_array,volume_array,period),2)
+		# line[10] = round(get_weighted_mean(spread_array,volume_array,period),2)
+		# line[12] = get_sum(avg_array,period)
 	
 
 
@@ -58,8 +61,9 @@ def change_format(path):
 	for row in reader:
 		for x in xrange(2,11):
 			row[x] = round(float(row[x]),2)
-		if row[5] !=0:
 			data.append(row)
+		# if row[5] !=0:
+		# 	data.append(row)
 	f.close()
 
 	change_last_three_format(data)
@@ -78,10 +82,18 @@ def get_files(file_dir):
         		change_format(tmp_path)
 
 def main():
-	path = "../csv/ru1801_20170725_band_data.csv"
-	# path = "../csv"
+	# path = "../data/cu1710_20170815_band_data.csv"
+	# path = "../data/hc1710_20170815_band_data.csv"
+	path = "../zn"
 	get_files(path)
-	change_format(path)
+	# data = [20170815]
+	# # instrumentid_array = ["ru1801","rb1710","zn1709","pb1709"]
+	# instrumentid_array = ["zn1710"]
+	# for item in data:
+	# 	for instrumentid in instrumentid_array:
+	# 		path = "../data/"+instrumentid+ "_"+str(item)+"_band_data.csv"
+	# 		print path
+	# 		change_format(path)
 
 
 if __name__ == '__main__':
