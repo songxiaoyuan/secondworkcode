@@ -3,6 +3,7 @@ import csv
 import band_and_trigger
 import basic_fun as bf
 import os
+import cx_Oracle  
 
 LASTPRICE = 4
 VOLUME = 11
@@ -18,67 +19,91 @@ SHORT =0
 
 # 这个是铅的
 param_dict_pb = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":50
-			,"limit_rsi_data":75,"rsi_period":10,"diff_period":1
+			,"limit_rsi_data":75,"rsi_period":10,"diff_period":60
 			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":3600
 			,"volume_open_edge":20,"limit_max_draw_down":0,"multiple":5,"file":file
 			,"sd_lastprice":100,"open_interest_edge":0,"spread":100,"config_file":310}
 # 这个是螺纹钢的
 param_dict_rb = {"limit_max_profit":25,"limit_max_loss":10,"rsi_bar_period":120
-			,"limit_rsi_data":80,"rsi_period":14,"diff_period":10
-			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
+			,"limit_rsi_data":80,"rsi_period":14,"diff_period":60
+			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":10800
 			,"volume_open_edge":900,"limit_max_draw_down":0,"multiple":10,"file":file
 			,"sd_lastprice":100,"open_interest_edge":0,"spread":100,"config_file":320}
 
 # 这个是橡胶的
 param_dic_ru = {"limit_max_profit":250,"limit_max_loss":100,"rsi_bar_period":120
-			,"limit_rsi_data":80,"rsi_period":14,"diff_period":1
-			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
+			,"limit_rsi_data":80,"rsi_period":14,"diff_period":60
+			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":10800
 			,"volume_open_edge":120,"limit_max_draw_down":0,"multiple":10,"file":file
 			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":330}
 
 # 这个是锌的
 param_dic_zn = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
-			,"limit_rsi_data":80,"rsi_period":14,"diff_period":1
+			,"limit_rsi_data":80,"rsi_period":14,"diff_period":60
 			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
 			,"volume_open_edge":100,"limit_max_draw_down":0,"multiple":5,"file":file
 			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":340}
 
-param_dic_cu = {"limit_max_profit":25000,"limit_max_loss":10000,"rsi_bar_period":120
-			,"limit_rsi_data":80,"rsi_period":14,"diff_period":1
-			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
-			,"volume_open_edge":120,"limit_max_draw_down":0,"multiple":5,"file":file
-			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":390}
-
-param_dic_i = {"limit_max_profit":25000,"limit_max_loss":10000,"rsi_bar_period":120
-			,"limit_rsi_data":80,"rsi_period":14,"diff_period":1
-			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
-			,"volume_open_edge":120,"limit_max_draw_down":0,"multiple":100,"file":file
-			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":350}
-
-
-param_dict_cu = {"limit_max_profit":10000,"limit_max_loss":10000,"multiple":5
-			,"rsi_bar_period":120,"limit_rsi_data":80,"rsi_period":14
-			,"diff_period":1
-			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
-			,"limit_max_draw_down":0,"file":file
-			,"open_interest_edge":0,"spread":100,"volume_open_edge":900
-			,"limit_sd":40,"limit_sd_open_edge":1,"limit_sd_close_edge":3,"config_file":390}
-
 param_dict_i = {"limit_max_profit":10000,"limit_max_loss":10000,"multiple":100
 			,"rsi_bar_period":120,"limit_rsi_data":80,"rsi_period":14
-			,"diff_period":1
+			,"diff_period":60
 			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
 			,"limit_max_draw_down":0,"file":file
 			,"open_interest_edge":0,"spread":100,"volume_open_edge":900
 			,"limit_sd":2,"limit_sd_open_edge":1,"limit_sd_close_edge":3,"config_file":350}
 
+param_dic_ni = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
+			,"limit_rsi_data":80,"rsi_period":14,"diff_period":60
+			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
+			,"volume_open_edge":100,"limit_max_draw_down":0,"multiple":1,"file":file
+			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":360}
+
+param_dic_al = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
+			,"limit_rsi_data":80,"rsi_period":14,"diff_period":60
+			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
+			,"volume_open_edge":100,"limit_max_draw_down":0,"multiple":1,"file":file
+			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":370}
+
 param_dict_hc = {"limit_max_profit":10000,"limit_max_loss":10000,"multiple":10
 			,"rsi_bar_period":120,"limit_rsi_data":80,"rsi_period":14
-			,"diff_period":1
+			,"diff_period":60
 			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
 			,"limit_max_draw_down":0,"file":file
 			,"open_interest_edge":0,"spread":100,"volume_open_edge":100
 			,"limit_sd":2,"limit_sd_open_edge":1,"limit_sd_close_edge":3,"config_file":380}
+
+param_dict_cu = {"limit_max_profit":10000,"limit_max_loss":10000,"multiple":5
+			,"rsi_bar_period":120,"limit_rsi_data":80,"rsi_period":14
+			,"diff_period":60
+			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
+			,"limit_max_draw_down":0,"file":file
+			,"open_interest_edge":0,"spread":100,"volume_open_edge":900
+			,"limit_sd":40,"limit_sd_open_edge":1,"limit_sd_close_edge":3,"config_file":390}
+
+
+param_dic_au = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
+			,"limit_rsi_data":80,"rsi_period":14,"diff_period":60
+			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
+			,"volume_open_edge":100,"limit_max_draw_down":0,"multiple":1,"file":file
+			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":400}
+
+param_dic_ag = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
+			,"limit_rsi_data":80,"rsi_period":14,"diff_period":60
+			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
+			,"volume_open_edge":100,"limit_max_draw_down":0,"multiple":1,"file":file
+			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":410}
+
+param_dic_bu = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
+			,"limit_rsi_data":80,"rsi_period":14,"diff_period":60
+			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
+			,"volume_open_edge":100,"limit_max_draw_down":0,"multiple":1,"file":file
+			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":420}
+
+param_dic_sn = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
+			,"limit_rsi_data":80,"rsi_period":14,"diff_period":60
+			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
+			,"volume_open_edge":100,"limit_max_draw_down":0,"multiple":1,"file":file
+			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":430}
 
 nameDict = {
 	"rb1801":{"param":param_dict_rb},
@@ -87,6 +112,12 @@ nameDict = {
 	"cu1710":{"param":param_dict_cu},
 	"i1801":{"param":param_dict_i},
 	"hc1801":{"param":param_dict_hc},
+	"ni1801":{"param":param_dic_ni},
+	"al1710":{"param":param_dic_al},
+	"au1712":{"param":param_dic_au},
+	"ag1712":{"param":param_dic_ag},
+	"bu1712":{"param":param_dic_bu},
+	"sn1709":{"param":param_dic_sn},
 	"pb1710":{"param":param_dict_pb}
 }
 
@@ -153,7 +184,11 @@ class BandAndTrigger(object):
 
 	def __del__(self):
 		print "this is the over function " + str(self._config_file)
-		config_file = "../config_pic/"+str(self._config_file)
+		# config_file = "../config_pic/"+str(self._config_file)
+		# bf.write_config_info(self._pre_ema_val,self._lastprice_array
+		# 	,self._rsi_array,self._rsi_period,self._now_md_price[LASTPRICE],config_file)
+		
+		# config_file = "../config_pic/"+str(self._config_file+1)
 		# bf.write_config_info(self._pre_ema_val,self._lastprice_array
 		# 	,self._rsi_array,self._rsi_period,self._now_md_price[LASTPRICE],config_file)
 
@@ -247,23 +282,22 @@ class BandAndTrigger(object):
 			self._diff_spread_array.append(spread)
 		else:
 
-			# avg_price = float(diff_turnover)/diff_volume/self._multiple
-			avg_price = float(ema_diff_turnonver)/ema_diff_volume/self._multiple
+			avg_price = float(diff_turnover)/diff_volume/self._multiple
+			# avg_price = float(ema_diff_turnonver)/ema_diff_volume/self._multiple
 			# if lastprice > self._now_middle_value:
 			# if self._pre_md_price[ASKPRICE1] != self._pre_md_price[BIDPRICE1]:
 			# 注意，现在算的只是和买一价的位置关系。
-			# spread = 100*(avg_price - self._pre_md_price[BIDPRICE1])/(self._pre_md_price[ASKPRICE1] - self._pre_md_price[BIDPRICE1])
+			spread = 100*(avg_price - self._pre_md_price[BIDPRICE1])/(self._pre_md_price[ASKPRICE1] - self._pre_md_price[BIDPRICE1])
 			# spread = 100*(avg_price - self._now_md_price[BIDPRICE1])/(self._now_md_price[ASKPRICE1] - self._now_md_price[BIDPRICE1])
-			spread = avg_price - self._now_md_price[LASTPRICE]
+			# spread = avg_price - self._now_md_price[LASTPRICE]
 			self._diff_spread_array.append(spread)
-			# spread = bf.get_weighted_mean(self._diff_spread_array,self._diff_volume_array,self._diff_period)
+		spread = bf.get_weighted_mean(self._diff_spread_array,self._diff_volume_array,self._diff_period)
 		
 		# avg = (int(self._now_md_price[BIDPRICE1VOLUME])+int(self._now_md_price[ASKPRICE1VOLUME]))/2
 
 		tmp_to_csv = [self._now_md_price[TIME],self._now_md_price[LASTPRICE],round(self._now_middle_value,2),
-					round(self._now_sd_val,2),round(self._ris_data,2),diff_volume,diff_interest,round(spread,2),
-					round(ema_diff_volume,2),round(ema_diff_openinterest,2),round(self._diff_spread_array[-1],2)
-					]
+					round(self._now_sd_val,2),round(self._ris_data,2),diff_volume,diff_interest,round(self._diff_spread_array[-1],2),
+					round(ema_diff_volume,2),round(ema_diff_openinterest,2),round(spread,2)]
 		# print tmp_to_csv
 		self._write_to_csv_data.append(tmp_to_csv)
 
@@ -316,25 +350,56 @@ def getSortedData(data):
 			night.append(line)
 		# if int(line[22]) ==0 or int(line[4]) ==3629:
 		# 	continue
-	# for line in night:
-	# 	ret.append(line)
-	# for line in zero:
-	# 	ret.append(line)
+	night = sorted(night, key = lambda x: (x[20], int(x[21])))
+	zero = sorted(zero, key = lambda x: (x[20], int(x[21])))
+	day = sorted(day, key = lambda x: (x[20], int(x[21])))
+	
+	for line in night:
+		ret.append(line)
+	for line in zero:
+		ret.append(line)
 	for line in day:
 		ret.append(line)
 
 	return ret
 
+def getSqlData(myday,instrumentid): 
+
+	conn = cx_Oracle.connect('hq','hq','114.251.16.210:9921/quota')    
+	cursor = conn.cursor () 
+	for index in xrange(0,1):
+		date=myday+index
+		print date
+
+		mysql="select *from hyqh.quotatick where TRADINGDAY = '%s' AND INSTRUMENTID = '%s' " % (date,instrumentid)
+
+		print mysql
+		cursor.execute (mysql)  
+
+		icresult = cursor.fetchall()
+		# get the data and sort it.
+		# sortedlist = sorted(icresult, key = lambda x: (x[20], int(x[21])))
+		cleandata = getSortedData(icresult)
+		filename='../data/'+"%s_"%instrumentid
+		filename=filename+str(date)+'.csv'
+		print "we get the instrument id %s" % instrumentid
+
+		bf.write_data_to_csv(filename,cleandata)
+
+	cursor.close ()  
+	conn.close () 
+
+
 def main(filename):
-	# path = "../data/"+filename+".csv"
-	path = "../zn/"+filename
+	path = "../data/"+filename+".csv"
+	# path = "../data/"+filename
 	# read_data_from_csv(pth)
 	f = open(path,'rb')
 	instrumentid = filename.split("_")[0]
 	print "the instrument id is: "+instrumentid
 	reader = csv.reader(f)
 
-	reader =getSortedData(reader)
+	# reader =getSortedData(reader)
 	
 	bt = BandAndTrigger(nameDict[instrumentid]["param"])
 	for row in reader:
@@ -345,30 +410,35 @@ def main(filename):
 	data = bt.get_to_csv_data()
 
 	data = clean_night_data(data)
-	path_new = "../zn/"+filename+ "_band_data"+".csv"
+	path_new = "../data/"+filename+ "_band_data"+".csv"
 	bf.write_data_to_csv(path_new,data)
+
 
 
 if __name__=='__main__':
 	# data2 =[20170724,20170725,20170726,20170727,20170728]
 	# data3 =[20170731,20170801,20170802,20170803,20170804,20170807,20170808,20170809]
 	# data = data2+ data3
-	file_dir = "../zn"
-	for root, dirs, files in os.walk(file_dir):
-	    for file in files:
-	    	if "band_data" not in file and "csv" in file:
-	    		tmp_path = os.path.join(root,file)
-	    		tmp_path = tmp_path.split('/')[2]
-	    		print tmp_path
-	    		main(tmp_path)
+	# file_dir = "../zn"
+	# for root, dirs, files in os.walk(file_dir):
+	#     for file in files:
+	#     	if "band_data" not in file and "csv" in file:
+	#     		tmp_path = os.path.join(root,file)
+	#     		tmp_path = tmp_path.split('/')[2]
+	#     		print tmp_path
+	#     		main(tmp_path)
 
 
 
-	# data = [20170815]
-	# # instrumentid_array = ["ru1801","rb1801","zn1710","pb1710","cu1710","hc1801","i1801"]
-	# instrumentid_array = ["ru1801","rb1801","zn1710","i1801"]
-	# for item in data:
-	# 	for instrumentid in instrumentid_array:
-	# 		path = instrumentid+ "_"+str(item)
-	# 		print path
-	# 		main(path)	
+	data =[20170828]
+	instrumentid_array = ["ru1801","rb1801","zn1710","pb1710","cu1710","hc1801","i1801","ni1801","al1710","au1712","ag1712","bu1712"]
+	# instrumentid_array = ["al1710","au1712","ag1712","bu1712","sn1709"]
+	# instrumentid_array = ["rb1801"]
+	for item in data:
+		for instrumentid in instrumentid_array:
+			# first get the sql data
+			getSqlData(item,instrumentid)
+
+			path = instrumentid+ "_"+str(item)
+			print path
+			main(path)	
