@@ -28,10 +28,12 @@ def get_weighted_mean(spread_array,volume_array,period):
 	l = len(spread_array)
 	total_sum = 0
 	weight_sum = 0
+	tmp = period
 	for i in xrange(l-1,-1,-1):
 		if i >= (l - period):
-			total_sum += (spread_array[i]*volume_array[i])
-			weight_sum += volume_array[i]
+			total_sum += (spread_array[i]*volume_array[i]*tmp)
+			weight_sum += (volume_array[i]*tmp)
+			tmp -=1
 	if total_sum ==0 or weight_sum ==0:
 		return 0
 	return float(total_sum)/weight_sum
@@ -41,15 +43,15 @@ def change_last_three_format(data):
 	openinterest_array = []
 	spread_array = []
 	avg_array = []
-	period = 10
+	period = 60
 	for line in data:
 		volume_array.append(line[5])
 		openinterest_array.append(line[6])
 		spread_array.append(line[7])
-		avg_array.append(line[11])
+		# avg_array.append(line[11])
 		line[8] = round(get_sum(volume_array,period),2)
 		line[9] = round(get_sum(openinterest_array,period),2)
-		# line[10] = round(get_weighted_mean(spread_array,volume_array,period),2)
+		line[10] = round(get_weighted_mean(spread_array,volume_array,period),2)
 		# line[12] = get_sum(avg_array,period)
 	
 
@@ -61,7 +63,7 @@ def change_format(path):
 	for row in reader:
 		for x in xrange(2,11):
 			row[x] = round(float(row[x]),2)
-			data.append(row)
+		data.append(row)
 		# if row[5] !=0:
 		# 	data.append(row)
 	f.close()
@@ -84,16 +86,17 @@ def get_files(file_dir):
 def main():
 	# path = "../data/cu1710_20170815_band_data.csv"
 	# path = "../data/hc1710_20170815_band_data.csv"
-	path = "../zn"
-	get_files(path)
-	# data = [20170815]
-	# # instrumentid_array = ["ru1801","rb1710","zn1709","pb1709"]
-	# instrumentid_array = ["zn1710"]
-	# for item in data:
-	# 	for instrumentid in instrumentid_array:
-	# 		path = "../data/"+instrumentid+ "_"+str(item)+"_band_data.csv"
-	# 		print path
-	# 		change_format(path)
+	# path = "../zn"
+	# get_files(path)
+	data = [20170823]
+	# data = [20170822]
+	# instrumentid_array = ["ru1801","ru1801","zn1710","ni1801","cu1710","pb1710","hc1801","i1801"]
+	instrumentid_array = ["ru1801"]
+	for item in data:
+		for instrumentid in instrumentid_array:
+			path = "../tmp/"+instrumentid+ "_"+str(item)+"_band_data.csv"
+			print path
+			change_format(path)
 
 
 if __name__ == '__main__':

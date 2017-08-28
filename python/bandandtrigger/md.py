@@ -79,9 +79,9 @@ class BandAndTrigger(object):
 		self._ema_diff_openinterest = float(md_array[EMA_DIFF_OPENINTEREST])
 		self._ema_spread = float(md_array[EMA_SPREAD])
 		# self._avg_sum = float(md_array[AVG_SUM])
-		# self._ema_diff_volume = self._diff_volume
-		# self._ema_diff_openinterest = self._diff_openinterest
-		# self._ema_spread = self._spread
+		self._ema_diff_volume = self._diff_volume
+		self._ema_diff_openinterest = self._diff_openinterest
+		self._ema_spread = self._spread
 
 
 		open_time = self.is_trend_open_time()
@@ -218,7 +218,7 @@ def create_band_obj(data,param_dict):
 		param_dict["direction"] = i
 		if i==0:
 			# continue
-			param_dict["open_interest_edge"] =0
+			# param_dict["open_interest_edge"] =1
 			band_and_trigger_obj = BandAndTrigger(param_dict)
 			print "方向是short的交易情况:"
 			file.write("方向是short的交易情况:\n")
@@ -227,7 +227,7 @@ def create_band_obj(data,param_dict):
 			file.write(str(profit)+"\n")
 		else:
 			print "方向是long的交易情况："
-			param_dict["open_interest_edge"] =1
+			# param_dict["open_interest_edge"] =1
 			band_and_trigger_obj = BandAndTrigger(param_dict)
 			file.write("方向是long的交易情况：:\n")
 			start_to_run_md(band_and_trigger_obj,data)
@@ -237,10 +237,10 @@ def create_band_obj(data,param_dict):
 
 
 def main(filename):
-	# path = "../zn/"+filename+"_band_data.csv"
-	path = "../zn/"+filename
+	path = "../tmp/"+filename+"_band_data.csv"
+	# path = "../zn/"+filename
 	csv_data = read_data_from_csv(path)
-	path = "../outdata/"+filename+"_trade_normal.txt"
+	path = "../outdata/"+filename+"_trade1.txt"
 	file = open(path,"w")
 
 	# 这个是螺纹钢的 tick 1
@@ -250,55 +250,80 @@ def main(filename):
 				,"open_interest_edge":0,"spread":95,"volume_open_edge":0
 				,"limit_sd":50,"limit_sd_open_edge":1,"limit_sd_close_edge":0.5}
 	if "rb" in filename:
-		param_dict["volume_open_edge"] =3000
+		param_dict["volume_open_edge"] =650
 		param_dict["limit_sd"] =4
-		param_dict["open_interest_edge"] =1
+		param_dict["open_interest_edge"] =0
 		param_dict["band_open_edge1"] =0
 		param_dict["band_open_edge2"] =0.5
 		param_dict["band_loss_edge"] =0.5
 		param_dict["limit_sd_close_edge"] =1
-		param_dict["spread"] =95
+		param_dict["spread"] =100
 	elif "ru" in filename:
-		param_dict["volume_open_edge"] =450
+		param_dict["volume_open_edge"] =150
 		param_dict["limit_sd"] =25
-		param_dict["open_interest_edge"] =1
+		param_dict["open_interest_edge"] =0
 		param_dict["band_open_edge1"] =0
 		param_dict["band_open_edge2"] =0.5
 		param_dict["band_loss_edge"] =0.5
 		param_dict["limit_sd_close_edge"] =1
-		param_dict["spread"] =90
+		param_dict["spread"] =100
 	elif "pb" in filename:
 		param_dict["volume_open_edge"] =20
 		param_dict["limit_sd"] =25
 		param_dict["open_interest_edge"] =1
+		param_dict["band_open_edge1"] =0
+		param_dict["band_open_edge2"] =0.5
+		param_dict["band_loss_edge"] =0.5
+		param_dict["limit_sd_close_edge"] =1
+		param_dict["spread"] =100
 	elif "zn" in filename:
-		param_dict["volume_open_edge"] =300
+		param_dict["volume_open_edge"] =50
 		param_dict["limit_sd"] =25
 		param_dict["open_interest_edge"] =1
 		param_dict["band_open_edge1"] =0
 		param_dict["band_open_edge2"] =0.5
 		param_dict["band_loss_edge"] =0.5
 		param_dict["limit_sd_close_edge"] =1
-		param_dict["spread"] =90
+		param_dict["spread"] =100
 	elif "cu" in filename:
-		param_dict["volume_open_edge"] =200
+		param_dict["volume_open_edge"] =100
 		param_dict["band_loss_edge"] =0
 		param_dict["limit_sd"] =40
 		param_dict["open_interest_edge"] =1
+		param_dict["band_open_edge1"] =0
+		param_dict["band_open_edge2"] =0.5
+		param_dict["band_loss_edge"] =0.5
+		param_dict["limit_sd_close_edge"] =1
+		param_dict["spread"] =100
 	elif "hc" in filename:
-		param_dict["volume_open_edge"] =300
+		param_dict["volume_open_edge"] =200
 		param_dict["band_loss_edge"] =0
 		param_dict["limit_sd"] =4
 		param_dict["open_interest_edge"] =1
-	elif "i" in filename:
-		param_dict["volume_open_edge"] =2000
+		param_dict["band_open_edge1"] =0
+		param_dict["band_open_edge2"] =0.5
+		param_dict["band_loss_edge"] =0.5
+		param_dict["limit_sd_close_edge"] =1
+		param_dict["spread"] =100
+	elif "i" in filename and "ni" not in filename:
+		param_dict["volume_open_edge"] =1000
 		param_dict["limit_sd"] =2
 		param_dict["open_interest_edge"] =1
 		param_dict["band_open_edge1"] =0.5
 		param_dict["band_open_edge2"] =1
 		param_dict["band_loss_edge"] =0.5
 		param_dict["limit_sd_close_edge"] =1
-		param_dict["spread"] =90
+		param_dict["spread"] =100
+	elif "ni" in filename:
+		param_dict["volume_open_edge"] =100
+		param_dict["band_loss_edge"] =0
+		param_dict["limit_sd"] =60
+		param_dict["open_interest_edge"] =1
+		param_dict["band_open_edge1"] =0
+		param_dict["band_open_edge2"] =0.5
+		param_dict["band_loss_edge"] =0.5
+		param_dict["limit_sd_close_edge"] =1
+		param_dict["spread"] =100
 	else:
 		print "the instrument is not in the parm " + filename
 		return
@@ -312,20 +337,21 @@ if __name__=='__main__':
 	# data1 = [20170724,20170725,20170726,20170727,20170728]
 	# data =[20170731,20170801,20170802,20170803,20170804,20170807,20170808,20170809,20170810]
 	# data = data+data1
-	file_dir = "../zn"
-	for root, dirs, files in os.walk(file_dir):
-	    for file in files:
-	    	if "band_data" in file:
-	    		tmp_path = os.path.join(root,file)
-	    		tmp_path = tmp_path.split('/')[2]
-	    		print tmp_path
-	    		main(tmp_path)
-	# data = [20170810]
-	# # instrumentid = ["rb1710","ru1801","zn1709","pb1709"]
-	# instrumentid = ["zn1710"]
-	# for item in data:
-	# 	for instrument in instrumentid:
-	# 		path = instrument + "_"+ str(item)
-	# 		print path
-	# 		main(path)	
+	# file_dir = "../zn"
+	# for root, dirs, files in os.walk(file_dir):
+	#     for file in files:
+	#     	if "band_data" in file:
+	#     		tmp_path = os.path.join(root,file)
+	#     		tmp_path = tmp_path.split('/')[2]
+	#     		print tmp_path
+	#     		main(tmp_path)
+	# data = [20170817,20170818,20170821,20170822]
+	data = [20170824]
+	# instrumentid = ["rb1801","ru1801","zn1710","pb1710","hc1801","i1801","cu1710","ni1801"]
+	instrumentid = ["rb1801"]
+	for item in data:
+		for instrument in instrumentid:
+			path = instrument + "_"+ str(item)
+			print path
+			main(path)	
 		# print WRITETOFILE

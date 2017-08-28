@@ -121,6 +121,11 @@ class BandAndTrigger(object):
 		self._rsi_bar_period = param_dic["rsi_bar_period"]
 		self._limit_rsi_data = param_dic["limit_rsi_data"]
 
+		self._now_bar_num = 1
+		self._limit_bar_num = 120
+		self._bar_min_lastprice = 0
+		self._bar_max_lastprice = 0
+
 		# self._limit_twice_sd = 2
 
 		self._moving_theo = "EMA"
@@ -154,8 +159,8 @@ class BandAndTrigger(object):
 	def __del__(self):
 		print "this is the over function " + str(self._config_file)
 		config_file = "../config_pic/"+str(self._config_file)
-		# bf.write_config_info(self._pre_ema_val,self._lastprice_array
-		# 	,self._rsi_array,self._rsi_period,self._now_md_price[LASTPRICE],config_file)
+		bf.write_config_info(self._pre_ema_val,self._lastprice_array
+			,self._rsi_array,self._rsi_period,self._now_md_price[LASTPRICE],config_file)
 
 
 	# get the md data ,every line;
@@ -238,12 +243,25 @@ class BandAndTrigger(object):
 		self._diff_turn_over_array.append(diff_turnover)
 		# 直接就是diff_interest
 		# ema_diff_volume = bf.get_ema_data_2(self._diff_volume_array,self._diff_period)
-		ema_diff_volume = bf.get_sum(self._diff_volume_array,self._diff_period)
-		ema_diff_openinterest = bf.get_sum(self._diff_open_interest_array,self._diff_period)
-		ema_diff_turnonver = bf.get_sum(self._diff_turn_over_array,self._diff_period)
+		if self._now_bar_num > self._limit_bar_num:
+			ema_diff_volume = bf.get_sum(self._diff_volume_array,self._limit_bar_num)
+			ema_diff_openinterest = bf.get_sum(self._diff_open_interest_array,self._limit_bar_num)
+			ema_diff_turnonver = bf.get_sum(self._diff_turn_over_array,self._limit_bar_num)
+			self._now_bar_num = 1
+			self._bar_max_lastprice = self._now_md_price[LASTPRICE]
+			self._bar_min_lastprice = self._now_md_price[LASTPRICE]
+		else:
+			ema_diff_volume = bf.get_sum(self._diff_volume_array,self._now_bar_num)
+			ema_diff_openinterest = bf.get_sum(self._diff_open_interest_array,self._now_bar_num)
+			ema_diff_turnonver = bf.get_sum(self._diff_turn_over_array,self._now_bar_num)
+			self._now_bar_num +=1
+			if self._bar_max_lastprice ==0 or self._bar_max_lastprice < self._now_md_price[LASTPRICE]:
+				self._bar_max_lastprice = self._now_md_price[LASTPRICE]
+			if self._bar_min_lastprice ==0 or self._bar_min_lastprice > self._now_md_price[LASTPRICE]:
+				self._bar_min_lastprice = self._now_md_price[LASTPRICE]
 
-		if diff_volume ==0:
-			spread =0
+		if ema_diff_volume ==0:
+			spread =50
 			self._diff_spread_array.append(spread)
 		else:
 
@@ -254,15 +272,18 @@ class BandAndTrigger(object):
 			# 注意，现在算的只是和买一价的位置关系。
 			# spread = 100*(avg_price - self._pre_md_price[BIDPRICE1])/(self._pre_md_price[ASKPRICE1] - self._pre_md_price[BIDPRICE1])
 			# spread = 100*(avg_price - self._now_md_price[BIDPRICE1])/(self._now_md_price[ASKPRICE1] - self._now_md_price[BIDPRICE1])
-			spread = avg_price - self._now_md_price[LASTPRICE]
+			if self._bar_max_lastprice == self._bar_min_lastprice:
+				spread = 50
+			else:
+				spread = 100*(avg_price - self._bar_min_lastprice)/(self._bar_max_lastprice - self._bar_min_lastprice)
 			self._diff_spread_array.append(spread)
 			# spread = bf.get_weighted_mean(self._diff_spread_array,self._diff_volume_array,self._diff_period)
 		
 		# avg = (int(self._now_md_price[BIDPRICE1VOLUME])+int(self._now_md_price[ASKPRICE1VOLUME]))/2
 
 		tmp_to_csv = [self._now_md_price[TIME],self._now_md_price[LASTPRICE],round(self._now_middle_value,2),
-					round(self._now_sd_val,2),round(self._ris_data,2),diff_volume,diff_interest,round(spread,2),
-					round(ema_diff_volume,2),round(ema_diff_openinterest,2),round(self._diff_spread_array[-1],2)
+					round(self._now_sd_val,2),round(self._ris_data,2),diff_volume,diff_interest,round(self._diff_spread_array[-1],2),
+					round(ema_diff_volume,2),round(ema_diff_openinterest,2),round(spread,2)
 					]
 		# print tmp_to_csv
 		self._write_to_csv_data.append(tmp_to_csv)
@@ -316,18 +337,18 @@ def getSortedData(data):
 			night.append(line)
 		# if int(line[22]) ==0 or int(line[4]) ==3629:
 		# 	continue
-	# for line in night:
-	# 	ret.append(line)
-	# for line in zero:
-	# 	ret.append(line)
+	for line in night:
+		ret.append(line)
+	for line in zero:
+		ret.append(line)
 	for line in day:
 		ret.append(line)
 
 	return ret
 
 def main(filename):
-	# path = "../data/"+filename+".csv"
-	path = "../zn/"+filename
+	path = "../data/"+filename+".csv"
+	# path = "../data/"+filename
 	# read_data_from_csv(pth)
 	f = open(path,'rb')
 	instrumentid = filename.split("_")[0]
@@ -345,7 +366,7 @@ def main(filename):
 	data = bt.get_to_csv_data()
 
 	data = clean_night_data(data)
-	path_new = "../zn/"+filename+ "_band_data"+".csv"
+	path_new = "../data/"+filename+ "_band_data"+".csv"
 	bf.write_data_to_csv(path_new,data)
 
 
@@ -353,22 +374,23 @@ if __name__=='__main__':
 	# data2 =[20170724,20170725,20170726,20170727,20170728]
 	# data3 =[20170731,20170801,20170802,20170803,20170804,20170807,20170808,20170809]
 	# data = data2+ data3
-	file_dir = "../zn"
-	for root, dirs, files in os.walk(file_dir):
-	    for file in files:
-	    	if "band_data" not in file and "csv" in file:
-	    		tmp_path = os.path.join(root,file)
-	    		tmp_path = tmp_path.split('/')[2]
-	    		print tmp_path
-	    		main(tmp_path)
+	# file_dir = "../zn"
+	# for root, dirs, files in os.walk(file_dir):
+	#     for file in files:
+	#     	if "band_data" not in file and "csv" in file:
+	#     		tmp_path = os.path.join(root,file)
+	#     		tmp_path = tmp_path.split('/')[2]
+	#     		print tmp_path
+	#     		main(tmp_path)
 
 
 
-	# data = [20170815]
-	# # instrumentid_array = ["ru1801","rb1801","zn1710","pb1710","cu1710","hc1801","i1801"]
-	# instrumentid_array = ["ru1801","rb1801","zn1710","i1801"]
-	# for item in data:
-	# 	for instrumentid in instrumentid_array:
-	# 		path = instrumentid+ "_"+str(item)
-	# 		print path
-	# 		main(path)	
+	# data = [20170821,20170822,20170823,20170824,20170825]
+	data = [20170822]
+	# instrumentid_array = ["ru1801","rb1801","zn1710","pb1710","cu1710","hc1801","i1801"]
+	instrumentid_array = ["rb1801"]
+	for item in data:
+		for instrumentid in instrumentid_array:
+			path = instrumentid+ "_"+str(item)
+			print path
+			main(path)	
