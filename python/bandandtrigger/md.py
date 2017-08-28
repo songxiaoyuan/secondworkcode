@@ -218,7 +218,7 @@ def create_band_obj(data,param_dict):
 		param_dict["direction"] = i
 		if i==0:
 			# continue
-			param_dict["open_interest_edge"] =0
+			# param_dict["open_interest_edge"] =1
 			band_and_trigger_obj = BandAndTrigger(param_dict)
 			print "方向是short的交易情况:"
 			file.write("方向是short的交易情况:\n")
@@ -227,7 +227,7 @@ def create_band_obj(data,param_dict):
 			file.write(str(profit)+"\n")
 		else:
 			print "方向是long的交易情况："
-			param_dict["open_interest_edge"] =1
+			# param_dict["open_interest_edge"] =1
 			band_and_trigger_obj = BandAndTrigger(param_dict)
 			file.write("方向是long的交易情况：:\n")
 			start_to_run_md(band_and_trigger_obj,data)
@@ -241,6 +241,9 @@ def main(filename):
 	# path = "../zn/"+filename
 	csv_data = read_data_from_csv(path)
 	path = "../outdata/"+filename+"_trade_2.txt"
+	# path = "../zn/"+filename
+	csv_data = read_data_from_csv(path)
+	path = "../outdata/"+filename+"_trade1.txt"
 	file = open(path,"w")
 
 	# 这个是螺纹钢的 tick 1
@@ -259,32 +262,42 @@ def main(filename):
 		param_dict["limit_sd_close_edge"] =1
 		param_dict["spread"] =100
 	elif "ru" in filename:
-		param_dict["volume_open_edge"] =450
+		param_dict["volume_open_edge"] =150
 		param_dict["limit_sd"] =25
-		param_dict["open_interest_edge"] =1
-		param_dict["band_open_edge1"] =0.5
-		param_dict["band_open_edge2"] =1
+		param_dict["open_interest_edge"] =0
+		param_dict["band_open_edge1"] =0
+		param_dict["band_open_edge2"] =0.5
 		param_dict["band_loss_edge"] =0.5
 		param_dict["limit_sd_close_edge"] =1
-		param_dict["spread"] =90
+		param_dict["spread"] =100
 	elif "pb" in filename:
 		param_dict["volume_open_edge"] =20
-		param_dict["limit_sd"] =25
-		param_dict["open_interest_edge"] =1
-	elif "zn" in filename:
-		param_dict["volume_open_edge"] =300
 		param_dict["limit_sd"] =25
 		param_dict["open_interest_edge"] =1
 		param_dict["band_open_edge1"] =0
 		param_dict["band_open_edge2"] =0.5
 		param_dict["band_loss_edge"] =0.5
 		param_dict["limit_sd_close_edge"] =1
-		param_dict["spread"] =90
+		param_dict["spread"] =100
+	elif "zn" in filename:
+		param_dict["volume_open_edge"] =50
+		param_dict["limit_sd"] =25
+		param_dict["open_interest_edge"] =1
+		param_dict["band_open_edge1"] =0
+		param_dict["band_open_edge2"] =0.5
+		param_dict["band_loss_edge"] =0.5
+		param_dict["limit_sd_close_edge"] =1
+		param_dict["spread"] =100
 	elif "cu" in filename:
-		param_dict["volume_open_edge"] =200
+		param_dict["volume_open_edge"] =100
 		param_dict["band_loss_edge"] =0
 		param_dict["limit_sd"] =40
 		param_dict["open_interest_edge"] =1
+		param_dict["band_open_edge1"] =0
+		param_dict["band_open_edge2"] =0.5
+		param_dict["band_loss_edge"] =0.5
+		param_dict["limit_sd_close_edge"] =1
+		param_dict["spread"] =100
 	elif "hc" in filename:
 		param_dict["volume_open_edge"] =1000
 		param_dict["band_open_edge1"] =0
@@ -295,13 +308,25 @@ def main(filename):
 		param_dict["spread"] =90
 	elif "i" in filename:
 		param_dict["volume_open_edge"] =2000
-		param_dict["limit_sd"] =2
+		param_dict["volume_open_edge"] =200
+		param_dict["band_loss_edge"] =0
+		param_dict["limit_sd"] =4
 		param_dict["open_interest_edge"] =1
-		param_dict["band_open_edge1"] =0.5
-		param_dict["band_open_edge2"] =1
+		param_dict["band_open_edge1"] =0
+		param_dict["band_open_edge2"] =0.5
 		param_dict["band_loss_edge"] =0.5
 		param_dict["limit_sd_close_edge"] =1
-		param_dict["spread"] =90
+		param_dict["spread"] =100
+	elif "ni" in filename:
+		param_dict["volume_open_edge"] =100
+		param_dict["band_loss_edge"] =0
+		param_dict["limit_sd"] =60
+		param_dict["open_interest_edge"] =1
+		param_dict["band_open_edge1"] =0
+		param_dict["band_open_edge2"] =0.5
+		param_dict["band_loss_edge"] =0.5
+		param_dict["limit_sd_close_edge"] =1
+		param_dict["spread"] =100
 	else:
 		print "the instrument is not in the parm " + filename
 		return
@@ -323,8 +348,9 @@ if __name__=='__main__':
 	#     		tmp_path = tmp_path.split('/')[2]
 	#     		print tmp_path
 	#     		main(tmp_path)
-	data = [20170817]
-	# instrumentid = ["rb1710","ru1801","zn1709","pb1709"]
+	# data = [20170817,20170818,20170821,20170822]
+	data = [20170824]
+	# instrumentid = ["rb1801","ru1801","zn1710","pb1710","hc1801","i1801","cu1710","ni1801"]
 	instrumentid = ["rb1801"]
 	for item in data:
 		for instrument in instrumentid:

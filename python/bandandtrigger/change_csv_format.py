@@ -28,10 +28,12 @@ def get_weighted_mean(spread_array,volume_array,period):
 	l = len(spread_array)
 	total_sum = 0
 	weight_sum = 0
+	tmp = period
 	for i in xrange(l-1,-1,-1):
 		if i >= (l - period):
-			total_sum += (spread_array[i]*volume_array[i])
-			weight_sum += volume_array[i]
+			total_sum += (spread_array[i]*volume_array[i]*tmp)
+			weight_sum += (volume_array[i]*tmp)
+			tmp -=1
 	if total_sum ==0 or weight_sum ==0:
 		return 0
 	return float(total_sum)/weight_sum
@@ -40,8 +42,8 @@ def change_last_three_format(data):
 	volume_array = []
 	openinterest_array = []
 	spread_array = []
-	# avg_array = []
-	period = 10
+	avg_array = []
+	period = 60
 	for line in data:
 		volume_array.append(line[5])
 		openinterest_array.append(line[6])
@@ -88,12 +90,13 @@ def main():
 	# path = "../data/hc1710_20170815_band_data.csv"
 	# path = "../zn"
 	# get_files(path)
-	data = [20170817]
-	# instrumentid_array = ["ru1801","rb1710","zn1709","pb1709"]
-	instrumentid_array = ["ru1801","rb1801","zn1710","pb1710","cu1710","hc1801","i1801"]
+	data = [20170823]
+	# data = [20170822]
+	# instrumentid_array = ["ru1801","ru1801","zn1710","ni1801","cu1710","pb1710","hc1801","i1801"]
+	instrumentid_array = ["ru1801"]
 	for item in data:
 		for instrumentid in instrumentid_array:
-			path = "../data/"+instrumentid+ "_"+str(item)+"_band_data.csv"
+			path = "../tmp/"+instrumentid+ "_"+str(item)+"_band_data.csv"
 			print path
 			change_format(path)
 

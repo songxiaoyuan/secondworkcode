@@ -43,7 +43,7 @@
 <script type="text/javascript">
 
 
-        document.getElementById("rsidrawing").style.display="none";
+        // document.getElementById("rsidrawing").style.display="none";
         document.getElementById("sddrawing").style.display="none";
         // document.getElementById("sddrawing").style.display="none";
         // document.getElementById("ema_spread_drawing").style.display="none";
@@ -517,6 +517,44 @@
                 var ema_spread = Number(linedata[10])
                 
 
+                // if (diff_volume >1000) {
+                //     diff_volume = 1000
+                // }
+                // diff_volume_array.push(diff_volume)
+
+                // if (ema_diff_volume >15000) {
+                //     ema_diff_volume = 15000
+                // }
+                // ema_diff_volume_array.push(ema_diff_volume)
+
+
+                // if (ema_openinterest >500) {
+                //     ema_openinterest = 500
+                // }
+                // if (ema_openinterest < -500) {
+                //     ema_openinterest = -500
+                // }
+                // diff_openinterest_array.push(diff_openinterest)
+
+                // if (ema_openinterest >1000) {
+                //     ema_openinterest = 1000
+                // }
+                // if (ema_openinterest < -1000) {
+                //     ema_openinterest = -1000
+                // }
+
+                // ema_openinterest_array.push(ema_openinterest)
+                // spread_array.push(spread)
+
+                // if (ema_spread >100) {
+                //     ema_spread = 100
+                // }
+                // if (ema_spread < 0) {
+                //     ema_spread = 0
+                // }
+
+                // ema_spread_array.push(ema_spread)
+
                 var openband = 0.5
                 if (sd>20) {
                     //开仓边界是0.5，
@@ -526,86 +564,134 @@
                     //开仓边界是1
                     openband = 1
                 }
-                // 这个是long的情况
-                if (lastprice > middle && lastprice < middle + openband*sd) {
-                    if (ema_diff_volume>300 && ema_openinterest>0 && ema_spread >= 100) {
-                        console.log(time)
-                        if (ema_diff_volume >900) {
-                            ema_diff_volume = 900
-                        }
-                        if (spread > 150) {
-                            spread =150
-                        }
-                        else if (spread < -150) {
-                            spread = -150
-                        }
-                        if (ema_openinterest > 500) {
-                            ema_openinterest =500
-                        }
-                        else if (ema_openinterest < -500) {
-                            ema_openinterest = -500
-                        }
-                       diff_volume_array.push(diff_volume)
-                       ema_diff_volume_array.push(ema_diff_volume)
-                       diff_openinterest_array.push(diff_openinterest)
-                       ema_openinterest_array.push(ema_openinterest)
-                       spread_array.push(spread) 
-                       ema_spread_array.push(ema_spread)
+                // if (lastprice < middle + openband*sd && lastprice > middle - openband*sd) {
+                    if (diff_volume >1000) {
+                        diff_volume = 1000
                     }
-                    else{
-                        diff_volume_array.push(0)
-                        diff_openinterest_array.push(0)
-                        ema_openinterest_array.push(0)
-                        ema_diff_volume_array.push(0)
-                        spread_array.push(0)
-                        ema_spread_array.push(0)
+                    diff_volume_array.push(diff_volume)
+
+                    // if (ema_diff_volume >15000) {
+                    //     ema_diff_volume = 15000
+                    // }
+                    ema_diff_volume_array.push(ema_diff_volume)
+
+
+                    if (ema_openinterest >500) {
+                        ema_openinterest = 500
                     }
+                    if (ema_openinterest < -500) {
+                        ema_openinterest = -500
+                    }
+                    diff_openinterest_array.push(diff_openinterest)
+
+                    if (ema_openinterest >1000) {
+                        ema_openinterest = 1000
+                    }
+                    if (ema_openinterest < -1000) {
+                        ema_openinterest = -1000
+                    }
+
+                    ema_openinterest_array.push(ema_openinterest)
+                    spread_array.push(spread)
+
+                    if (ema_spread >100) {
+                        ema_spread = 100
+                    }
+                    if (ema_spread < 0) {
+                        ema_spread = 0
+                    }
+
+                    ema_spread_array.push(ema_spread)
+                // }
+                // else{
+
+                //     diff_volume_array.push(0)
+                //     ema_diff_volume_array.push(0)
+                //     diff_openinterest_array.push(0)
+                //     ema_openinterest_array.push(0)
+                //     spread_array.push(50)
+                //     ema_spread_array.push(50)
+                // }
+                // // 这个是long的情况
+                // if (lastprice > middle && lastprice < middle + openband*sd) {
+                //     if (ema_diff_volume>300 && ema_openinterest>0 && ema_spread >= 100) {
+                //         console.log(time)
+                //         if (ema_diff_volume >900) {
+                //             ema_diff_volume = 900
+                //         }
+                //         if (spread > 150) {
+                //             spread =150
+                //         }
+                //         else if (spread < -150) {
+                //             spread = -150
+                //         }
+                //         if (ema_openinterest > 500) {
+                //             ema_openinterest =500
+                //         }
+                //         else if (ema_openinterest < -500) {
+                //             ema_openinterest = -500
+                //         }
+                //        diff_volume_array.push(diff_volume)
+                //        ema_diff_volume_array.push(ema_diff_volume)
+                //        diff_openinterest_array.push(diff_openinterest)
+                //        ema_openinterest_array.push(ema_openinterest)
+                //        spread_array.push(spread) 
+                //        ema_spread_array.push(ema_spread)
+                //     }
+                //     else{
+                //         diff_volume_array.push(0)
+                //         diff_openinterest_array.push(0)
+                //         ema_openinterest_array.push(0)
+                //         ema_diff_volume_array.push(0)
+                //         spread_array.push(0)
+                //         ema_spread_array.push(0)
+                //     }
                     
-                }
-                // 这个是short的情况
-                else if (lastprice < middle && lastprice > middle - openband*sd) {
-                    if (ema_diff_volume>300 && ema_openinterest>0  && ema_spread <= 0) {
-                        console.log(time)
-                        if (ema_diff_volume >900) {
-                            ema_diff_volume = 900
-                        }
-                        if (spread > 150) {
-                            spread =150
-                        }
-                        else if (spread < -150) {
-                            spread = -150
-                        }
-                        if (ema_openinterest > 500) {
-                            ema_openinterest =500
-                        }
-                        else if (ema_openinterest < -500) {
-                            ema_openinterest = -500
-                        }
-                       diff_volume_array.push(diff_volume)
-                       ema_diff_volume_array.push(ema_diff_volume)
-                       diff_openinterest_array.push(diff_openinterest)
-                       ema_openinterest_array.push(ema_openinterest)
-                       spread_array.push(spread) 
-                       ema_spread_array.push(ema_spread)
-                    }
-                    else{
-                        diff_volume_array.push(0)
-                        diff_openinterest_array.push(0)
-                        ema_openinterest_array.push(0)
-                        ema_diff_volume_array.push(0)
-                        spread_array.push(0)
-                        ema_spread_array.push(0)
-                    }
+                // }
+                // // 这个是short的情况
+                // else if (lastprice < middle && lastprice > middle - openband*sd) {
+                //     if (ema_diff_volume>300 && ema_openinterest>0  && ema_spread <= 0) {
+                //         console.log(time)
+                //         if (ema_diff_volume >900) {
+                //             ema_diff_volume = 900
+                //         }
+                //         if (spread > 150) {
+                //             spread =150
+                //         }
+                //         else if (spread < -150) {
+                //             spread = -150
+                //         }
+                //         if (ema_openinterest > 500) {
+                //             ema_openinterest =500
+                //         }
+                //         else if (ema_openinterest < -500) {
+                //             ema_openinterest = -500
+                //         }
+                //        diff_volume_array.push(diff_volume)
+                //        ema_diff_volume_array.push(ema_diff_volume)
+                //        diff_openinterest_array.push(diff_openinterest)
+                //        ema_openinterest_array.push(ema_openinterest)
+                //        spread_array.push(spread) 
+                //        ema_spread_array.push(ema_spread)
+                //     }
+                //     else{
+                //         diff_volume_array.push(0)
+                //         diff_openinterest_array.push(0)
+                //         ema_openinterest_array.push(0)
+                //         ema_diff_volume_array.push(0)
+                //         spread_array.push(0)
+                //         ema_spread_array.push(0)
+                //     }
                     
-                }
-                else{
-                    diff_volume_array.push(0)
-                    diff_openinterest_array.push(0)
-                    ema_openinterest_array.push(0)
-                    ema_diff_volume_array.push(0)
-                    spread_array.push(0)
-                    ema_spread_array.push(0)
-                }
+                // }
+                // else{
+                //     diff_volume_array.push(0)
+                //     diff_openinterest_array.push(0)
+                //     ema_openinterest_array.push(0)
+                //     ema_diff_volume_array.push(0)
+                //     spread_array.push(0)
+                //     ema_spread_array.push(0)
+                // }
 
                 if (lastprice==NaN) {
                     break

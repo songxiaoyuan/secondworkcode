@@ -152,6 +152,11 @@ class BandAndTrigger(object):
 		self._rsi_bar_period = param_dic["rsi_bar_period"]
 		self._limit_rsi_data = param_dic["limit_rsi_data"]
 
+		self._now_bar_num = 1
+		self._limit_bar_num = 120
+		self._bar_min_lastprice = 0
+		self._bar_max_lastprice = 0
+
 		# self._limit_twice_sd = 2
 
 		self._moving_theo = "EMA"
@@ -273,12 +278,25 @@ class BandAndTrigger(object):
 		self._diff_turn_over_array.append(diff_turnover)
 		# 直接就是diff_interest
 		# ema_diff_volume = bf.get_ema_data_2(self._diff_volume_array,self._diff_period)
-		ema_diff_volume = bf.get_sum(self._diff_volume_array,self._diff_period)
-		ema_diff_openinterest = bf.get_sum(self._diff_open_interest_array,self._diff_period)
-		ema_diff_turnonver = bf.get_sum(self._diff_turn_over_array,self._diff_period)
+		if self._now_bar_num > self._limit_bar_num:
+			ema_diff_volume = bf.get_sum(self._diff_volume_array,self._limit_bar_num)
+			ema_diff_openinterest = bf.get_sum(self._diff_open_interest_array,self._limit_bar_num)
+			ema_diff_turnonver = bf.get_sum(self._diff_turn_over_array,self._limit_bar_num)
+			self._now_bar_num = 1
+			self._bar_max_lastprice = self._now_md_price[LASTPRICE]
+			self._bar_min_lastprice = self._now_md_price[LASTPRICE]
+		else:
+			ema_diff_volume = bf.get_sum(self._diff_volume_array,self._now_bar_num)
+			ema_diff_openinterest = bf.get_sum(self._diff_open_interest_array,self._now_bar_num)
+			ema_diff_turnonver = bf.get_sum(self._diff_turn_over_array,self._now_bar_num)
+			self._now_bar_num +=1
+			if self._bar_max_lastprice ==0 or self._bar_max_lastprice < self._now_md_price[LASTPRICE]:
+				self._bar_max_lastprice = self._now_md_price[LASTPRICE]
+			if self._bar_min_lastprice ==0 or self._bar_min_lastprice > self._now_md_price[LASTPRICE]:
+				self._bar_min_lastprice = self._now_md_price[LASTPRICE]
 
-		if diff_volume ==0:
-			spread =0
+		if ema_diff_volume ==0:
+			spread =50
 			self._diff_spread_array.append(spread)
 		else:
 
@@ -289,15 +307,19 @@ class BandAndTrigger(object):
 			# 注意，现在算的只是和买一价的位置关系。
 			spread = 100*(avg_price - self._pre_md_price[BIDPRICE1])/(self._pre_md_price[ASKPRICE1] - self._pre_md_price[BIDPRICE1])
 			# spread = 100*(avg_price - self._now_md_price[BIDPRICE1])/(self._now_md_price[ASKPRICE1] - self._now_md_price[BIDPRICE1])
-			# spread = avg_price - self._now_md_price[LASTPRICE]
+			if self._bar_max_lastprice == self._bar_min_lastprice:
+				spread = 50
+			else:
+				spread = 100*(avg_price - self._bar_min_lastprice)/(self._bar_max_lastprice - self._bar_min_lastprice)
 			self._diff_spread_array.append(spread)
-		spread = bf.get_weighted_mean(self._diff_spread_array,self._diff_volume_array,self._diff_period)
+		# spread = bf.get_weighted_mean(self._diff_spread_array,self._diff_volume_array,self._diff_period)
 		
 		# avg = (int(self._now_md_price[BIDPRICE1VOLUME])+int(self._now_md_price[ASKPRICE1VOLUME]))/2
 
 		tmp_to_csv = [self._now_md_price[TIME],self._now_md_price[LASTPRICE],round(self._now_middle_value,2),
 					round(self._now_sd_val,2),round(self._ris_data,2),diff_volume,diff_interest,round(self._diff_spread_array[-1],2),
-					round(ema_diff_volume,2),round(ema_diff_openinterest,2),round(spread,2)]
+					round(ema_diff_volume,2),round(ema_diff_openinterest,2),round(spread,2)
+					]
 		# print tmp_to_csv
 		self._write_to_csv_data.append(tmp_to_csv)
 
@@ -353,7 +375,7 @@ def getSortedData(data):
 	night = sorted(night, key = lambda x: (x[20], int(x[21])))
 	zero = sorted(zero, key = lambda x: (x[20], int(x[21])))
 	day = sorted(day, key = lambda x: (x[20], int(x[21])))
-	
+
 	for line in night:
 		ret.append(line)
 	for line in zero:
@@ -427,7 +449,6 @@ if __name__=='__main__':
 	#     		tmp_path = tmp_path.split('/')[2]
 	#     		print tmp_path
 	#     		main(tmp_path)
-
 
 
 	data =[20170828]
