@@ -45,6 +45,11 @@
 
         // document.getElementById("rsidrawing").style.display="none";
         document.getElementById("sddrawing").style.display="none";
+        // document.getElementById("diff_volume_drawing").style.display="none";
+        document.getElementById("ema_diff_volume_drawing").style.display="none";
+        document.getElementById("diff_openinterest_drawing").style.display="none";
+        document.getElementById("ema_diff_openinterest_drawing").style.display="none";
+        document.getElementById("spread_drawing").style.display="none";
         // document.getElementById("sddrawing").style.display="none";
         // document.getElementById("ema_spread_drawing").style.display="none";
 
@@ -507,9 +512,12 @@
                 var lastprice = Number(linedata[1])
                 var middle = Number(linedata[2])
                 var sd = Number(linedata[3])
-                var rsi = Number(linedata[4])
+                // var rsi = Number(linedata[4])
+                // var sd = Number(linedata[11])
+                var rsi = Number(linedata[12])
+                var diff_volume = Number(linedata[11])
 
-                var diff_volume = Number(linedata[5])
+                // var diff_volume = Number(linedata[5])
                 var diff_openinterest = Number(linedata[6])
                 var spread = Number(linedata[7])
                 var ema_diff_volume = Number(linedata[8])
@@ -594,11 +602,11 @@
                     ema_openinterest_array.push(ema_openinterest)
                     spread_array.push(spread)
 
-                    if (ema_spread >100) {
-                        ema_spread = 100
+                    if (ema_spread >10000) {
+                        ema_spread = 10000
                     }
-                    if (ema_spread < 0) {
-                        ema_spread = 0
+                    if (ema_spread < -10000) {
+                        ema_spread = -10000
                     }
 
                     ema_spread_array.push(ema_spread)
@@ -704,10 +712,17 @@
                 // ema_openinterest_array.push(ema_openinterest)
                 // ema_diff_volume_array.push(ema_diff_volume)
 
-                if (rsi >0) {
+                // if (rsi >0) {
+                    if (rsi > 20000) {
+                        rsi = 20000
+                    }
+                    if (rsi < -20000) {
+                        rsi = -20000
+                    }
                     rsi_times_array.push(time)
                     rsi_array.push(rsi)
-                }
+
+                // }
 
                 if (MIN > lastprice) {
                     MIN = lastprice

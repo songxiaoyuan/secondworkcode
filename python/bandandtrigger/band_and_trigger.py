@@ -1,5 +1,6 @@
 # -*- coding:utf8 -*-
 import basic_fun as bf
+import adv
 
 LASTPRICE = 4
 VOLUME = 11
@@ -75,6 +76,11 @@ class BandAndTrigger(object):
 
 		self._file = param_dic["file"]
 		self._config_file = param_dic["config_file"]
+
+		adv_param_dict = {}
+		adv_param_dict["period"] = 120
+		adv_param_dict["pre_adv"] = 0
+		self._adv_obj = adv.ADV(adv_param_dict)
 
 		if len(self._lastprice_array) ==0:
 			print "this is init function " + str(self._config_file)

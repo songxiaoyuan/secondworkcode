@@ -3,6 +3,8 @@ import csv
 import band_and_trigger
 import basic_fun as bf
 import os
+import adv
+import wvad
 
 LASTPRICE = 4
 VOLUME = 11
@@ -132,6 +134,16 @@ class BandAndTrigger(object):
 		# band param
 		self._param_period = param_dic["band_period"]
 
+
+		adv_param_dict = {}
+		adv_param_dict["period"] = 120
+		adv_param_dict["pre_adv"] = 0
+		self._adv_obj = adv.ADV(adv_param_dict)
+
+		wavd_param_dict = {}
+		wavd_param_dict["period"] = 120
+		wavd_param_dict["bar_num"] = 1
+		self._wvad_obj = wvad.WVAD(wavd_param_dict)
 
 		self._file = param_dic["file"]
 		self._config_file = param_dic["config_file"]
@@ -280,10 +292,11 @@ class BandAndTrigger(object):
 			# spread = bf.get_weighted_mean(self._diff_spread_array,self._diff_volume_array,self._diff_period)
 		
 		# avg = (int(self._now_md_price[BIDPRICE1VOLUME])+int(self._now_md_price[ASKPRICE1VOLUME]))/2
-
+		tmp_adv = self._adv_obj.get_md_data(md_array)
+		tmp_wvad = self._wvad_obj.get_md_data(md_array)
 		tmp_to_csv = [self._now_md_price[TIME],self._now_md_price[LASTPRICE],round(self._now_middle_value,2),
 					round(self._now_sd_val,2),round(self._ris_data,2),diff_volume,diff_interest,round(self._diff_spread_array[-1],2),
-					round(ema_diff_volume,2),round(ema_diff_openinterest,2),round(spread,2)
+					round(ema_diff_volume,2),round(ema_diff_openinterest,2),round(tmp_wvad,2)
 					]
 		# print tmp_to_csv
 		self._write_to_csv_data.append(tmp_to_csv)
@@ -386,7 +399,7 @@ if __name__=='__main__':
 
 
 	# data = [20170821,20170822,20170823,20170824,20170825]
-	data = [20170822]
+	data = [20170828,20170829,20170830]
 	# instrumentid_array = ["ru1801","rb1801","zn1710","pb1710","cu1710","hc1801","i1801"]
 	instrumentid_array = ["rb1801"]
 	for item in data:
