@@ -50,10 +50,9 @@ class BandAndTrigger(object):
 		self._ris_data = 0
 
 		self._now_interest = 0
-		self._limit_interest = 3
+		self._limit_interest = 5
 		self._band_add_edge = 1
 		self._close_band_num =2
-		self._param_open_edge = 3
 
 		self._file = param_dic["file"]
 
@@ -102,6 +101,7 @@ class BandAndTrigger(object):
 	def is_trend_open_time(self):
 
 		open_val = self._param_open_edge + self._band_add_edge*self._now_interest
+
 		is_band_open = self.is_band_open_time(self._direction,self._lastprice,
 											self._now_middle_value,open_val,self._now_sd_val,
 											self._ris_data,self._limit_rsi_data)
@@ -228,75 +228,75 @@ def create_band_obj(data,param_dict):
 
 
 def main(filename):
-	path = "../tmp/"+filename+"_band_data.csv"
+	path = "../data/"+filename+"_band_data.csv"
 	# path = "../zn/"+filename
 	csv_data = read_data_from_csv(path)
-	path = "../outdata/"+filename+"_trade_Fade——max.txt"
+	path = "../outdata/"+filename+"_trade_Fade.txt"
 	file = open(path,"w")
 
 	# 这个是螺纹钢的 tick 1
 	param_dict = {"limit_rsi_data":80,"band_open_edge":3,"limit_max_profit":100000,
-				 "file":file,"limit_max_draw_down":100}
+				 "file":file,"limit_max_draw_down":100000}
 	if "rb" in filename:
 		param_dict["band_open_edge"] =3
-		param_dict["limit_max_draw_down"] =10
+		# param_dict["limit_max_draw_down"] =10
 		param_dict["limit_max_profit"] =20
-		param_dict["limit_max_loss"] =10
+		param_dict["limit_max_loss"] =20
 	elif "ru" in filename:
 		param_dict["band_open_edge"] =3
-		param_dict["limit_max_draw_down"] =5000
+		# param_dict["limit_max_draw_down"] =5000
 		param_dict["limit_max_profit"] =1000
-		param_dict["limit_max_loss"] =100
+		param_dict["limit_max_loss"] =200
 	elif "pb" in filename:
 		param_dict["band_open_edge"] =3
-		param_dict["limit_max_draw_down"] =50
+		# param_dict["limit_max_draw_down"] =50
 		param_dict["limit_max_profit"] =100
-		param_dict["limit_max_loss"] =50
+		param_dict["limit_max_loss"] =100
 	elif "zn" in filename:
 		param_dict["band_open_edge"] =3
-		param_dict["limit_max_draw_down"] =50
+		# param_dict["limit_max_draw_down"] =50
 		param_dict["limit_max_profit"] =100
-		param_dict["limit_max_loss"] =50
+		param_dict["limit_max_loss"] =100
 	elif "cu" in filename:
 		param_dict["band_open_edge"] =3
-		param_dict["limit_max_draw_down"] =100
+		# param_dict["limit_max_draw_down"] =100
 		param_dict["limit_max_profit"] =200
-		param_dict["limit_max_loss"] =100
+		param_dict["limit_max_loss"] =200
 	elif "hc" in filename:
 		param_dict["band_open_edge"] =3
-		param_dict["limit_max_draw_down"] =10
+		# param_dict["limit_max_draw_down"] =10
 		param_dict["limit_max_profit"] =20
-		param_dict["limit_max_loss"] =10
+		param_dict["limit_max_loss"] =20
 	elif "i" in filename and "ni" not in filename:
 		param_dict["band_open_edge"] =3
-		param_dict["limit_max_draw_down"] =5000
+		# param_dict["limit_max_draw_down"] =5000
 		param_dict["limit_max_profit"] =10
-		param_dict["limit_max_loss"] =5
+		param_dict["limit_max_loss"] =10
 	elif "ni" in filename:
 		param_dict["band_open_edge"] =3
-		param_dict["limit_max_draw_down"] =100
+		# param_dict["limit_max_draw_down"] =100
 		param_dict["limit_max_profit"] =200
 		param_dict["limit_max_loss"] =100
 	elif "al" in filename:
 		param_dict["band_open_edge"] =3
 		# param_dict["limit_max_draw_down"] =100
 		# param_dict["limit_max_profit"] =200
-		param_dict["limit_max_loss"] =50
+		param_dict["limit_max_loss"] =100
 	elif "au" in filename:
 		param_dict["band_open_edge"] =3
 		# param_dict["limit_max_draw_down"] =100
 		# param_dict["limit_max_profit"] =200
-		param_dict["limit_max_loss"] =0.5
+		param_dict["limit_max_loss"] =1
 	elif "ag" in filename:
 		param_dict["band_open_edge"] =3
 		# param_dict["limit_max_draw_down"] =100
 		# param_dict["limit_max_profit"] =200
-		param_dict["limit_max_loss"] =10
+		param_dict["limit_max_loss"] =20
 	elif "bu" in filename:
 		param_dict["band_open_edge"] =3
 		# param_dict["limit_max_draw_down"] =100
 		# param_dict["limit_max_profit"] =200
-		param_dict["limit_max_loss"] =20
+		param_dict["limit_max_loss"] =40
 	else:
 		print "the instrument is not in the parm " + filename
 		return
@@ -319,9 +319,9 @@ if __name__=='__main__':
 	#     		print tmp_path
 	#     		main(tmp_path)
 	# data = [20170817,20170818,20170821,20170822]
-	data = [20170823]
-	instrumentid = ["rb1801","ru1801","zn1710","pb1710","hc1801","i1801","cu1710","ni1801",]
-	instrumentid = ["ru1801"]
+	data = [20170828]
+	# instrumentid = ["ru1801","rb1801","zn1710","pb1710","cu1710","hc1801","i1801","ni1801","al1710","au1712","ag1712","bu1712"]
+	instrumentid = ["cu1710"]
 	for item in data:
 		for instrument in instrumentid:
 			path = instrument + "_"+ str(item)

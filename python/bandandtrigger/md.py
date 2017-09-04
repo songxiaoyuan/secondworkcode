@@ -240,10 +240,7 @@ def main(filename):
 	path = "../data/"+filename+"_band_data.csv"
 	# path = "../zn/"+filename
 	csv_data = read_data_from_csv(path)
-	path = "../outdata/"+filename+"_trade_2.txt"
-	# path = "../zn/"+filename
-	csv_data = read_data_from_csv(path)
-	path = "../outdata/"+filename+"_trade1.txt"
+	path = "../outdata/"+filename+"_trade.txt"
 	file = open(path,"w")
 
 	# 这个是螺纹钢的 tick 1
@@ -255,7 +252,7 @@ def main(filename):
 	if "rb" in filename:
 		param_dict["volume_open_edge"] =600
 		param_dict["limit_sd"] =4
-		param_dict["open_interest_edge"] =0
+		param_dict["open_interest_edge"] =1
 		param_dict["band_open_edge1"] =0
 		param_dict["band_open_edge2"] =0.5
 		param_dict["band_loss_edge"] =0.5
@@ -264,16 +261,16 @@ def main(filename):
 	elif "ru" in filename:
 		param_dict["volume_open_edge"] =150
 		param_dict["limit_sd"] =25
-		param_dict["open_interest_edge"] =0
+		param_dict["open_interest_edge"] =1
 		param_dict["band_open_edge1"] =0
 		param_dict["band_open_edge2"] =0.5
 		param_dict["band_loss_edge"] =0.5
 		param_dict["limit_sd_close_edge"] =1
 		param_dict["spread"] =100
 	elif "pb" in filename:
-		param_dict["volume_open_edge"] =20
+		param_dict["volume_open_edge"] =30
 		param_dict["limit_sd"] =25
-		param_dict["open_interest_edge"] =1
+		param_dict["open_interest_edge"] =0
 		param_dict["band_open_edge1"] =0
 		param_dict["band_open_edge2"] =0.5
 		param_dict["band_loss_edge"] =0.5
@@ -290,26 +287,23 @@ def main(filename):
 		param_dict["spread"] =100
 	elif "cu" in filename:
 		param_dict["volume_open_edge"] =100
-		param_dict["band_loss_edge"] =0
 		param_dict["limit_sd"] =40
-		param_dict["open_interest_edge"] =1
+		param_dict["open_interest_edge"] =0
 		param_dict["band_open_edge1"] =0
 		param_dict["band_open_edge2"] =0.5
 		param_dict["band_loss_edge"] =0.5
 		param_dict["limit_sd_close_edge"] =1
 		param_dict["spread"] =100
 	elif "hc" in filename:
-		param_dict["volume_open_edge"] =1000
+		param_dict["volume_open_edge"] =400
 		param_dict["band_open_edge1"] =0
 		param_dict["band_open_edge2"] =0.5
 		param_dict["band_loss_edge"] =0.5
 		param_dict["limit_sd"] =4
-		param_dict["open_interest_edge"] =1
+		param_dict["open_interest_edge"] =0
 		param_dict["spread"] =90
-	elif "i" in filename:
-		param_dict["volume_open_edge"] =2000
-		param_dict["volume_open_edge"] =200
-		param_dict["band_loss_edge"] =0
+	elif "i" in filename and "ni" not in filename:
+		param_dict["volume_open_edge"] =900
 		param_dict["limit_sd"] =4
 		param_dict["open_interest_edge"] =1
 		param_dict["band_open_edge1"] =0
@@ -319,8 +313,43 @@ def main(filename):
 		param_dict["spread"] =100
 	elif "ni" in filename:
 		param_dict["volume_open_edge"] =100
-		param_dict["band_loss_edge"] =0
 		param_dict["limit_sd"] =60
+		param_dict["open_interest_edge"] =1
+		param_dict["band_open_edge1"] =0
+		param_dict["band_open_edge2"] =0.5
+		param_dict["band_loss_edge"] =0.5
+		param_dict["limit_sd_close_edge"] =1
+		param_dict["spread"] =100
+	elif "al" in filename:
+		param_dict["volume_open_edge"] =100
+		param_dict["limit_sd"] =30
+		param_dict["open_interest_edge"] =1
+		param_dict["band_open_edge1"] =0
+		param_dict["band_open_edge2"] =0.5
+		param_dict["band_loss_edge"] =0.5
+		param_dict["limit_sd_close_edge"] =1
+		param_dict["spread"] =100
+	elif "au" in filename:
+		param_dict["volume_open_edge"] =20
+		param_dict["limit_sd"] =0.3
+		param_dict["open_interest_edge"] =1
+		param_dict["band_open_edge1"] =0
+		param_dict["band_open_edge2"] =0.5
+		param_dict["band_loss_edge"] =0.5
+		param_dict["limit_sd_close_edge"] =1
+		param_dict["spread"] =100
+	elif "ag" in filename:
+		param_dict["volume_open_edge"] =300
+		param_dict["limit_sd"] =6
+		param_dict["open_interest_edge"] =0
+		param_dict["band_open_edge1"] =0
+		param_dict["band_open_edge2"] =0.5
+		param_dict["band_loss_edge"] =0.5
+		param_dict["limit_sd_close_edge"] =1
+		param_dict["spread"] =100
+	elif "bu" in filename:
+		param_dict["volume_open_edge"] =500
+		param_dict["limit_sd"] =12
 		param_dict["open_interest_edge"] =1
 		param_dict["band_open_edge1"] =0
 		param_dict["band_open_edge2"] =0.5
@@ -349,9 +378,9 @@ if __name__=='__main__':
 	#     		print tmp_path
 	#     		main(tmp_path)
 	# data = [20170817,20170818,20170821,20170822]
-	data = [20170824]
-	# instrumentid = ["rb1801","ru1801","zn1710","pb1710","hc1801","i1801","cu1710","ni1801"]
-	instrumentid = ["rb1801"]
+	data = [20170831]
+	instrumentid = ["ru1801","rb1801","zn1710","pb1710","cu1710","hc1801","i1801","ni1801","al1710","au1712","ag1712","bu1712"]
+	# instrumentid = ["ag1712"]
 	for item in data:
 		for instrument in instrumentid:
 			path = instrument + "_"+ str(item)
