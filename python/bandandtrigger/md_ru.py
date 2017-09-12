@@ -1,6 +1,7 @@
 # -*- coding:utf8 -*-
 import csv
 import band_and_trigger
+import band_and_wvad
 import basic_fun
 
 LASTPRICE = 4
@@ -55,7 +56,6 @@ def read_data_from_csv(path):
 	for row in reader:
 		# obj.get_md_data(row)
 		ret.append(row)
-	# only get the day data
 	ret = getSortedData(ret)
 	return ret
 
@@ -67,13 +67,14 @@ def create_band_obj(data,param_dict):
 	file = param_dict["file"]
 	for i in xrange(0,2):
 		param_dict["direction"] = i
-		band_and_trigger_obj = band_and_trigger.BandAndTrigger(param_dict)
+		# band_and_trigger_obj = band_and_trigger.BandAndTrigger(param_dict)
+		band_and_wvad_obj = band_and_wvad.BandAndWvad(param_dict)
 		if i==0:
 			# continue
 			print "方向是short的交易情况:"
 			file.write("方向是short的交易情况:\n")
-			start_to_run_md(band_and_trigger_obj,data)
-			profit = band_and_trigger_obj.get_total_profit()
+			start_to_run_md(band_and_wvad_obj,data)
+			profit = band_and_wvad_obj.get_total_profit()
 			file.write(str(profit)+"\n")
 			# if write_to_file ==True:
 			# 	print "start to write the file"
@@ -83,8 +84,8 @@ def create_band_obj(data,param_dict):
 		else:
 			print "方向是long的交易情况："
 			file.write("方向是long的交易情况：:\n")
-			start_to_run_md(band_and_trigger_obj,data)
-			profit = band_and_trigger_obj.get_total_profit()
+			start_to_run_md(band_and_wvad_obj,data)
+			profit = band_and_wvad_obj.get_total_profit()
 			file.write(str(profit)+"\n")
 
 
@@ -99,10 +100,10 @@ def main(filename):
 	param_dict = {"limit_max_profit":2500,"limit_max_loss":600,"multiple":10
 				,"rsi_bar_period":120,"limit_rsi_data":80,"rsi_period":14
 				,"diff_period":10
-				,"band_open_edge1":0.5,"band_open_edge2":1,"band_loss_edge":0,"band_profit_edge":3,"band_period":7200
+				,"band_open_edge1":0,"band_open_edge2":0.5,"band_loss_edge":0.5,"band_profit_edge":30,"band_period":7200
 				,"limit_max_draw_down":0,"file":file
 				,"open_interest_edge":0,"spread":85,"volume_open_edge":500
-				,"limit_sd":4,"limit_sd_open_edge":1,"limit_sd_close_edge":0.5,"config_file":399}
+				,"limit_sd":4,"limit_sd_open_edge":2,"limit_sd_close_edge":1,"config_file":399}
 
 	for band_type in xrange(0,7):
 		if band_type ==0:
@@ -117,12 +118,8 @@ def main(filename):
 			create_band_obj(csv_data,param_dict)
 		elif band_type ==1:
 			# continue
-			mesg = "1，3退出，diff_period =1 900进入,limit sd = 4"
-			print mesg
-			file.write(mesg+"\n")
-			param_dict["band_loss_edge"] =0
-			param_dict["band_profit_edge"] =3
-			param_dict["volume_open_edge"] =500
+			param_dict["wvad_period"] =120
+			param_dict["limit_wvad"] =2000
 			create_band_obj(csv_data,param_dict)
 		elif band_type ==2:
 			continue
@@ -188,7 +185,7 @@ if __name__=='__main__':
 	# data1 = [20170630,20170629,20170628,20170627,20170623,20170622,20170621,20170620,20170619,20170616]
 	# data2 =[20170703,20170704,20170705,20170706,20170707,20170711,20170712,20170713,20170714,20170717]
 	# data = data1+data2
-	data = [20170810]
+	data = [20170911]
 	for item in data:
 		path = "ru1801_"+ str(item)
 		print path

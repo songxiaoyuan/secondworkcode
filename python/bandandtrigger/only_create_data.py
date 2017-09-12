@@ -4,6 +4,7 @@ import band_and_trigger
 import basic_fun as bf
 import os
 import cx_Oracle  
+import adv
 import wvad
 
 LASTPRICE = 4
@@ -21,20 +22,20 @@ SHORT =0
 # 这个是铅的
 param_dict_pb = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":50
 			,"limit_rsi_data":75,"rsi_period":10,"diff_period":60
-			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":3600
+			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
 			,"volume_open_edge":20,"limit_max_draw_down":0,"multiple":5,"file":file
 			,"sd_lastprice":100,"open_interest_edge":0,"spread":100,"config_file":310}
 # 这个是螺纹钢的
 param_dict_rb = {"limit_max_profit":25,"limit_max_loss":10,"rsi_bar_period":120
 			,"limit_rsi_data":80,"rsi_period":14,"diff_period":60
-			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":10800
+			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
 			,"volume_open_edge":900,"limit_max_draw_down":0,"multiple":10,"file":file
 			,"sd_lastprice":100,"open_interest_edge":0,"spread":100,"config_file":320}
 
 # 这个是橡胶的
 param_dic_ru = {"limit_max_profit":250,"limit_max_loss":100,"rsi_bar_period":120
 			,"limit_rsi_data":80,"rsi_period":14,"diff_period":60
-			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":10800
+			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
 			,"volume_open_edge":120,"limit_max_draw_down":0,"multiple":10,"file":file
 			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":330}
 
@@ -109,7 +110,7 @@ param_dic_sn = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
 nameDict = {
 	"rb1801":{"param":param_dict_rb},
 	"ru1801":{"param":param_dic_ru},
-	"zn1710":{"param":param_dic_zn},
+	"zn1711":{"param":param_dic_zn},
 	"cu1710":{"param":param_dict_cu},
 	"i1801":{"param":param_dict_i},
 	"hc1801":{"param":param_dict_hc},
@@ -201,12 +202,12 @@ class BandAndTrigger(object):
 	def __del__(self):
 		print "this is the over function " + str(self._config_file)
 		config_file = "../config_pic/"+str(self._config_file)
-		# bf.write_config_info(self._pre_ema_val,self._lastprice_array
-		# 	,self._rsi_array,self._rsi_period,self._now_md_price[LASTPRICE],config_file)
+		bf.write_config_info(self._pre_ema_val,self._lastprice_array
+			,self._rsi_array,self._rsi_period,self._now_md_price[LASTPRICE],config_file)
 		
-		# config_file = "../config_pic/"+str(self._config_file+1)
-		# bf.write_config_info(self._pre_ema_val,self._lastprice_array
-		# 	,self._rsi_array,self._rsi_period,self._now_md_price[LASTPRICE],config_file)
+		config_file = "../config_pic/"+str(self._config_file+1)
+		bf.write_config_info(self._pre_ema_val,self._lastprice_array
+			,self._rsi_array,self._rsi_period,self._now_md_price[LASTPRICE],config_file)
 
 
 	# get the md data ,every line;
@@ -327,10 +328,10 @@ class BandAndTrigger(object):
 		# spread = bf.get_weighted_mean(self._diff_spread_array,self._diff_volume_array,self._diff_period)
 		
 		# avg = (int(self._now_md_price[BIDPRICE1VOLUME])+int(self._now_md_price[ASKPRICE1VOLUME]))/2
-		# tmp_adv = self._adv_obj.get_md_data(md_array)
+		tmp_adv = self._adv_obj.get_md_data(md_array)
 		tmp_wvad = self._wvad_obj.get_md_data(md_array)
 		tmp_to_csv = [self._now_md_price[TIME],self._now_md_price[LASTPRICE],round(self._now_middle_value,2),
-					round(self._now_sd_val,2),round(self._ris_data,2),diff_volume,diff_interest,round(self._diff_spread_array[-1],2),
+					round(self._now_sd_val,2),round(self._ris_data,2),diff_volume,diff_interest,round(spread1,2),
 					round(ema_diff_volume,2),round(ema_diff_openinterest,2),round(tmp_wvad,2)
 					]
 		# print tmp_to_csv
@@ -466,10 +467,9 @@ if __name__=='__main__':
 
 	# data1 =[20170802,20170803,20170804,20170807,20170808,20170809,20170810,20170811,20170814,20170815,20170816,20170817,20170818]
 	# data =[20170821,20170822,20170823,20170824,20170825,20170828,20170829,20170830,20170831]
-	data =[20170904]
-	instrumentid_array = ["ru1801","rb1801","zn1710","pb1710","cu1710","hc1801","i1801","ni1801","al1710","au1712","ag1712","bu1712"]
-	# instrumentid_array = ["ru1801","rb1801","zn1710","pb1710"]
-
+	data =[20170904,20170905,20170906]
+	# instrumentid_array = ["ru1801","rb1801","zn1710","pb1710","cu1710","hc1801","i1801","ni1801","al1710","au1712","ag1712","bu1712"]
+	instrumentid_array = ["zn1711"]
 	for item in data:
 		for instrumentid in instrumentid_array:
 			# first get the sql data

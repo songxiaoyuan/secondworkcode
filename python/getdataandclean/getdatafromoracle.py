@@ -55,6 +55,7 @@ def getSortedData(data):
 def getSqlData(myday,instrumentid): 
 
 	conn = cx_Oracle.connect('hq','hq','114.251.16.210:9921/quota')    
+	# conn = cx_Oracle.connect('hyqh','hyqh','114.251.16.210:9921/quota')    
 	cursor = conn.cursor () 
 	for index in xrange(0,1):
 		date=myday+index

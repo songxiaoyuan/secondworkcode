@@ -14,7 +14,8 @@ SPREAD = 7
 EMA_DIFF_VOLUME = 8
 EMA_DIFF_OPENINTEREST = 9
 EMA_SPREAD = 10
-AVG_SUM = 12
+CONTINUOUS_PRICE = 11
+WAVD_CONTINUE = 12
 LONG =1
 SHORT =0
 
@@ -56,7 +57,11 @@ class BandAndTrigger(object):
 		self._now_interest = 0
 		self._limit_interest = 1
 
+		self._limit_wavd = param_dic["limit_wvad"]
+
 		self._file = param_dic["file"]
+
+		self._limit_continuous_price = 3
 
 
 	def __del__(self):
@@ -82,6 +87,9 @@ class BandAndTrigger(object):
 		self._ema_diff_volume = self._diff_volume
 		self._ema_diff_openinterest = self._diff_openinterest
 		self._ema_spread = self._spread
+		self._wavd = float(md_array[EMA_SPREAD])
+		# self._wavd = float(md_array[WAVD_CONTINUE])
+		# self._continuous_price = float(md_array[CONTINUOUS_PRICE])
 
 
 		open_time = self.is_trend_open_time()
@@ -94,7 +102,7 @@ class BandAndTrigger(object):
 			# print "we start to open"
 			self._open_lastprice = self._lastprice
 			mesg= "the time of open: "+self._time + ",the price: " + str(self._lastprice)
-			mesg1 = "the diff volume: "+str(self._ema_diff_volume)+", the interest: " + str(self._ema_diff_openinterest) + ", the spread: "+ str(self._ema_spread)
+			mesg1 = "the diff volume: "+str(self._ema_diff_volume)+", the interest: " + str(self._ema_diff_openinterest) + ", the spread: "+ str(self._wavd)
 			self._file.write(mesg+"\n")
 			self._file.write(mesg1+"\n")
 			# print "the diff volume is:" + str(self._now_md_price[VOLUME] - self._pre_md_price[VOLUME])
@@ -124,22 +132,32 @@ class BandAndTrigger(object):
 			return False
 		# return True
 		is_trigger_open = self.is_trigger_size_open_time(self._direction,self._param_volume_open_edge,
-												self._param_open_interest_edge,self._param_spread)
+													self._param_open_interest_edge,self._param_spread,
+													self._limit_wavd,self._limit_continuous_price)
 		return is_trigger_open
 
 	def is_trigger_size_open_time(self,direction,volume_open_edge,
-								openinterest_edge,spread_edge):
+								openinterest_edge,spread_edge,limit_wavd,limit_continuous_pric):
 
-		if self._ema_diff_volume < volume_open_edge:
-			return False
-		if openinterest_edge != 0 and self._ema_diff_openinterest <= openinterest_edge:
-			return False
+		# if self._ema_diff_volume < volume_open_edge:
+		# 	return False
+		# if openinterest_edge != 0 and self._ema_diff_openinterest <= openinterest_edge:
+		# 	return False
+		# if self._direction ==SHORT:
+		# 	self._ema_spread = 100 - self._ema_spread
+		# if self._ema_spread < spread_edge:
+		# 	return False
+		# return True
 		if self._direction ==SHORT:
-			self._ema_spread = 100 - self._ema_spread
-		if self._ema_spread < spread_edge:
+			self._wavd = 0 - self._wavd
+		if self._wavd < limit_wavd and limit_wavd != 0:
 			return False
 		return True
-
+		# if self._direction ==SHORT:
+		# 	self._continuous_price = 0 - self._continuous_price
+		# if self._continuous_price < limit_continuous_pric and limit_continuous_pric != 0:
+		# 	return False
+		# return True
 
 	def is_trend_close_time(self):
 		# this is used to jude the time to close return bool
@@ -240,7 +258,7 @@ def main(filename):
 	path = "../data/"+filename+"_band_data.csv"
 	# path = "../zn/"+filename
 	csv_data = read_data_from_csv(path)
-	path = "../outdata/"+filename+"_trade.txt"
+	path = "../outdata/"+filename+"_trade_wvad.txt"
 	file = open(path,"w")
 
 	# 这个是螺纹钢的 tick 1
@@ -248,25 +266,30 @@ def main(filename):
 				"band_open_edge2":1,"band_loss_edge":0.5,"band_profit_edge":3,
 				 "file":file
 				,"open_interest_edge":0,"spread":95,"volume_open_edge":0
-				,"limit_sd":50,"limit_sd_open_edge":1,"limit_sd_close_edge":0.5}
+				,"limit_sd":50,"limit_sd_open_edge":1,"limit_sd_close_edge":0.5
+				,"limit_wvad":0}
 	if "rb" in filename:
-		param_dict["volume_open_edge"] =600
-		param_dict["limit_sd"] =4
-		param_dict["open_interest_edge"] =1
+		param_dict["volume_open_edge"] =500
+		param_dict["limit_sd"] =10
+		param_dict["open_interest_edge"] =0
 		param_dict["band_open_edge1"] =0
 		param_dict["band_open_edge2"] =0.5
 		param_dict["band_loss_edge"] =0.5
 		param_dict["limit_sd_close_edge"] =1
+		param_dict["limit_sd_open_edge"] =2
 		param_dict["spread"] =100
+		param_dict["limit_wvad"] =10000
 	elif "ru" in filename:
 		param_dict["volume_open_edge"] =150
 		param_dict["limit_sd"] =25
-		param_dict["open_interest_edge"] =1
+		param_dict["open_interest_edge"] =0
 		param_dict["band_open_edge1"] =0
 		param_dict["band_open_edge2"] =0.5
 		param_dict["band_loss_edge"] =0.5
 		param_dict["limit_sd_close_edge"] =1
+		param_dict["limit_sd_open_edge"] =2
 		param_dict["spread"] =100
+		param_dict["limit_wvad"] =2000
 	elif "pb" in filename:
 		param_dict["volume_open_edge"] =30
 		param_dict["limit_sd"] =25
@@ -275,16 +298,20 @@ def main(filename):
 		param_dict["band_open_edge2"] =0.5
 		param_dict["band_loss_edge"] =0.5
 		param_dict["limit_sd_close_edge"] =1
+		param_dict["limit_sd_open_edge"] =2
 		param_dict["spread"] =100
+		param_dict["limit_wvad"] =200
 	elif "zn" in filename:
 		param_dict["volume_open_edge"] =50
-		param_dict["limit_sd"] =25
-		param_dict["open_interest_edge"] =1
+		param_dict["limit_sd"] =50
+		param_dict["open_interest_edge"] =0
 		param_dict["band_open_edge1"] =0
 		param_dict["band_open_edge2"] =0.5
 		param_dict["band_loss_edge"] =0.5
 		param_dict["limit_sd_close_edge"] =1
+		param_dict["limit_sd_open_edge"] =2
 		param_dict["spread"] =100
+		param_dict["limit_wvad"] =500
 	elif "cu" in filename:
 		param_dict["volume_open_edge"] =100
 		param_dict["limit_sd"] =40
@@ -293,7 +320,9 @@ def main(filename):
 		param_dict["band_open_edge2"] =0.5
 		param_dict["band_loss_edge"] =0.5
 		param_dict["limit_sd_close_edge"] =1
+		param_dict["limit_sd_open_edge"] =2
 		param_dict["spread"] =100
+		param_dict["limit_wvad"] =600
 	elif "hc" in filename:
 		param_dict["volume_open_edge"] =400
 		param_dict["band_open_edge1"] =0
@@ -301,43 +330,53 @@ def main(filename):
 		param_dict["band_loss_edge"] =0.5
 		param_dict["limit_sd"] =4
 		param_dict["open_interest_edge"] =0
+		param_dict["limit_sd_close_edge"] =1
+		param_dict["limit_sd_open_edge"] =2
 		param_dict["spread"] =90
+		param_dict["limit_wvad"] =2000
 	elif "i" in filename and "ni" not in filename:
 		param_dict["volume_open_edge"] =900
 		param_dict["limit_sd"] =4
-		param_dict["open_interest_edge"] =1
+		param_dict["open_interest_edge"] =0
 		param_dict["band_open_edge1"] =0
 		param_dict["band_open_edge2"] =0.5
 		param_dict["band_loss_edge"] =0.5
 		param_dict["limit_sd_close_edge"] =1
+		param_dict["limit_sd_open_edge"] =2
 		param_dict["spread"] =100
+		param_dict["limit_wvad"] =5000
 	elif "ni" in filename:
 		param_dict["volume_open_edge"] =100
 		param_dict["limit_sd"] =60
-		param_dict["open_interest_edge"] =1
+		param_dict["open_interest_edge"] =0
 		param_dict["band_open_edge1"] =0
 		param_dict["band_open_edge2"] =0.5
 		param_dict["band_loss_edge"] =0.5
 		param_dict["limit_sd_close_edge"] =1
+		param_dict["limit_sd_open_edge"] =2
 		param_dict["spread"] =100
+		param_dict["limit_wvad"] =2000
 	elif "al" in filename:
 		param_dict["volume_open_edge"] =100
 		param_dict["limit_sd"] =30
-		param_dict["open_interest_edge"] =1
+		param_dict["open_interest_edge"] =0
 		param_dict["band_open_edge1"] =0
 		param_dict["band_open_edge2"] =0.5
 		param_dict["band_loss_edge"] =0.5
 		param_dict["limit_sd_close_edge"] =1
+		param_dict["limit_sd_open_edge"] =2
 		param_dict["spread"] =100
+		param_dict["limit_wvad"] =500
 	elif "au" in filename:
 		param_dict["volume_open_edge"] =20
 		param_dict["limit_sd"] =0.3
-		param_dict["open_interest_edge"] =1
+		param_dict["open_interest_edge"] =0
 		param_dict["band_open_edge1"] =0
 		param_dict["band_open_edge2"] =0.5
 		param_dict["band_loss_edge"] =0.5
 		param_dict["limit_sd_close_edge"] =1
 		param_dict["spread"] =100
+		param_dict["limit_wvad"] =2000
 	elif "ag" in filename:
 		param_dict["volume_open_edge"] =300
 		param_dict["limit_sd"] =6
@@ -347,15 +386,18 @@ def main(filename):
 		param_dict["band_loss_edge"] =0.5
 		param_dict["limit_sd_close_edge"] =1
 		param_dict["spread"] =100
+		param_dict["limit_wvad"] =2000
 	elif "bu" in filename:
 		param_dict["volume_open_edge"] =500
 		param_dict["limit_sd"] =12
-		param_dict["open_interest_edge"] =1
+		param_dict["open_interest_edge"] =0
 		param_dict["band_open_edge1"] =0
 		param_dict["band_open_edge2"] =0.5
 		param_dict["band_loss_edge"] =0.5
 		param_dict["limit_sd_close_edge"] =1
+		param_dict["limit_sd_open_edge"] =2
 		param_dict["spread"] =100
+		param_dict["limit_wvad"] =2200
 	else:
 		print "the instrument is not in the parm " + filename
 		return
@@ -378,9 +420,9 @@ if __name__=='__main__':
 	#     		print tmp_path
 	#     		main(tmp_path)
 	# data = [20170817,20170818,20170821,20170822]
-	data = [20170831]
+	data = [20170906]
 	instrumentid = ["ru1801","rb1801","zn1710","pb1710","cu1710","hc1801","i1801","ni1801","al1710","au1712","ag1712","bu1712"]
-	# instrumentid = ["ag1712"]
+	# instrumentid = ["ru1801","rb1801","zn1710","pb1710"]
 	for item in data:
 		for instrument in instrumentid:
 			path = instrument + "_"+ str(item)

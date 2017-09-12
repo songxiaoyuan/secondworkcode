@@ -327,6 +327,16 @@ def get_config_info(pre_ema_val_array,lastprice_array,lastprice_dic,rsi_array,rs
 			print "this is not the config line"
 	config_file.close()
 
+def is_wvad_open_time(direction,wvad,limit_wvad):
+	if direction ==LONG:
+		if wvad > limit_wvad:
+			return True
+	elif direction ==SHORT:
+		wvad = 0 - wvad
+		if wvad > limit_wvad:
+			return True
+	return False
+
 if __name__=='__main__': 
 	print "this is basic fun like c++ so"
 	# tmp = is_band_open_time(1,10,10.2,2,0.5)

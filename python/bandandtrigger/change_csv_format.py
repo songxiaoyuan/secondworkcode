@@ -38,21 +38,83 @@ def get_weighted_mean(spread_array,volume_array,period):
 		return 0
 	return float(total_sum)/weight_sum
 
+def get_continue_price(lastprice,lastprice_array):
+	if len(lastprice_array) ==0:
+		return 0
+	ret = 0
+	if lastprice > lastprice_array[-1]:
+		ret = 1
+	elif lastprice < lastprice_array[-1]:
+		ret = -1
+	l = len(lastprice_array)-2
+	lastprice = lastprice_array[-1]
+	for i in xrange(l,-1,-1):
+		if ret ==0:
+			return ret
+		if ret >0 and lastprice > lastprice_array[i]:
+			ret +=1
+		elif ret <0 and lastprice < lastprice_array[i]:
+			ret -=1
+		else:
+			return ret
+		lastprice = lastprice_array[i]
+	return ret
+
+def get_continue_wvad(lastprice,lastprice_array,volume_array):
+	if len(lastprice_array) != len(volume_array):
+		print "the lastprice array is not len the volume array"
+		return 0
+	if len(lastprice_array) ==0:
+		return 0
+
+	period = 120
+	begin_index = max(0,len(lastprice_array) - period)
+	min_price = 0
+	max_price = 0
+	volume_sum = 0
+	for x in xrange(begin_index,len(lastprice_array)):
+		if min_price ==0 or min_price > lastprice_array[x]:
+			min_price = lastprice_array[x]
+		if max_price ==0 or max_price < lastprice_array[x]:
+			max_price = lastprice_array[x]
+		volume_sum += volume_array[x]
+
+	if max_price == min_price:
+		return 0
+
+	ret = (float(lastprice) - float(lastprice_array[begin_index]))/(float(max_price) - float(min_price))
+	ret = ret * float(volume_sum)
+	return round(ret,2)
+
+
+
+
+
 def change_last_three_format(data):
 	volume_array = []
 	openinterest_array = []
 	spread_array = []
 	avg_array = []
+	lastprice_array = []
 	period = 60
 	for line in data:
-		volume_array.append(line[5])
-		openinterest_array.append(line[6])
-		spread_array.append(line[7])
+		# volume_array.append(line[5])
+		# openinterest_array.append(line[6])
+		# spread_array.append(line[7])
+		lastprice = line[1]
+		volume = line[5]
+		continue_price = get_continue_price(lastprice,lastprice_array)
+		# continut_wvad = get_continue_wvad(lastprice,lastprice_array,volume_array)
+		line.append(continue_price)
+		# line.append(continut_wvad)
+		lastprice_array.append(lastprice)
+		# volume_array.append(volume)
 		# avg_array.append(line[11])
-		line[8] = get_sum(volume_array,period)
-		line[9] = get_sum(openinterest_array,period)
-		line[10] = round(get_weighted_mean(spread_array,volume_array,period),2)
-		# line[12] = get_sum(avg_array,period)
+		# line[8] = round(get_sum(volume_array,period),2)
+		# line[9] = round(get_sum(openinterest_array,period),2)
+		# line[10] = round(get_weighted_mean(spread_array,volume_array,period),2)
+		# line[11] = continue_price
+		# line[12] = continut_wvad
 	
 
 
@@ -90,16 +152,20 @@ def main():
 	# path = "../data/hc1710_20170815_band_data.csv"
 	# path = "../zn"
 	# get_files(path)
-	data = [20170823]
+	data = [20170906]
 	# data = [20170822]
-	# instrumentid_array = ["ru1801","ru1801","zn1710","ni1801","cu1710","pb1710","hc1801","i1801"]
-	instrumentid_array = ["ru1801"]
+	instrumentid_array = ["ru1801","ru1801","zn1710","ni1801","cu1710","pb1710","hc1801","i1801"]
+	# instrumentid_array = ["rb1801"]
 	for item in data:
 		for instrumentid in instrumentid_array:
-			path = "../tmp/"+instrumentid+ "_"+str(item)+"_band_data.csv"
+			path = "../data/"+instrumentid+ "_"+str(item)+"_band_data.csv"
 			print path
 			change_format(path)
 
 
 if __name__ == '__main__':
 	main()
+	# data = [0,1,2,3,4,5]
+	# l = len(data)-1
+	# for x in xrange(l,-1,-1):
+	# 	print data[x]

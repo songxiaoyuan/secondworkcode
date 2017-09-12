@@ -2,6 +2,8 @@
 import csv
 import band_and_trigger
 import basic_fun
+import adv
+
 
 LASTPRICE = 4
 VOLUME = 11
