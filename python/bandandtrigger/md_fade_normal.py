@@ -47,21 +47,24 @@ class BandAndTriggerFade(object):
 
 
 		# self._limit_twice_sd = 2
-
+		self._band_status = 0
 		self._direction = param_dic["direction"]
 		self._moving_theo = "EMA"
 		# now we have the cangwei and the limit cangwei
 		self._now_interest = 0
-		self._limit_interest = 3
-		self._band_add_edge = 1
-		self._close_band_num =2
+		self._limit_interest = 1
+		# self._band_add_edge = 1
+		# self._close_band_num =2
 
 		# band param
 		self._param_open_edge = param_dic["band_open_edge"]
+		self._param_close_edge = param_dic["band_close_edge"]
 
 		self._open_lastprice = 0
 		self._profit = 0
-		self._ris_data = 0
+
+		self._bigger_band = 3
+		# self._ris_data = 0
 
 		self._file = param_dic["file"]
 		self._config_file = param_dic["config_file"]
@@ -104,7 +107,14 @@ class BandAndTriggerFade(object):
 
 		lastprice = self._now_md_price[LASTPRICE]
 		# print lastprice
-
+		if self._direction ==LONG:
+			openval = self._now_middle_value - self._param_open_edge*self._now_sd_val
+			if openval - lastprice > self._bigger_band:
+				self._band_status = -1
+		elif self._direction ==SHORT:
+			openval = self._now_middle_value + self._param_open_edge*self._now_sd_val
+			if lastprice - openval > self._bigger_band:
+				self._band_status = 1
 		if len(self._pre_md_price) ==0:
 			return
 			# self._rsi_array.append(0)
@@ -170,7 +180,7 @@ class BandAndTriggerFade(object):
 		# if open_time:
 			# self._now_interest +=1
 			# print "we start to open"
-			self._open_lastprice = ((self._open_lastprice * self._now_interest) + self._now_md_price[LASTPRICE])/(self._now_interest + 1)
+			self._open_lastprice = self._now_md_price[LASTPRICE]
 			self._now_interest +=1
 			self._max_profit = 0
 			mesg= "the time of open: "+self._now_md_price[TIME] + ",the price: " + str(self._now_md_price[LASTPRICE])
@@ -181,9 +191,9 @@ class BandAndTriggerFade(object):
 			# self._now_interest -=1
 			# print "we need to close"
 			if self._direction ==LONG:
-				self._profit +=(self._now_md_price[LASTPRICE] - self._open_lastprice)*self._now_interest
+				self._profit +=(self._now_md_price[LASTPRICE] - self._open_lastprice)
 			elif self._direction ==SHORT:
-				self._profit +=(self._open_lastprice - self._now_md_price[LASTPRICE])*self._now_interest
+				self._profit +=(self._open_lastprice - self._now_md_price[LASTPRICE])
 			self._open_lastprice = 0
 			self._max_profit = 0
 			self._now_interest = 0
@@ -194,34 +204,36 @@ class BandAndTriggerFade(object):
 
 	def is_trend_open_time(self):
 
-		open_val = self._param_open_edge + self._band_add_edge*self._now_interest
 		is_band_open = self.is_band_open_time(self._direction,self._now_md_price[LASTPRICE],
-											self._now_middle_value,self._now_sd_val,open_val,
-											self._ris_data,self._limit_rsi_data)
+											self._now_middle_value,self._now_sd_val,self._param_open_edge,
+											self._bigger_band)
 		return is_band_open
 
-	def is_band_open_time(self,direction,lastprice,middle_val,sd_val,open_edge,rsi_data,limit_rsi_data):
+	def is_band_open_time(self,direction,lastprice,middle_val,open_edge,sd_val,bigger_edge):
 		# this is used to judge is time to band open
 		if direction ==LONG:
-			downval = middle_val - open_edge*sd_val
-			rsi_data = 100 - rsi_data
-			if lastprice < downval  and rsi_data > limit_rsi_data:
+			openval = middle_val - open_edge*sd_val
+			if self._band_status == -1 and (self._lastprice - openval) > bigger_edge:
+				self._band_status = 1
 				return True
 		elif direction ==SHORT:
-			upval = middle_val + open_edge*sd_val
-			if lastprice > upval and rsi_data > limit_rsi_data:
+			openval = middle_val + open_edge*sd_val
+			if self._band_status == 1 and (openval - self._lastprice) > bigger_edge:
+				self._band_status = -1
 				return True
 		return False
 
-	def is_band_close_time(self,direction,lastprice,middle_val,sd_val,close_edge):
+	def is_band_close_time(self,direction,lastprice,middle_val,sd_val,loss_edge,profit_edge,bigger_edge):
 		# this is used to judge is time to band open
 		if direction ==LONG:
-			upval = middle_val - close_edge*sd_val
-			if lastprice > upval:
+			profitval = middle_val + profit_edge*sd_val
+			lossval = middle_val - loss_edge*sd_val - bigger_edge 
+			if lastprice > profitval or lastprice < lossval:
 				return True
 		elif direction ==SHORT:
-			downval = middle_val + close_edge*sd_val
-			if lastprice < downval:
+			profitval = middle_val - profit_edge*sd_val
+			lossval = middle_val + loss_edge*sd_val +bigger_edge
+			if lastprice > lossval or lastprice < profitval:
 				return True
 		return False
 
@@ -256,8 +268,9 @@ class BandAndTriggerFade(object):
 		close_band = self._param_open_edge + self._now_interest - self._close_band_num -1
 		# print "the interest is "+ str(self._now_interest) + " the colse band is "  +str(close_band)
 
-		is_band_close = self.is_band_close_time(self._direction,self._now_md_price[LASTPRICE],
-											self._now_middle_value,self._now_sd_val,close_band)
+		is_band_close = self.is_band_close_time(self._direction,self._lastprice,
+													self._now_middle_value,self._now_sd_val,
+													self._param_open_edge,self._param_close_edge,self._bigger_band)
 		
 		return is_band_close
 		
@@ -350,9 +363,10 @@ def main(filename):
 
 	for band_type in xrange(0,1):
 		if band_type ==0:
-			param_dict["band_open_edge"] =3
+			param_dict["band_open_edge"] =2
 			param_dict["limit_max_draw_down"] =0
 			param_dict["limit_max_loss"] =10
+			param_dict["band_close_edge"] =2
 			create_band_obj(csv_data,param_dict)
 	file.close()
 
@@ -363,7 +377,7 @@ if __name__=='__main__':
 	# data1 = [20170630,20170629,20170628,20170627,20170623,20170622,20170621,20170620,20170619,20170616]
 	# data2 =[20170703,20170704,20170705,20170706,20170707,20170711,20170712,20170713,20170714,20170717]
 	# data = data1+data2
-	data = [20170815]
+	data = [20170821]
 	for item in data:
 		path = "rb1801_"+ str(item)
 		print path

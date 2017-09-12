@@ -42,18 +42,18 @@ class BandAndTrigger(object):
 		self._max_profit = 0
 		self._open_lastprice = 0
 
+		self._bigger_Edge = 3
+
+
+		self._band_status = 0
+
 		# band param
-		self._param_open_edge = param_dic["band_open_edge"]		
+		self._param_open_edge = param_dic["band_open_edge"]
+		self._param_close_edge = param_dic["band_close_edge"]		
 
 		# trigger param
 
 		self._ris_data = 0
-
-		self._now_interest = 0
-		self._limit_interest = 1
-		self._band_add_edge = 1
-		self._close_band_num =2
-		self._param_open_edge = 3
 
 		self._file = param_dic["file"]
 
@@ -70,7 +70,15 @@ class BandAndTrigger(object):
 		self._lastprice = float(md_array[LASTPRICE])
 		self._now_middle_value = float(md_array[MIDDLE])
 		self._now_sd_val = float(md_array[SD])
-		self._ris_data = float(md_array[RSI])
+
+		if self._direction ==LONG:
+			openval = self._now_middle_value - self._param_open_edge*self._now_sd_val
+			if openval - self._lastprice > self._bigger_Edge:
+				self._band_status = -1
+		elif self._direction ==SHORT:
+			openval = self._now_middle_value + self._param_open_edge*self._now_sd_val
+			if self._lastprice - openval > self._bigger_Edge:
+				self._band_status = 1
 
 		open_time = self.is_trend_open_time()
 		close_time = self.is_trend_close_time()
@@ -78,7 +86,7 @@ class BandAndTrigger(object):
 		
 		if open_time and self._now_interest < self._limit_interest:
 		# if open_time:
-			self._open_lastprice = ((self._open_lastprice * self._now_interest) + self._lastprice)/(self._now_interest + 1)
+			self._open_lastprice = self._lastprice
 			self._now_interest +=1
 			self._max_profit = 0
 			mesg= "the time of open: "+self._time + ",the price: " + str(self._lastprice)
@@ -88,9 +96,9 @@ class BandAndTrigger(object):
 		elif close_time and self._now_interest >0:
 			# print "we need to close"
 			if self._direction ==LONG:
-				self._profit +=(self._lastprice - self._open_lastprice) *self._now_interest
+				self._profit +=(self._lastprice - self._open_lastprice)
 			elif self._direction ==SHORT:
-				self._profit +=(self._open_lastprice - self._lastprice) *self._now_interest
+				self._profit +=(self._open_lastprice - self._lastprice)
 			self._open_lastprice = 0
 			self._max_profit = 0
 			self._now_interest = 0
@@ -101,10 +109,8 @@ class BandAndTrigger(object):
 
 	def is_trend_open_time(self):
 
-		open_val = self._param_open_edge + self._band_add_edge*self._now_interest
 		is_band_open = self.is_band_open_time(self._direction,self._lastprice,
-											self._now_middle_value,open_val,self._now_sd_val,
-											self._ris_data,self._limit_rsi_data)
+											self._now_middle_value,self._param_open_edge,self._now_sd_val,self._bigger_Edge)
 		return is_band_open
 
 
@@ -132,36 +138,38 @@ class BandAndTrigger(object):
 			self._file.write(mesg +"\n")
 			return True
 
-		close_band = self._param_open_edge + self._now_interest - self._close_band_num -1
-
 		is_band_close = self.is_band_close_time(self._direction,self._lastprice,
-											self._now_middle_value,self._now_sd_val,close_band)
+											self._now_middle_value,self._now_sd_val,
+											self._param_open_edge,self._param_close_edge,self._bigger_Edge)
 		
 		return is_band_close
 
 
-	def is_band_open_time(self,direction,lastprice,middle_val,open_edge,sd_val,rsi_data,limit_rsi_data):
+	def is_band_open_time(self,direction,lastprice,middle_val,open_edge,sd_val,bigger_edge):
 		# this is used to judge is time to band open
 		if direction ==LONG:
-			downval = middle_val - open_edge*sd_val
-			rsi_data = 100 - rsi_data
-			if lastprice < downval  and rsi_data > limit_rsi_data:
+			openval = middle_val - open_edge*sd_val
+			if self._band_status == -1 and (self._lastprice - openval) > bigger_edge:
+				self._band_status = 1
 				return True
 		elif direction ==SHORT:
-			upval = middle_val + open_edge*sd_val
-			if lastprice > upval and rsi_data > limit_rsi_data:
+			openval = middle_val + open_edge*sd_val
+			if self._band_status == 1 and (openval - self._lastprice) > bigger_edge:
+				self._band_status = -1
 				return True
 		return False
 
-	def is_band_close_time(self,direction,lastprice,middle_val,sd_val,close_edge):
+	def is_band_close_time(self,direction,lastprice,middle_val,sd_val,loss_edge,profit_edge,bigger_edge):
 		# this is used to judge is time to band open
 		if direction ==LONG:
-			upval = middle_val - close_edge*sd_val
-			if lastprice > upval:
+			profitval = middle_val + profit_edge*sd_val
+			lossval = middle_val - loss_edge*sd_val - bigger_edge 
+			if lastprice > profitval or lastprice < lossval:
 				return True
 		elif direction ==SHORT:
-			downval = middle_val + close_edge*sd_val
-			if lastprice < downval:
+			profitval = middle_val - profit_edge*sd_val
+			lossval = middle_val + loss_edge*sd_val +bigger_edge
+			if lastprice > lossval or lastprice < profitval:
 				return True
 		return False
 
@@ -228,19 +236,20 @@ def create_band_obj(data,param_dict):
 
 
 def main(filename):
-	path = "../tmp/"+filename+"_band_data.csv"
+	path = "../data/"+filename+"_band_data.csv"
 	# path = "../zn/"+filename
 	csv_data = read_data_from_csv(path)
-	path = "../outdata/"+filename+"_trade_Fade——max.txt"
+	path = "../outdata/"+filename+"_trade_fade_normal.txt"
 	file = open(path,"w")
 
 	# 这个是螺纹钢的 tick 1
 	param_dict = {"limit_rsi_data":80,"band_open_edge":3,"limit_max_profit":100000,
-				 "file":file,"limit_max_draw_down":100}
+				 "file":file,"limit_max_draw_down":1000}
 	if "rb" in filename:
-		param_dict["band_open_edge"] =3
-		param_dict["limit_max_draw_down"] =10
-		param_dict["limit_max_profit"] =20
+		param_dict["band_open_edge"] =2
+		param_dict["band_close_edge"] =2
+		param_dict["limit_max_draw_down"] =100
+		param_dict["limit_max_profit"] =200
 		param_dict["limit_max_loss"] =10
 	elif "ru" in filename:
 		param_dict["band_open_edge"] =3
@@ -319,9 +328,9 @@ if __name__=='__main__':
 	#     		print tmp_path
 	#     		main(tmp_path)
 	# data = [20170817,20170818,20170821,20170822]
-	data = [20170823]
-	instrumentid = ["rb1801","ru1801","zn1710","pb1710","hc1801","i1801","cu1710","ni1801",]
-	instrumentid = ["ru1801"]
+	data = [20170828]
+	# instrumentid = ["rb1801","ru1801","zn1710","pb1710","hc1801","i1801","cu1710","ni1801",]
+	instrumentid = ["rb1801"]
 	for item in data:
 		for instrument in instrumentid:
 			path = instrument + "_"+ str(item)
