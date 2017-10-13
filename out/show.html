@@ -23,13 +23,19 @@
 <br>
 <br>
 
-<div id="rbdrawing" style="width: 3000px;height:500px;"></div>
-<div id="rbsumdrawing" style="width: 3000px;height:500px;"></div>
+<div id="rbdrawing" style="width: 2000px;height:500px;"></div>
+<div id="rbsumdrawing" style="width: 2000px;height:500px;"></div>
 
-<div id="rudrawing" style="width: 3000px;height:300px;"></div>
-<div id="rusumdrawing" style="width: 3000px;height:300px;"></div>
+<div id="rudrawing" style="width: 2000px;height:300px;"></div>
+<div id="rusumdrawing" style="width: 2000px;height:300px;"></div>
 
-<div id="totaldrawing" style="width: 3000px;height:300px;"></div>
+<div id="zndrawing" style="width: 2000px;height:300px;"></div>
+<div id="znsumdrawing" style="width: 2000px;height:300px;"></div>
+
+<div id="pbdrawing" style="width: 2000px;height:300px;"></div>
+<div id="pbsumdrawing" style="width: 2000px;height:300px;"></div>
+
+<div id="totaldrawing" style="width: 2000px;height:300px;"></div>
 
 
 <script type="text/javascript">
@@ -47,6 +53,12 @@
         var ru_myChart = echarts.init(document.getElementById('rudrawing'));
         var ru_sum_myChart = echarts.init(document.getElementById('rusumdrawing'));
 
+        var zn_myChart = echarts.init(document.getElementById('zndrawing'));
+        var zn_sum_myChart = echarts.init(document.getElementById('znsumdrawing'));
+
+        var pb_myChart = echarts.init(document.getElementById('pbdrawing'));
+        var pb_sum_myChart = echarts.init(document.getElementById('pbsumdrawing'));
+
         var total_myChart = echarts.init(document.getElementById('totaldrawing'));
 
         times_array= []
@@ -56,6 +68,12 @@
 
         ru_array = []
         ru_sum_array = []
+
+        zn_array = []
+        zn_sum_array = []
+
+        pb_array = []
+        pb_sum_array = []
 
         total_array = []
 
@@ -204,6 +222,150 @@
             ]       
         };
 
+        zn_option = {
+            toolbox: {
+                show : true,
+                feature : {
+                    mark : {show: true},
+                    dataView : {show: true, readOnly: false},
+                    magicType : {show: true, type: ['line', 'bar']},
+                    restore : {show: true},
+                    saveAsImage : {show: true}
+                }
+            },
+            tooltip : {
+                trigger: 'axis'
+            },
+            title: {
+                text: 'zn'
+            },
+            legend: {
+                 data:['ru']
+            },
+            xAxis: {
+                type: 'category',
+                // data: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
+            },
+            yAxis: {
+                type: 'value'
+            },  
+            series : [
+                {
+                    name:'zn',
+                    type:'line',
+                    // data:[120, 132, 101, 134, 90, 230, 210]
+                }
+            ]       
+        };
+
+        zn_sum_option = {
+            toolbox: {
+                show : true,
+                feature : {
+                    mark : {show: true},
+                    dataView : {show: true, readOnly: false},
+                    magicType : {show: true, type: ['line', 'bar']},
+                    restore : {show: true},
+                    saveAsImage : {show: true}
+                }
+            },
+            tooltip : {
+                trigger: 'axis'
+            },
+            title: {
+                text: 'zn_sum'
+            },
+            legend: {
+                 data:['ru_sum']
+            },
+            xAxis: {
+                type: 'category',
+                // data: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
+            },
+            yAxis: {
+                type: 'value'
+            },  
+            series : [
+                {
+                    name:'zn_sum',
+                    type:'line',
+                    // data:[120, 132, 101, 134, 90, 230, 210]
+                }
+            ]       
+        };
+
+        pb_option = {
+            toolbox: {
+                show : true,
+                feature : {
+                    mark : {show: true},
+                    dataView : {show: true, readOnly: false},
+                    magicType : {show: true, type: ['line', 'bar']},
+                    restore : {show: true},
+                    saveAsImage : {show: true}
+                }
+            },
+            tooltip : {
+                trigger: 'axis'
+            },
+            title: {
+                text: 'pb'
+            },
+            legend: {
+                 data:['pb']
+            },
+            xAxis: {
+                type: 'category',
+                // data: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
+            },
+            yAxis: {
+                type: 'value'
+            },  
+            series : [
+                {
+                    name:'pb',
+                    type:'line',
+                    // data:[120, 132, 101, 134, 90, 230, 210]
+                }
+            ]       
+        };
+
+        pb_sum_option = {
+            toolbox: {
+                show : true,
+                feature : {
+                    mark : {show: true},
+                    dataView : {show: true, readOnly: false},
+                    magicType : {show: true, type: ['line', 'bar']},
+                    restore : {show: true},
+                    saveAsImage : {show: true}
+                }
+            },
+            tooltip : {
+                trigger: 'axis'
+            },
+            title: {
+                text: 'pb_sum'
+            },
+            legend: {
+                 data:['pb_sum']
+            },
+            xAxis: {
+                type: 'category',
+                // data: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
+            },
+            yAxis: {
+                type: 'value'
+            },  
+            series : [
+                {
+                    name:'pb_sum',
+                    type:'line',
+                    // data:[120, 132, 101, 134, 90, 230, 210]
+                }
+            ]       
+        };
+
 
         total_option = {
             toolbox: {
@@ -266,6 +428,9 @@
             var rb_sum =0
             var ru_sum = 0
 
+            var zn_sum = 0
+            var pb_sum = 0
+
             // 第一个数据是不要的，那个是一个标签
             for (var i = 1; i < filedata.length; i++) {
                 var linedata = filedata[i].split(',')
@@ -274,6 +439,18 @@
 
                 var rb = Number(linedata[1])
                 var ru = Number(linedata[2])
+
+                var zn = 0
+                var pb = 0
+
+                if (linedata.length ==3) {
+                    zn = 0
+                    pb =0
+                }
+                else{
+                    zn = Number(linedata[3])
+                    pb = Number(linedata[4])
+                }
                 
                 times_array.push(time)
 
@@ -285,7 +462,15 @@
                 ru_sum += ru
                 ru_sum_array.push(ru_sum)
 
-                total_array.push(ru_sum + rb_sum)
+                zn_array.push(zn)
+                zn_sum += zn
+                zn_sum_array.push(zn_sum)
+
+                pb_array.push(pb)
+                pb_sum += pb
+                pb_sum_array.push(pb_sum)
+
+                total_array.push(ru_sum + rb_sum + zn_sum + pb_sum)
 
 
                 if (time==NaN) {
@@ -305,6 +490,18 @@
             ru_sum_option.xAxis.data = times_array
             ru_sum_option.series[0].data = ru_sum_array
 
+            zn_option.xAxis.data = times_array
+            zn_option.series[0].data = zn_array
+
+            zn_sum_option.xAxis.data = times_array
+            zn_sum_option.series[0].data = zn_sum_array
+
+            pb_option.xAxis.data = times_array
+            pb_option.series[0].data = pb_array
+
+            pb_sum_option.xAxis.data = times_array
+            pb_sum_option.series[0].data = pb_sum_array
+
             total_option.xAxis.data = times_array
             total_option.series[0].data = total_array
 
@@ -312,6 +509,10 @@
             rb_sum_myChart.setOption(rb_sum_option)
             ru_myChart.setOption(ru_option);
             ru_sum_myChart.setOption(ru_sum_option)
+            zn_myChart.setOption(zn_option);
+            zn_sum_myChart.setOption(zn_sum_option)
+            pb_myChart.setOption(pb_option);
+            pb_sum_myChart.setOption(pb_sum_option)
             total_myChart.setOption(total_option)
         }
 
@@ -319,6 +520,10 @@
         rb_sum_myChart.setOption(rb_sum_option)
         ru_myChart.setOption(ru_option);
         ru_sum_myChart.setOption(ru_sum_option)
+        zn_myChart.setOption(ru_option);
+        zn_sum_myChart.setOption(ru_sum_option)
+        pb_myChart.setOption(ru_option);
+        pb_sum_myChart.setOption(ru_sum_option)
         total_myChart.setOption(total_option)
 
          

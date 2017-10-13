@@ -1,0 +1,100 @@
+<html>
+<head>
+	<meta charset="UTF-8">
+	<script src="./echarts.min.js"></script>
+	<script src="./jquery-3.2.1.min.js"></script>
+</head>
+
+<body style="width: 100%;height:100%;">
+<div>
+
+<div id="setting">
+	<div style="float: left;">
+        <input type="file" id="file" onchange="handleFiles(this.files)"/>
+		<!-- <div style="float: left;">合约代码</div>
+		<input type="text" id="contractcode" value="pb1707" style="float: left;"> -->
+	</div>
+	<div style="float: left;">
+		<button type="button" onclick="startdraw()">draw</button>
+	</div>
+</div>
+<br>
+<br>
+<br>
+<br>
+
+<div id="content">
+</div>
+
+
+
+<script type="text/javascript">
+
+
+
+        filedata =''
+
+
+        // 根据input的file标签读取出相对应的csv的数据。
+        function  handleFiles(files)
+        {
+          if(files.length)
+          {
+             var file = files[0];
+             var reader = new FileReader();
+             reader.onload = function()
+             {
+                 // document.getElementById("filecontent").innerHTML = this.result;
+                 // console.log(this.result)
+                 var data = this.result
+                 filedata = data.split("\n")
+             };
+             reader.readAsText(file);
+          }
+        }
+
+        function createDIVs(ids_array) {
+            for (var i = 1; i < ids_array.length; i++) {
+                var  id = ids_array[i]
+                var tmp_div = $("<div>",{
+                 'width':'3000px',
+                 'height':'300px',
+                 'id':id
+                })
+
+                var tmp_div_sum = $("<div>",{
+                 'width':'3000px',
+                 'height':'300px',
+                 'id':id+"sum"
+                })
+                $("#content").append(tmp_div)
+                $("#content").append(tmp_div_sum)
+            }
+
+            var total_sum = $("<div>",{
+             'width':'3000px',
+             'height':'300px',
+             'id':"total_sum"
+            })
+            $("#content").append(total_sum)
+
+        }
+
+
+        // 根据传入的参数进行画图，
+        function startdraw(){
+
+            var ids = filedata[0].split(',')
+            console.log(ids)
+            createDIVs(ids)
+
+        }
+
+
+         
+</script>
+
+</div>
+
+</body>
+</html>

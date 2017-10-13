@@ -24,11 +24,6 @@ param_dict_pb = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":50
 			,"volume_open_edge":20,"limit_max_draw_down":0,"multiple":5,"file":file
 			,"sd_lastprice":100,"open_interest_edge":0,"spread":100,"config_file":310}
 
-param_dict_pb_3600 = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":50
-			,"limit_rsi_data":75,"rsi_period":10,"diff_period":1
-			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":3600
-			,"volume_open_edge":20,"limit_max_draw_down":0,"multiple":5,"file":file
-			,"sd_lastprice":100,"open_interest_edge":0,"spread":100,"config_file":312}
 # 这个是螺纹钢的
 param_dict_rb = {"limit_max_profit":25,"limit_max_loss":10,"rsi_bar_period":100
 			,"limit_rsi_data":80,"rsi_period":10,"diff_period":1
@@ -36,11 +31,6 @@ param_dict_rb = {"limit_max_profit":25,"limit_max_loss":10,"rsi_bar_period":100
 			,"volume_open_edge":900,"limit_max_draw_down":0,"multiple":10,"file":file
 			,"sd_lastprice":100,"open_interest_edge":0,"spread":100,"config_file":320}
 
-param_dict_rb_3600 = {"limit_max_profit":25,"limit_max_loss":10,"rsi_bar_period":100
-			,"limit_rsi_data":80,"rsi_period":10,"diff_period":1
-			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":3600
-			,"volume_open_edge":900,"limit_max_draw_down":0,"multiple":10,"file":file
-			,"sd_lastprice":100,"open_interest_edge":0,"spread":100,"config_file":322}
 
 # 这个是橡胶的
 param_dic_ru = {"limit_max_profit":250,"limit_max_loss":100,"rsi_bar_period":100
@@ -49,11 +39,6 @@ param_dic_ru = {"limit_max_profit":250,"limit_max_loss":100,"rsi_bar_period":100
 			,"volume_open_edge":120,"limit_max_draw_down":0,"multiple":10,"file":file
 			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":330}
 
-param_dic_ru_3600 = {"limit_max_profit":250,"limit_max_loss":100,"rsi_bar_period":100
-			,"limit_rsi_data":70,"rsi_period":10,"diff_period":1
-			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":3600
-			,"volume_open_edge":120,"limit_max_draw_down":0,"multiple":10,"file":file
-			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":332}
 			
 # 这个是锌的
 param_dic_zn = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":100
@@ -62,11 +47,6 @@ param_dic_zn = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":100
 			,"volume_open_edge":100,"limit_max_draw_down":0,"multiple":5,"file":file
 			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":340}
 
-param_dic_zn_3600 = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":100
-			,"limit_rsi_data":80,"rsi_period":10,"diff_period":1
-			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":3600
-			,"volume_open_edge":100,"limit_max_draw_down":0,"multiple":5,"file":file
-			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":342}
 
 # 这个是锌的
 param_dic_i = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
@@ -75,11 +55,6 @@ param_dic_i = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
 			,"volume_open_edge":100,"limit_max_draw_down":0,"multiple":100,"file":file
 			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":350}
 
-param_dic_i_3600 = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
-			,"limit_rsi_data":80,"rsi_period":14,"diff_period":1
-			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":3600
-			,"volume_open_edge":100,"limit_max_draw_down":0,"multiple":100,"file":file
-			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":352}
 
 # 这个是锌的
 param_dic_ni = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
@@ -88,11 +63,6 @@ param_dic_ni = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
 			,"volume_open_edge":100,"limit_max_draw_down":0,"multiple":1,"file":file
 			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":360}
 
-param_dic_ni_3600 = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
-			,"limit_rsi_data":80,"rsi_period":14,"diff_period":1
-			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":3600
-			,"volume_open_edge":100,"limit_max_draw_down":0,"multiple":1,"file":file
-			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":362}
 
 param_dic_al = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
 			,"limit_rsi_data":80,"rsi_period":14,"diff_period":60
@@ -100,11 +70,6 @@ param_dic_al = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
 			,"volume_open_edge":100,"limit_max_draw_down":0,"multiple":1,"file":file
 			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":370}
 
-param_dic_al_3600 = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
-			,"limit_rsi_data":80,"rsi_period":14,"diff_period":60
-			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":3600
-			,"volume_open_edge":100,"limit_max_draw_down":0,"multiple":1,"file":file
-			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":372}
 
 # 这个是锌的
 param_dic_hc = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":100
@@ -113,11 +78,6 @@ param_dic_hc = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":100
 			,"volume_open_edge":100,"limit_max_draw_down":0,"multiple":1,"file":file
 			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":380}
 
-param_dic_hc_3600 = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":100
-			,"limit_rsi_data":80,"rsi_period":10,"diff_period":1
-			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":3600
-			,"volume_open_edge":100,"limit_max_draw_down":0,"multiple":1,"file":file
-			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":382}
 
 # 这个是锌的
 param_dic_cu = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
@@ -126,36 +86,21 @@ param_dic_cu = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
 			,"volume_open_edge":70,"limit_max_draw_down":0,"multiple":10,"file":file
 			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":390}
 
-param_dic_cu_3600 = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":100
-			,"limit_rsi_data":80,"rsi_period":10,"diff_period":1
-			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":3600
-			,"volume_open_edge":100,"limit_max_draw_down":0,"multiple":10,"file":file
-			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":392}
 
 
-param_dic_au = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
+param_dic_pp = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
 			,"limit_rsi_data":80,"rsi_period":14,"diff_period":60
 			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
-			,"volume_open_edge":100,"limit_max_draw_down":0,"multiple":1,"file":file
+			,"volume_open_edge":100,"limit_max_draw_down":0,"multiple":5,"file":file
 			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":400}
 
-param_dic_au_3600 = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
-			,"limit_rsi_data":80,"rsi_period":14,"diff_period":60
-			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":3600
-			,"volume_open_edge":100,"limit_max_draw_down":0,"multiple":1,"file":file
-			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":402}
 
-param_dic_ag = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
+param_dic_v = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
 			,"limit_rsi_data":80,"rsi_period":14,"diff_period":60
 			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
-			,"volume_open_edge":100,"limit_max_draw_down":0,"multiple":1,"file":file
+			,"volume_open_edge":100,"limit_max_draw_down":0,"multiple":5,"file":file
 			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":410}
 
-param_dic_ag_3600 = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
-			,"limit_rsi_data":80,"rsi_period":14,"diff_period":60
-			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":3600
-			,"volume_open_edge":100,"limit_max_draw_down":0,"multiple":1,"file":file
-			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":412}
 
 param_dic_bu = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
 			,"limit_rsi_data":80,"rsi_period":14,"diff_period":60
@@ -163,38 +108,21 @@ param_dic_bu = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
 			,"volume_open_edge":100,"limit_max_draw_down":0,"multiple":1,"file":file
 			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":420}
 
-param_dic_bu_3600 = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
-			,"limit_rsi_data":80,"rsi_period":14,"diff_period":60
-			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":3600
-			,"volume_open_edge":100,"limit_max_draw_down":0,"multiple":1,"file":file
-			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":422}
 
-param_dic_sn = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
-			,"limit_rsi_data":80,"rsi_period":14,"diff_period":60
-			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
-			,"volume_open_edge":100,"limit_max_draw_down":0,"multiple":1,"file":file
-			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":430}
-
-param_dic_sn_3600 = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
-			,"limit_rsi_data":80,"rsi_period":14,"diff_period":60
-			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
-			,"volume_open_edge":100,"limit_max_draw_down":0,"multiple":1,"file":file
-			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":432}
 
 nameDict = {
-	"rb1801":{"param":[param_dict_rb,param_dict_rb_3600]},
-	"ru1801":{"param":[param_dic_ru,param_dic_ru_3600]},
-	"zn1710":{"param":[param_dic_zn,param_dic_zn_3600]},
-	"cu1710":{"param":[param_dic_cu,param_dic_cu_3600]},
-	"hc1801":{"param":[param_dic_hc,param_dic_hc_3600]},
-	"i1801":{"param":[param_dic_i,param_dic_i_3600]},
-	"ni1801":{"param":[param_dic_ni,param_dic_ni_3600]},
-	"al1710":{"param":[param_dic_al,param_dic_al_3600]},
-	"au1712":{"param":[param_dic_au,param_dic_au_3600]},
-	"ag1712":{"param":[param_dic_ag,param_dic_ag_3600]},
-	"bu1712":{"param":[param_dic_bu,param_dic_bu_3600]},
-	"sn1709":{"param":[param_dic_sn,param_dic_sn_3600]},
-	"pb1710":{"param":[param_dict_pb,param_dict_pb_3600]}
+	"rb1801":{"param":[param_dict_rb]},
+	"ru1801":{"param":[param_dic_ru]},
+	"zn1711":{"param":[param_dic_zn]},
+	"cu1711":{"param":[param_dic_cu]},
+	"hc1801":{"param":[param_dic_hc]},
+	"i1801":{"param":[param_dic_i]},
+	"ni1801":{"param":[param_dic_ni]},
+	"al1711":{"param":[param_dic_al]},
+	"pp1801":{"param":[param_dic_pp]},
+	"v1801":{"param":[param_dic_v]},
+	"bu1712":{"param":[param_dic_bu]},
+	"pb1710":{"param":[param_dict_pb]}
 }
 
 class BandAndTrigger(object):
@@ -448,8 +376,8 @@ if __name__=='__main__':
 	# data1 = [20170630,20170629,20170628,20170627,20170623,20170622,20170621,20170620,20170619,20170616]
 	# data2 =[20170703,20170704,20170705,20170706,20170707,20170711,20170712,20170713,20170714,20170717]
 	# data = data1+ data2
-	data = [20170831]
-	instrumentid_array = ["ru1801","rb1801","zn1710","pb1710","cu1710","hc1801","i1801","ni1801","al1710","au1712","ag1712","bu1712"]
+	data = [20170914]
+	instrumentid_array = ["ru1801","rb1801","zn1711","pb1710","cu1711","hc1801","i1801","ni1801","al1711","pp1801","v1801","bu1712"]
 	# instrumentid_array = ["al1710","au1712","ag1712","bu1712"]
 	# instrumentid_array = ["ni1801"]
 	for item in data:

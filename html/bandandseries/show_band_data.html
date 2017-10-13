@@ -16,7 +16,7 @@
 	</div>
 	<div style="float: left;">
 		<div style="float: left;">SD</div>
-		<input style="float: left;" type="text" id="SD" value="0.5,1,2,3">
+		<input style="float: left;" type="text" id="SD" value="3">
 	</div>
 	<div style="float: left;">
 		<button type="button" onclick="startdraw()">draw</button>
@@ -43,15 +43,14 @@
 <script type="text/javascript">
 
 
-        document.getElementById("rsidrawing").style.display="none";
-        // document.getElementById("sddrawing").style.display="none";
+        // document.getElementById("rsidrawing").style.display="none";
+        document.getElementById("sddrawing").style.display="none";
         // document.getElementById("diff_volume_drawing").style.display="none";
         document.getElementById("ema_diff_volume_drawing").style.display="none";
         document.getElementById("diff_openinterest_drawing").style.display="none";
         document.getElementById("ema_diff_openinterest_drawing").style.display="none";
         document.getElementById("spread_drawing").style.display="none";
-        // document.getElementById("sddrawing").style.display="none";
-        // document.getElementById("ema_spread_drawing").style.display="none";
+        document.getElementById("ema_spread_drawing").style.display="none";
 
         filedata =''
         var band_myChart = echarts.init(document.getElementById('banddrawing'));
@@ -512,17 +511,21 @@
                 var lastprice = Number(linedata[1])
                 var middle = Number(linedata[2])
                 var sd = Number(linedata[3])
-                // var rsi = Number(linedata[4])
-                // var sd = Number(linedata[11])
-                var rsi = Number(linedata[12])
-                var diff_volume = Number(linedata[11])
+                var rsi = Number(linedata[4])
+                var diff_volume = Number(linedata[6])
 
                 // var diff_volume = Number(linedata[5])
-                var diff_openinterest = Number(linedata[6])
-                var spread = Number(linedata[7])
-                var ema_diff_volume = Number(linedata[8])
-                var ema_openinterest = Number(linedata[9])
-                var ema_spread = Number(linedata[10])
+                // var diff_openinterest = Number(linedata[6])
+                // var spread = Number(linedata[7])
+                // var ema_diff_volume = Number(linedata[8])
+                // var ema_openinterest = Number(linedata[9])
+                // var ema_spread = Number(linedata[10])
+
+                var diff_openinterest = 0
+                var spread = 0
+                var ema_diff_volume =0
+                var ema_openinterest = 0
+                var ema_spread = 0
                 
 
                 // if (diff_volume >1000) {
@@ -573,9 +576,9 @@
                     openband = 1
                 }
                 // if (lastprice < middle + openband*sd && lastprice > middle - openband*sd) {
-                    if (diff_volume >1000) {
-                        diff_volume = 1000
-                    }
+                    // if (diff_volume >1000) {
+                    //     diff_volume = 1000
+                    // }
                     diff_volume_array.push(diff_volume)
 
                     // if (ema_diff_volume >15000) {

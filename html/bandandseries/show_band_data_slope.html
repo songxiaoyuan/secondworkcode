@@ -28,7 +28,7 @@
 <br>
 
 <div id="banddrawing" style="width: 3000px;height:500px;"></div>
-<div id="rsidrawing" style="width: 3000px;height:300px;"></div>
+<div id="slopedrawing" style="width: 3000px;height:300px;"></div>
 <div id="sddrawing" style="width: 3000px;height:300px;"></div>
 <div id="diff_volume_drawing" style="width: 3000px;height:300px;"></div>
 <div id="ema_diff_volume_drawing" style="width: 3000px;height:300px;"></div>
@@ -43,19 +43,18 @@
 <script type="text/javascript">
 
 
-        document.getElementById("rsidrawing").style.display="none";
-        // document.getElementById("sddrawing").style.display="none";
-        // document.getElementById("diff_volume_drawing").style.display="none";
+        // document.getElementById("slopedrawing").style.display="none";
+        document.getElementById("sddrawing").style.display="none";
+        document.getElementById("diff_volume_drawing").style.display="none";
         document.getElementById("ema_diff_volume_drawing").style.display="none";
         document.getElementById("diff_openinterest_drawing").style.display="none";
         document.getElementById("ema_diff_openinterest_drawing").style.display="none";
         document.getElementById("spread_drawing").style.display="none";
-        // document.getElementById("sddrawing").style.display="none";
-        // document.getElementById("ema_spread_drawing").style.display="none";
+        document.getElementById("ema_spread_drawing").style.display="none";
 
         filedata =''
         var band_myChart = echarts.init(document.getElementById('banddrawing'));
-        var rsi_myChart = echarts.init(document.getElementById('rsidrawing'));
+        var rsi_myChart = echarts.init(document.getElementById('slopedrawing'));
         var diff_volume_myChart = echarts.init(document.getElementById('diff_volume_drawing'));
         var sd_myChart = echarts.init(document.getElementById('sddrawing'));
         var sd_lastprice_myChart = echarts.init(document.getElementById('ema_spread_drawing'));
@@ -514,15 +513,24 @@
                 var sd = Number(linedata[3])
                 // var rsi = Number(linedata[4])
                 // var sd = Number(linedata[11])
-                var rsi = Number(linedata[12])
-                var diff_volume = Number(linedata[11])
+                var rsi = Number(linedata[5])
+                // var diff_volume =Number(linedata[11])
+
+                // // var diff_volume = Number(linedata[5])
+                // var diff_openinterest = Number(linedata[6])
+                // var spread = Number(linedata[7])
+                // var ema_diff_volume = Number(linedata[8])
+                // var ema_openinterest = Number(linedata[9])
+                // var ema_spread = Number(linedata[10])
+
+                var diff_volume =0
 
                 // var diff_volume = Number(linedata[5])
-                var diff_openinterest = Number(linedata[6])
-                var spread = Number(linedata[7])
-                var ema_diff_volume = Number(linedata[8])
-                var ema_openinterest = Number(linedata[9])
-                var ema_spread = Number(linedata[10])
+                var diff_openinterest = 0
+                var spread = 0
+                var ema_diff_volume = 0
+                var ema_openinterest = 0
+                var ema_spread = 0
                 
 
                 // if (diff_volume >1000) {

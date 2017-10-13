@@ -86,8 +86,23 @@ def get_continue_wvad(lastprice,lastprice_array,volume_array):
 	ret = ret * float(volume_sum)
 	return round(ret,2)
 
+def get_slope_fun(middle_array,period):
+	l = len(middle_array)
+	begin = 0
+	if l - period >0:
+		begin = l - period
+	left = middle_array[begin]
+	right = middle_array[l-1]
+	# ret = (right - left)/self._tick_num
+	ret = (right - left)/5
+	return ret
 
-
+def get_slope(middle_array):
+	slope1 = get_slope_fun(middle_array,120)
+	slope2 = get_slope_fun(middle_array,360)
+	slope3 = get_slope_fun(middle_array,600)
+	slope_tick = (slope3 + slope2 + slope1)/3
+	return round(float(slope_tick),2)
 
 
 def change_last_three_format(data):
@@ -115,8 +130,17 @@ def change_last_three_format(data):
 		# line[10] = round(get_weighted_mean(spread_array,volume_array,period),2)
 		# line[11] = continue_price
 		# line[12] = continut_wvad
-	
 
+def create_slope_lastline(data):
+	middle_array = []
+	for line in data:
+		middle = line[2]
+		middle_array.append(middle)
+		slope = get_slope(middle_array)
+		if len(line) <12:
+			line.append(slope)
+		else:
+			line[11] = slope
 
 def change_format(path):
 	f = open(path,'rb')
@@ -131,7 +155,8 @@ def change_format(path):
 	f.close()
 
 	print "start to format the data"
-	change_last_three_format(data)
+	# change_last_three_format(data)
+	create_slope_lastline(data)
 	print "has finish the format data"
 	
 	csvfile = file(path, 'wb')
@@ -147,18 +172,20 @@ def get_files(file_dir):
         		print tmp_path
         		change_format(tmp_path)
 
+
+
 def main():
 	# path = "../data/cu1710_20170815_band_data.csv"
 	# path = "../data/hc1710_20170815_band_data.csv"
 	# path = "../zn"
 	# get_files(path)
-	data = [20170906]
+	data = [20170906,20170905,20170904]
 	# data = [20170822]
-	instrumentid_array = ["ru1801","ru1801","zn1710","ni1801","cu1710","pb1710","hc1801","i1801"]
-	# instrumentid_array = ["rb1801"]
+	# instrumentid_array = ["ru1801","ru1801","zn1710","ni1801","cu1710","pb1710","hc1801","i1801"]
+	instrumentid_array = ["ru1801"]
 	for item in data:
 		for instrumentid in instrumentid_array:
-			path = "../data/"+instrumentid+ "_"+str(item)+"_band_data.csv"
+			path = "../datasave/"+instrumentid+ "_"+str(item)+"_band_data.csv"
 			print path
 			change_format(path)
 

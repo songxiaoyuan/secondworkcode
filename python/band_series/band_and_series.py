@@ -1,6 +1,4 @@
 # -*- coding:utf8 -*-
-import csv
-import band_and_trigger
 import basic_fun as bf
 
 LASTPRICE = 4
@@ -13,11 +11,10 @@ TIME = 20
 LONG =1
 SHORT =0
 
-
-class BandAndTriggerFade(object):
-	"""docstring for BandAndTriggerFade"""
+class BandAndSeries(object):
+	"""docstring for BandAndSeries"""
 	def __init__(self,param_dic):
-		super(BandAndTriggerFade, self).__init__()
+		super(BandAndSeries, self).__init__()
 		# self.arg = arg
 		self._pre_md_price = []
 		self._now_md_price = []
@@ -27,10 +24,16 @@ class BandAndTriggerFade(object):
 		self._now_middle_value =0
 		self._now_sd_val = 0
 
-		self._csv_data = []
+		self._series_lastprice = 0
+		self._limit_series_lastprice = param_dic["limit_series_lastprice"]
+		self._diff_volume_array = []
+		self._tmp_sum_diff_volume = 0
+		self._now_bar_volume_tick = 0
+		self._limit_bar_volume_tick = param_dic["limit_bar_volume_tick"]
+		self._limit_multiple = param_dic["limit_multiple"]
+		self._limit_diff_volume_large_period = param_dic["limit_large_period"]
 
 		self._max_profit = 0
-		self._limit_max_draw_down = param_dic["limit_max_draw_down"]
 		self._limit_max_profit = param_dic["limit_max_profit"]
 		self._limit_max_loss = param_dic["limit_max_loss"]
 
@@ -43,36 +46,45 @@ class BandAndTriggerFade(object):
 		self._rsi_bar_period = param_dic["rsi_bar_period"]
 		self._limit_rsi_data = param_dic["limit_rsi_data"]
 
-		self._param_period = param_dic["param_period"]
-
 
 		# self._limit_twice_sd = 2
-		self._band_status = 0
+
 		self._direction = param_dic["direction"]
 		self._moving_theo = "EMA"
 		# now we have the cangwei and the limit cangwei
 		self._now_interest = 0
 		self._limit_interest = 1
-		self._band_status = 0
 
 		# band param
-		self._param_open_edge = param_dic["band_open_edge"]
-		self._param_close_edge = param_dic["band_close_edge"]	
+		self._param_open_edge1 = param_dic["band_open_edge1"]
+		self._param_open_edge2 = param_dic["band_open_edge2"]
+		self._param_loss_edge = param_dic["band_loss_edge"]
+		self._param_close_edge =param_dic["band_profit_edge"]
+		self._param_period = param_dic["band_period"]
+		
+
+		# trigger param
+		self._param_volume_open_edge = param_dic["volume_open_edge"]
+		self._param_open_interest_edge = param_dic["open_interest_edge"]
+		self._param_spread = param_dic["spread"]
 
 		self._open_lastprice = 0
 		self._profit = 0
 		self._ris_data = 0
 
-		self._bigger_band = 3
+		self._limit_sd = param_dic["limit_sd"]
+		self._limit_sd_open_edge = param_dic["limit_sd_open_edge"]
+		self._limit_sd_close_edge = param_dic["limit_sd_close_edge"]
 
 		self._file = param_dic["file"]
 		self._config_file = param_dic["config_file"]
+
 
 		if len(self._lastprice_array) ==0:
 			print "this is init function " + str(self._config_file)
 			tmp_pre_ema_array = []
 			tmp_rsi_lastprice = []
-			config_file = "../config_pic/"+str(self._config_file)
+			config_file = "../config_server/"+str(self._config_file)
 			bf.get_config_info(tmp_pre_ema_array,self._lastprice_array,self._lastprice_map
 				,self._rsi_array,tmp_rsi_lastprice,config_file)
 			if len(tmp_pre_ema_array)==0:
@@ -87,8 +99,6 @@ class BandAndTriggerFade(object):
 		print "this is the over function"
 		# bf.write_config_info(self._pre_ema_val,self._lastprice_array
 		# 	,self._rsi_array,self._rsi_period,self._now_md_price[LASTPRICE],self._config_file)
-		path_new = "../tmp/test_fade_band_data"+".csv"
-		bf.write_data_to_csv(path_new,self._csv_data)
 
 	# get the md data ,every line;
 	def get_md_data(self,md_array):
@@ -106,14 +116,7 @@ class BandAndTriggerFade(object):
 
 		lastprice = self._now_md_price[LASTPRICE]
 		# print lastprice
-		if self._direction ==LONG:
-			openval = self._now_middle_value - self._param_open_edge*self._now_sd_val
-			if lastprice < openval:
-				self._band_status = -1
-		elif self._direction ==SHORT:
-			openval = self._now_middle_value + self._param_open_edge*self._now_sd_val
-			if lastprice > openval:
-				self._band_status = 1
+
 		if len(self._pre_md_price) ==0:
 			return
 			# self._rsi_array.append(0)
@@ -124,12 +127,12 @@ class BandAndTriggerFade(object):
 				tmpdiff = lastprice - self._pre_rsi_lastprice		
 				self._pre_rsi_lastprice = lastprice
 				self._now_bar_rsi_tick = 1
-				self._ris_data =bf.get_rsi_data2(tmpdiff,self._rsi_array,self._rsi_period)
+				self._ris_data =bf.get_rsi_data(tmpdiff,self._rsi_array,self._rsi_period)
 				self._rsi_array.append(tmpdiff)
 			else:
 				self._now_bar_rsi_tick +=1
 				tmpdiff = lastprice - self._pre_rsi_lastprice
-				self._ris_data =bf.get_rsi_data2(tmpdiff,self._rsi_array,self._rsi_period)
+				self._ris_data =bf.get_rsi_data(tmpdiff,self._rsi_array,self._rsi_period)
 				# self._ris_data = 0
 
 		
@@ -164,30 +167,63 @@ class BandAndTriggerFade(object):
 		else:
 			self._now_middle_value = bf.get_ma_data(self._lastprice_array,self._param_period)
 		
-		# self._now_sd_val =bf.get_sd_data(self._now_md_price[TIME], self._lastprice_array,self._param_period)			
 		self._now_sd_val =bf.get_sd_data_by_map(self._lastprice_map,self._param_period)	
 		# self.f.write(str(self._now_md_price[TIME])+","+str(lastprice)+","+str(self._now_middle_value)+","+str(self._now_sd_val)+","+str(self._ris_data)+"\n")
+		if self._now_md_price[LASTPRICE] > self._pre_md_price[LASTPRICE]:
+			if self._series_lastprice >=0:
+				self._series_lastprice +=1
+			else:
+				self._series_lastprice = 0
+		elif self._now_md_price[LASTPRICE] < self._pre_md_price[LASTPRICE]:
+			if self._series_lastprice <=0:
+				self._series_lastprice -=1
+			else:
+				self._series_lastprice =0
+		else:
+			if self._series_lastprice >0:
+				self._series_lastprice +=1
+			elif self._series_lastprice <0:
+				self._series_lastprice -=1
+			else:
+				self._series_lastprice =0
+		# if self._direction ==LONG:
+		# 	if self._now_md_price[LASTPRICE] >= self._pre_md_price[LASTPRICE]:
+		# 		self._series_lastprice  = self._series_lastprice +1
+		# 	else:
+		# 		self._series_lastprice = 0
+		# elif self._direction ==SHORT:
+		# 	if self._now_md_price[LASTPRICE] <= self._pre_md_price[LASTPRICE]:
+		# 		self._series_lastprice  = self._series_lastprice +1
+		# 	else:
+		# 		self._series_lastprice = 0
+		# else:
+		# 	return
+		diff_volume = self._now_md_price[VOLUME] - self._pre_md_price[VOLUME]
+		self._tmp_sum_diff_volume += diff_volume
+		self._now_bar_volume_tick +=1
+		if self._now_bar_volume_tick >= self._limit_bar_volume_tick:
+			self._diff_volume_array.append(self._tmp_sum_diff_volume)
+			self._tmp_sum_diff_volume = 0
+			self._now_bar_volume_tick = 0
 
 		open_time = self.is_trend_open_time()
 		close_time = self.is_trend_close_time()
 		# close_time = False
-		tmp_to_csv = [self._now_md_price[TIME],self._now_md_price[LASTPRICE],round(self._now_middle_value,2),
-							round(self._now_sd_val,2),round(self._ris_data,2),0,0,0,0,0,0]
-		self._csv_data.append(tmp_to_csv)
-
+		
 		if open_time and self._now_interest < self._limit_interest:
 		# if open_time:
-			# self._now_interest +=1
+			self._now_interest +=1
 			# print "we start to open"
 			self._open_lastprice = self._now_md_price[LASTPRICE]
-			self._now_interest +=1
 			self._max_profit = 0
 			mesg= "the time of open: "+self._now_md_price[TIME] + ",the price: " + str(self._now_md_price[LASTPRICE])
+			# mesg1 = "the diff volume: "+str(ema_diff_volume)+", the interest: " + str(ema_diff_openinerest) + ", the spread: "+ str(ema_spread)
 			self._file.write(mesg+"\n")
+			# self._file.write(mesg1+"\n")
 			# print "the diff volume is:" + str(self._now_md_price[VOLUME] - self._pre_md_price[VOLUME])
 		# elif close_time:
 		elif close_time and self._now_interest >0:
-			# self._now_interest -=1
+			self._now_interest -=1
 			# print "we need to close"
 			if self._direction ==LONG:
 				self._profit +=(self._now_md_price[LASTPRICE] - self._open_lastprice)
@@ -195,46 +231,28 @@ class BandAndTriggerFade(object):
 				self._profit +=(self._open_lastprice - self._now_md_price[LASTPRICE])
 			self._open_lastprice = 0
 			self._max_profit = 0
-			self._now_interest = 0
 			mesg= "the time of close:"+self._now_md_price[TIME] + ",the price: " + str(self._now_md_price[LASTPRICE])
 			self._file.write(mesg+"\n")
 
 		return True
 
 	def is_trend_open_time(self):
+		# "'this is used to jude the time used to open return bool'"
+		# first base the sd,find is time to open band 
+		is_band_open = bf.is_band_open_time(self._direction,self._now_md_price[LASTPRICE],
+											self._now_middle_value,self._now_sd_val,self._param_open_edge1,self._param_open_edge2,
+											self._limit_sd,self._limit_sd_open_edge)
+		# return is_band_open
+		if is_band_open ==False:
+			return False
 
-		is_band_open = self.is_band_open_time(self._direction,self._now_md_price[LASTPRICE],
-											self._now_middle_value,self._now_sd_val,self._param_open_edge,
-											self._bigger_band)
-		return is_band_open
+		is_diff_volume_open = bf.is_diff_volume_open_time(self._tmp_sum_diff_volume,self._diff_volume_array,
+												self._limit_multiple,self._limit_diff_volume_large_period)
+		if is_diff_volume_open ==False:
+			return False
 
-	def is_band_open_time(self,direction,lastprice,middle_val,open_edge,sd_val,bigger_edge):
-		# this is used to judge is time to band open
-		if direction ==LONG:
-			openval = middle_val - open_edge*sd_val
-			if self._band_status == -1 and (lastprice - openval) > bigger_edge:
-				self._band_status = 1
-				return True
-		elif direction ==SHORT:
-			openval = middle_val + open_edge*sd_val
-			if self._band_status == 1 and (openval - lastprice) > bigger_edge:
-				self._band_status = -1
-				return True
-		return False
-
-	def is_band_close_time(self,direction,lastprice,middle_val,sd_val,loss_edge,profit_edge,bigger_edge):
-		# this is used to judge is time to band open
-		if direction ==LONG:
-			profitval = middle_val + profit_edge*sd_val
-			lossval = middle_val - loss_edge*sd_val 
-			if lastprice > profitval or lastprice < lossval:
-				return True
-		elif direction ==SHORT:
-			profitval = middle_val - profit_edge*sd_val
-			lossval = middle_val + loss_edge*sd_val
-			if lastprice > lossval or lastprice < profitval:
-				return True
-		return False
+		is_series_open = bf.is_lastprice_series_open_time(self._direction,self._series_lastprice,self._limit_series_lastprice)
+		return is_series_open
 
 	def is_trend_close_time(self):
 		# this is used to jude the time to close return bool
@@ -263,122 +281,17 @@ class BandAndTriggerFade(object):
 			mesg= 'this is the max draw down ' + str(self._max_profit)
 			self._file.write(mesg +"\n")
 			return True
-
-		close_band = self._param_close_edge
-		# print "the interest is "+ str(self._now_interest) + " the colse band is "  +str(close_band)
-
-		is_band_close = self.is_band_close_time(self._direction,self._now_md_price[LASTPRICE],
-													self._now_middle_value,self._now_sd_val,
-													self._param_open_edge,self._param_close_edge,self._bigger_band)
 		
+		loss_val = self._param_loss_edge
+		close_val = self._param_close_edge
+		is_band_close = bf.is_band_close_time(self._direction,self._now_md_price[LASTPRICE],
+											self._now_middle_value,self._now_sd_val,loss_val,close_val
+											,self._ris_data,self._limit_rsi_data,self._limit_sd,self._limit_sd_close_edge)
 		return is_band_close
 		
 
 	def get_total_profit(self):
 		return self._profit
 
-def getSortedData(data):
-	ret = []
-	night = []
-	zero = []
-	day = []
-	nightBegin = 21*3600
-	nightEnd = 23*3600+59*60+60
-	zeroBegin = 0
-	zeroEnd = 9*3600 - 100
-	dayBegin = 9*3600
-	dayEnd = 15*3600
-
-	for line in data:
-		# print line
-		timeLine = line[20].split(":")
-		# print timeLine
-		nowTime = int(timeLine[0])*3600+int(timeLine[1])*60+int(timeLine[2])
-
-		if nowTime >= zeroBegin and nowTime <zeroEnd:
-			zero.append(line)
-		elif nowTime >= dayBegin and nowTime <= dayEnd:
-			day.append(line)
-		elif nowTime >=nightBegin and nowTime <=nightEnd:
-			night.append(line)
-		# if int(line[22]) ==0 or int(line[4]) ==3629:
-		# 	continue
-	for line in night:
-		ret.append(line)
-	for line in zero:
-		ret.append(line)
-	for line in day:
-		ret.append(line)
-
-	return ret
-# read the md data from csv, it uesd to like the csv
-def read_data_from_csv(path):
-	f = open(path,'rb')
-	reader = csv.reader(f)
-	ret = []
-	for row in reader:
-		# obj.get_md_data(row)
-		ret.append(row)
-	# only get the day data
-	ret = getSortedData(ret)
-	return ret
-
-def start_to_run_md(band_obj,data):
-	for row in data:
-		band_obj.get_md_data(row)
-
-def create_band_obj(data,param_dict):
-	file = param_dict["file"]
-	for i in xrange(0,2):
-		param_dict["direction"] = i
-		band_and_trigger_obj = BandAndTriggerFade(param_dict)
-		if i==0:
-			# continue
-			print "方向是short的交易情况:"
-			file.write("方向是short的交易情况:\n")
-			start_to_run_md(band_and_trigger_obj,data)
-			profit = band_and_trigger_obj.get_total_profit()
-			file.write(str(profit)+"\n")
-		else:
-			print "方向是long的交易情况："
-			file.write("方向是long的交易情况：:\n")
-			start_to_run_md(band_and_trigger_obj,data)
-			profit = band_and_trigger_obj.get_total_profit()
-			file.write(str(profit)+"\n")
-
-
-
-def main(filename):
-	path = "../data/"+filename+".csv"
-	csv_data = read_data_from_csv(path)
-	path = "../outdata/"+filename+"_fade.txt"
-	file = open(path,"w")
-
-	# 这个是螺纹钢的 tick 1
-	param_dict = {"limit_max_profit":25000,"limit_max_loss":10000,"multiple":10
-				,"rsi_bar_period":120,"limit_rsi_data":80,"rsi_period":14
-				,"band_open_edge":3,"config_file":399,"param_period":7200
-				,"limit_max_draw_down":0,"file":file}
-
-	for band_type in xrange(0,1):
-		if band_type ==0:
-			param_dict["band_open_edge"] =2
-			param_dict["limit_max_draw_down"] =0
-			param_dict["limit_max_loss"] =10
-			param_dict["band_close_edge"] =2
-			create_band_obj(csv_data,param_dict)
-	file.close()
-
-
-
 if __name__=='__main__': 
-	# main("ru1709_20170622")
-	# data1 = [20170630,20170629,20170628,20170627,20170623,20170622,20170621,20170620,20170619,20170616]
-	# data2 =[20170703,20170704,20170705,20170706,20170707,20170711,20170712,20170713,20170714,20170717]
-	# data = data1+data2
-	data = [20170912]
-	for item in data:
-		path = "rb1801_"+ str(item)
-		print path
-		main(path)	
-	# print WRITETOFILE
+	print "this is the band and trigger size"
