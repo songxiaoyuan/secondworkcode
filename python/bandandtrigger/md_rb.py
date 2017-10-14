@@ -100,11 +100,11 @@ def main(filename):
 	# 这个是螺纹钢的 tick 1
 	param_dict = {"limit_max_profit":25000,"limit_max_loss":1000,"multiple":10
 				,"rsi_bar_period":120,"limit_rsi_data":80,"rsi_period":14
-				,"diff_period":10
-				,"band_open_edge1":0.5,"band_open_edge2":1,"band_loss_edge":0,"band_profit_edge":3,"band_period":7200
+				,"diff_period":1
+				,"band_open_edge1":0,"band_open_edge2":0.5,"band_loss_edge":0.5,"band_profit_edge":5,"band_period":7200
 				,"limit_max_draw_down":0,"file":file
-				,"open_interest_edge":0,"spread":85,"volume_open_edge":900
-				,"limit_sd":4,"limit_sd_open_edge":1.5,"limit_sd_close_edge":0.5,"config_file":399}
+				,"open_interest_edge":0,"spread":100,"volume_open_edge":900
+				,"limit_sd":10,"limit_sd_open_edge":1,"limit_sd_close_edge":1,"config_file":399}
 
 	for band_type in xrange(0,7):
 		if band_type ==0:
@@ -119,12 +119,12 @@ def main(filename):
 			create_band_obj(csv_data,param_dict)
 		elif band_type ==1:
 			# continue
-			mesg = "1，3退出，diff_period =1 900进入,limit sd = 4"
+			mesg = "1，3退出，diff_period =1 900进入,limit sd = 10"
 			print mesg
 			file.write(mesg+"\n")
 			param_dict["band_loss_edge"] =0
 			param_dict["band_profit_edge"] =3
-			param_dict["volume_open_edge"] =900
+			param_dict["volume_open_edge"] =500
 			create_band_obj(csv_data,param_dict)
 		elif band_type ==2:
 			continue
@@ -190,7 +190,7 @@ if __name__=='__main__':
 	# data1 = [20170630,20170629,20170628,20170627,20170623,20170622,20170621,20170620,20170619,20170616]
 	# data2 =[20170703,20170704,20170705,20170706,20170707,20170711,20170712,20170713,20170714,20170717]
 	# data = data1+data2
-	data = [20170810]
+	data = [20170825]
 	for item in data:
 		path = "rb1801_"+ str(item)
 		print path

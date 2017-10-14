@@ -26,7 +26,7 @@ param_dict_pb = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":50
 			,"sd_lastprice":100,"open_interest_edge":0,"spread":100,"config_file":310}
 # 这个是螺纹钢的
 param_dict_rb = {"limit_max_profit":25,"limit_max_loss":10,"rsi_bar_period":120
-			,"limit_rsi_data":80,"rsi_period":14,"diff_period":10
+			,"limit_rsi_data":80,"rsi_period":14,"diff_period":1
 			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
 			,"volume_open_edge":900,"limit_max_draw_down":0,"multiple":10,"file":file
 			,"sd_lastprice":100,"open_interest_edge":0,"spread":100,"config_file":320}
@@ -170,9 +170,9 @@ class BandAndTrigger(object):
 
 	def __del__(self):
 		print "this is the over function " + str(self._config_file)
-		config_file = "../config_pic/"+str(self._config_file)
-		bf.write_config_info(self._pre_ema_val,self._lastprice_array
-			,self._rsi_array,self._rsi_period,self._now_md_price[LASTPRICE],config_file)
+		# config_file = "../config_pic/"+str(self._config_file)
+		# bf.write_config_info(self._pre_ema_val,self._lastprice_array
+		# 	,self._rsi_array,self._rsi_period,self._now_md_price[LASTPRICE],config_file)
 
 
 	# get the md data ,every line;
@@ -272,22 +272,22 @@ class BandAndTrigger(object):
 			if self._bar_min_lastprice ==0 or self._bar_min_lastprice > self._now_md_price[LASTPRICE]:
 				self._bar_min_lastprice = self._now_md_price[LASTPRICE]
 
-		if ema_diff_volume ==0:
+		if diff_volume ==0:
 			spread =50
 			self._diff_spread_array.append(spread)
 		else:
 
-			# avg_price = float(diff_turnover)/diff_volume/self._multiple
-			avg_price = float(ema_diff_turnonver)/ema_diff_volume/self._multiple
+			avg_price = float(diff_turnover)/diff_volume/self._multiple
+			# avg_price = float(ema_diff_turnonver)/ema_diff_volume/self._multiple
 			# if lastprice > self._now_middle_value:
 			# if self._pre_md_price[ASKPRICE1] != self._pre_md_price[BIDPRICE1]:
 			# 注意，现在算的只是和买一价的位置关系。
-			# spread = 100*(avg_price - self._pre_md_price[BIDPRICE1])/(self._pre_md_price[ASKPRICE1] - self._pre_md_price[BIDPRICE1])
+			spread = 100*(avg_price - self._pre_md_price[BIDPRICE1])/(self._pre_md_price[ASKPRICE1] - self._pre_md_price[BIDPRICE1])
 			# spread = 100*(avg_price - self._now_md_price[BIDPRICE1])/(self._now_md_price[ASKPRICE1] - self._now_md_price[BIDPRICE1])
-			if self._bar_max_lastprice == self._bar_min_lastprice:
-				spread = 50
-			else:
-				spread = 100*(avg_price - self._bar_min_lastprice)/(self._bar_max_lastprice - self._bar_min_lastprice)
+			# if self._bar_max_lastprice == self._bar_min_lastprice:
+			# 	spread = 50
+			# else:
+			# 	spread = 100*(avg_price - self._bar_min_lastprice)/(self._bar_max_lastprice - self._bar_min_lastprice)
 			self._diff_spread_array.append(spread)
 			# spread = bf.get_weighted_mean(self._diff_spread_array,self._diff_volume_array,self._diff_period)
 		
@@ -378,7 +378,7 @@ def main(filename):
 	
 	data = bt.get_to_csv_data()
 
-	data = clean_night_data(data)
+	# data = clean_night_data(data)
 	path_new = "../data/"+filename+ "_band_data"+".csv"
 	bf.write_data_to_csv(path_new,data)
 
@@ -399,7 +399,7 @@ if __name__=='__main__':
 
 
 	# data = [20170821,20170822,20170823,20170824,20170825]
-	data = [20170828,20170829,20170830]
+	data = [20170828]
 	# instrumentid_array = ["ru1801","rb1801","zn1710","pb1710","cu1710","hc1801","i1801"]
 	instrumentid_array = ["rb1801"]
 	for item in data:
