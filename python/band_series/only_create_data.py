@@ -417,7 +417,7 @@ if __name__=='__main__':
 	#     		main(tmp_path)
 
 	# data =[20170925,20170926,20170927,20170928,20170929,20171009,20171010,20171011]
-	data =[20171012]
+	data =[20171013]
 	# instrumentid_array = ["ru1801","rb1801","zn1710","pb1710","cu1710","hc1801","i1801","ni1801","al1710","au1712","ag1712","bu1712"]
 	instrumentid_array = ["rb1801"]
 	for item in data:
