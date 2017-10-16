@@ -44,6 +44,10 @@ class BandAndTrigger(object):
 		self._now_interest = 0
 		self._limit_interest = 1
 
+		self._current_hour =0
+		self._has_open = 0
+		self._limit_open =1
+
 		self._file = param_dic["file"]
 
 
@@ -72,6 +76,7 @@ class BandAndTrigger(object):
 		if open_time and self._now_interest < self._limit_interest:
 		# if open_time:
 			self._now_interest +=1
+			# self._has_open +=1
 			# print "we start to open"
 			self._open_lastprice = self._lastprice
 			mesg= "the time of open: "+self._time + ",the price: " + str(self._lastprice)
@@ -91,10 +96,25 @@ class BandAndTrigger(object):
 
 		return True
 
+	
+	def is_time_open_time(self):
+		hour = self._time.split(':')[0]
+		if hour == self._current_hour:
+			if self._has_open >= self._limit_open:
+				return False
+			else:
+				self._has_open +=1
+				return True
+		else:
+			self._current_hour = hour
+			if hour !=13:
+				self._has_open = 0
+		return True
+
 	def is_trend_open_time(self):
 
 		is_band_open = bf.is_band_open_time(self._direction,self._lastprice,
-											self._now_middle_value,self._now_sd_val,
+											self._now_middle_value,
 											self._param_open_edge1,self._param_open_edge2)
 		# return is_band_open
 		if is_band_open ==False:
@@ -112,7 +132,8 @@ class BandAndTrigger(object):
 			tmp = 100 - self._spread
 			if tmp >= self._param_spread:
 				return True
-		return False
+		is_time_open = self.is_time_open_time()
+		return is_time_open
 
 
 	def is_trend_close_time(self):
@@ -190,18 +211,20 @@ def main(filename):
 	path = "../create_data/"+filename+"_band_data.csv"
 	# path = "../zn/"+filename
 	csv_data = read_data_from_csv(path)
-	path = "../outdata/"+filename+"_trade.txt"
+	path = "../outdata/"+filename+"_trade_limit_time.txt"
 	file = open(path,"w")
 
 	# 这个是螺纹钢的 tick 1
 	param_dict = {"limit_rsi_data":85,"band_open_edge1":0.5,"band_open_edge2":1,
 				"band_loss_edge":0,"band_profit_edge":3,
 				"limit_sd":50,"limit_sd_close_edge":5,
-				"open_interest_edge":0,"spread":100,"volume_open_edge":0,
+				"open_interest_edge":0,"spread":0,"volume_open_edge":0,
 				"file":file}
 	if "rb" in filename:
-		param_dict["volume_open_edge"] =500
+		param_dict["volume_open_edge"] =0
 		param_dict["limit_sd"] =10
+		param_dict["band_open_edge1"] = 5
+		param_dict["band_open_edge2"] = 10
 	elif "ru" in filename:
 		param_dict["volume_open_edge"] =150
 		param_dict["limit_sd"] =25
