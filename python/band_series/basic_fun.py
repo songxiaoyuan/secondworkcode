@@ -12,39 +12,34 @@ TIME = 20
 LONG =1
 SHORT =0
 
-def is_band_open_time(direction,lastprice,middle_val,sd_val,open_edge1,open_edge2,limit_sd,limit_sd_open_edge):
+def is_band_open_time(direction,lastprice,middle_val,sd_val,open_edge1,open_edge2):
 	# this is used to judge is time to band open
-	if sd_val <=limit_sd:
-		open_edge2 = limit_sd_open_edge
 	if direction ==LONG:
-		upval = middle_val + open_edge2*sd_val
-		if lastprice > middle_val + open_edge1*sd_val and lastprice < upval:
+		downval = middle_val + open_edge1
+		upval = middle_val + open_edge2
+		if lastprice > middle_val and lastprice < upval:
 			return True
 	elif direction ==SHORT:
-		downval = middle_val - open_edge2*sd_val
-		if lastprice < middle_val - open_edge1*sd_val and lastprice > downval:
+		upval = middle_val - open_edge1
+		downval = middle_val - open_edge2
+		if lastprice < upval and lastprice > downval:
 			return True
 	return False
 
-def is_band_close_time(direction,lastprice,middle_val,sd_val,open_edge,close_edge,cur_rsi_data,limit_rsi_data,limit_sd,limit_sd_close_edge):
+def is_band_close_time(direction,lastprice,middle_val,sd_val,close_edge,profit_close_edge,cur_rsi_data,limit_rsi_data):
 	# this is used to judge is time to band is close time
-	if sd_val <= limit_sd:
-		open_edge = limit_sd_close_edge
 	if direction ==LONG:
-		profitval = middle_val + close_edge*sd_val
-		lossvla = middle_val - open_edge*sd_val
-		# 尽量避免损失，如果达到止损条件，即使止损
-		if lastprice < lossvla:
+		if lastprice < middle_val - close_edge:
 			return True
+		profitval = middle_val + profit_close_edge*sd_val
 		# 判断止盈条件，大于几倍的band，并且同时rsi大于80，然后可能在加上最大回撤的值。
 		# 因为ris是按照这个bar来计算的，所以应该一段时间判断一次，如果没有达到这个段的时间，应该就直接不平仓
 		if lastprice > profitval and cur_rsi_data >= limit_rsi_data and cur_rsi_data >=0:
 			return True
 	elif direction ==SHORT:
-		profitval = middle_val - close_edge*sd_val
-		lossval = middle_val + open_edge*sd_val
-		if lastprice > lossval:
+		if lastprice > middle_val + close_edge:
 			return True
+		profitval = middle_val - profit_close_edge*sd_val
 		ris = 100 - cur_rsi_data
 		if lastprice < profitval and ris >= limit_rsi_data and cur_rsi_data >=0 :
 			return True

@@ -12,15 +12,17 @@ TIME = 20
 LONG =1
 SHORT =0
 
-def is_band_open_time(direction,lastprice,middle_val,sd_val,open_edge1,open_edge2):
+def is_band_open_time(direction,lastprice,middle_val,bigger_edge1,bigger_edge2):
 	# this is used to judge is time to band open
 	if direction ==LONG:
-		upval = middle_val + open_edge2*sd_val
-		if lastprice > middle_val + open_edge1*sd_val and lastprice < upval:
+		upval = middle_val + bigger_edge2
+		downval = middle_val + bigger_edge1
+		if lastprice > downval  and lastprice < upval:
 			return True
 	elif direction ==SHORT:
-		downval = middle_val - open_edge2*sd_val
-		if lastprice < middle_val - open_edge1*sd_val and lastprice > downval:
+		downval = middle_val - bigger_edge2
+		upval = middle_val - bigger_edge1
+		if lastprice < upval  and lastprice > downval:
 			return True
 	return False
 

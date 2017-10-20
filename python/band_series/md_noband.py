@@ -8,8 +8,7 @@ LASTPRICE = 1
 MIDDLE = 2
 SD = 3
 RSI = 4
-SERIES_LASTPRICE = 5
-DIFF_VOLUME = 6
+DIFF_VOLUME = 5
 LONG =1
 SHORT =0
 
@@ -19,11 +18,8 @@ class BandAndSeries(object):
 		super(BandAndSeries, self).__init__()
 		# self.arg = arg
 		self._direction = param_dic["direction"]
-
-
 		self._limit_rsi_data = param_dic["limit_rsi_data"]
 
-		self._direction = param_dic["direction"]
 		self._moving_theo = "EMA"
 		# now we have the cangwei and the limit cangwei
 		self._now_interest = 0
@@ -31,13 +27,9 @@ class BandAndSeries(object):
 		self._profit = 0
 
 		# band param
-		self._param_open_edge1 = param_dic["band_open_edge1"]
-		self._param_open_edge2 = param_dic["band_open_edge2"]
-		self._param_loss_edge = param_dic["band_loss_edge"]
 		self._param_close_edge =param_dic["band_profit_edge"]	
 
 		self._limit_sd = param_dic["limit_sd"]
-		self._limit_sd_open_edge = param_dic["limit_sd_open_edge"]
 		self._limit_sd_close_edge = param_dic["limit_sd_close_edge"]	
 
 		# series param
@@ -58,8 +50,6 @@ class BandAndSeries(object):
 		self._limit_max_profit = param_dic["max_profit"]
 
 		self._has_interest_tick = 0
-		self._limit_interest_tick = param_dic["limit_interest_tick"]
-
 		self._file = param_dic["file"]
 
 		self._limit_continuous_price = 3
@@ -78,7 +68,6 @@ class BandAndSeries(object):
 		self._now_middle_value = float(md_array[MIDDLE])
 		self._now_sd_val = float(md_array[SD])
 		self._rsi_data = float(md_array[RSI])
-		self._series_lastprice = float(md_array[SERIES_LASTPRICE])
 		self._diff_volume = float(md_array[DIFF_VOLUME])
 
 		self._tmp_sum_diff_volume += self._diff_volume
@@ -146,90 +135,29 @@ class BandAndSeries(object):
 		if self._now_interest <=0:
 			return False
 
-		if self._has_interest_tick >= self._limit_interest_tick:
-			self._has_interest_tick = 0
-			return True
-		else:
-			self._has_interest_tick +=1
-
-		
-		# loss_val = self._param_loss_edge
+		# exit when profit
 		# close_val = self._param_close_edge
+		# if self._now_sd_val < self._limit_sd:
+		# 	close_val = self._limit_sd_close_edge
 		# is_band_close = bf.is_band_close_time(self._direction,self._lastprice,
-		# 									self._now_middle_value,self._now_sd_val,loss_val,close_val
-		# 									,self._rsi_data,self._limit_rsi_data,self._limit_sd,self._limit_sd_close_edge)
-		# return is_band_close
+		# 									self._now_middle_value,self._now_sd_val,close_val
+		# 									,self._rsi_data,self._limit_rsi_data)
+		# if is_band_close == True:
+		# 	return True
 
 
-		# only base the rsi to leave and close
-		# if self._open_lastprice != 0:
-		# 	if self._direction ==LONG:
-		# 		tmp = self._lastprice - self._open_lastprice
-		# 	elif self._direction ==SHORT:
-		# 		tmp = self._open_lastprice - self._lastprice
-		# 	if tmp <0 and ((0 - tmp) > self._limit_max_loss):
-		# 		return True
-		# 	# if tmp > self._limit_max_profit:
-		# 	# 	return True
-		# if self._direction == LONG:
-		# 	if self._rsi_data >= self._limit_rsi_data:
-		# 		# print self._rsi_data
-		# 		self._ris_status = 1
-		# 	else:
-		# 		if self._ris_status ==1:
-		# 			self._ris_status = 0
-		# 			return True
-		# 		return False
-		# elif self._direction ==SHORT:
-		# 	tmp = 100 - self._rsi_data
-		# 	if tmp >= self._limit_rsi_data:
-		# 		# print tmp
-		# 		self._ris_status = 1
-		# 	else:
-		# 		if self._ris_status ==1:
-		# 			self._ris_status = 0
-		# 			return True
-		# 		return False
-		# return False
-
-
-	def is_band_open_time(self,direction,lastprice,middle_val,sd_val,open_edge1,open_edge2,limit_sd,limit_sd_open_edge):
-		# this is used to judge is time to band open
-		if sd_val <=limit_sd:
-			open_edge2 = limit_sd_open_edge
-		if direction ==LONG:
-			upval = middle_val + open_edge2*sd_val
-			if lastprice > middle_val+open_edge1*sd_val and lastprice < upval:
+		# base the max loss to leave and close
+		if self._open_lastprice != 0:
+			if self._direction ==LONG:
+				tmp = self._lastprice - self._open_lastprice
+			elif self._direction ==SHORT:
+				tmp = self._open_lastprice - self._lastprice
+			if tmp <0 and ((0 - tmp) > self._limit_max_loss):
 				return True
-		elif direction ==SHORT:
-			downval = middle_val - open_edge2*sd_val
-			if lastprice < middle_val - open_edge1*sd_val and lastprice > downval:
+			if tmp > self._limit_max_profit:
 				return True
 		return False
 
-	def is_band_close_time(self,direction,lastprice,middle_val,sd_val,open_edge,close_edge,cur_rsi_data,limit_rsi_data,limit_sd,limit_sd_close_edge):
-		# this is used to judge is time to band is close time
-		if sd_val <= limit_sd:
-			open_edge = limit_sd_close_edge
-		if direction ==LONG:
-			profitval = middle_val + close_edge*sd_val
-			lossvla = middle_val - open_edge*sd_val
-			# 尽量避免损失，如果达到止损条件，即使止损
-			if lastprice < lossvla:
-				return True
-			# 判断止盈条件，大于几倍的band，并且同时rsi大于80，然后可能在加上最大回撤的值。
-			# 因为ris是按照这个bar来计算的，所以应该一段时间判断一次，如果没有达到这个段的时间，应该就直接不平仓
-			if lastprice > profitval and cur_rsi_data >= limit_rsi_data and cur_rsi_data >=0:
-				return True
-		elif direction ==SHORT:
-			profitval = middle_val - close_edge*sd_val
-			lossval = middle_val + open_edge*sd_val
-			if lastprice > lossval:
-				return True
-			ris = 100 - cur_rsi_data
-			if lastprice < profitval and ris >= limit_rsi_data and cur_rsi_data >=0 :
-				return True
-		return False
 
 	def get_total_profit(self):
 		return  self._profit
@@ -274,60 +202,43 @@ def create_band_obj(data,param_dict):
 
 
 def main(filename):
-	path = "../datasave/"+filename+"_band_data.csv"
+	path = "../create_data/"+filename+"_band_data.csv"
 	# path = "../zn/"+filename
 	csv_data = read_data_from_csv(path)
 	path = "../outdata_noband/"+filename+"_trade_series_noband.txt"
 	file = open(path,"w")
 
-	param_dict = {"limit_rsi_data":80,
-				"band_open_edge1":0,"band_open_edge2":0.5,"band_loss_edge":0.5,"band_profit_edge":3,
-				"file":file,"limit_bar_volume_tick":20,"limit_series_lastprice":5,"limit_interest_tick":1200,
-				"limit_sd_open_edge":1,"limit_sd_close_edge":1}
+	param_dict = {"limit_rsi_data":85,"band_profit_edge":3,
+				"limit_bar_volume_tick":20,"limit_series_lastprice":5,"limit_sd_close_edge":5,
+				"file":file}
 	if "rb" in filename:
 		param_dict["limit_sd"] =10
-		param_dict["band_open_edge1"] =0
-		param_dict["band_open_edge2"] =0.5
-		param_dict["band_loss_edge"] =0.5
-		param_dict["limit_sd_close_edge"] =1
-		param_dict["limit_sd_open_edge"] =1
-		param_dict["limit_multiple"] =2
+		param_dict["limit_sd_close_edge"] =5
+		param_dict["limit_multiple"] =3
 		param_dict["limit_large_period"] =5
-		param_dict["max_loss"] =1000
-		param_dict["max_profit"] =2000
+		param_dict["max_loss"] =10
+		param_dict["max_profit"] =10
 	elif "ru" in filename:
-		param_dict["limit_sd"] =25
-		param_dict["band_open_edge1"] =0
-		param_dict["band_open_edge2"] =0.5
-		param_dict["band_loss_edge"] =0.5
-		param_dict["limit_sd_close_edge"] =1
-		param_dict["limit_sd_open_edge"] =2
+		param_dict["limit_sd"] =50
+		param_dict["limit_sd_close_edge"] =5
 		param_dict["limit_multiple"] =3
 		param_dict["limit_large_period"] =5
 		param_dict["max_loss"] =50
-		param_dict["max_profit"] =20
+		param_dict["max_profit"] =50
 	elif "pb" in filename:
-		param_dict["volume_open_edge"] =30
-		param_dict["limit_sd"] =25
-		param_dict["open_interest_edge"] =0
-		param_dict["band_open_edge1"] =0
-		param_dict["band_open_edge2"] =0.5
-		param_dict["band_loss_edge"] =0.5
-		param_dict["limit_sd_close_edge"] =1
-		param_dict["limit_sd_open_edge"] =2
-		param_dict["spread"] =100
-		param_dict["limit_wvad"] =200
-	elif "zn" in filename:
-		param_dict["volume_open_edge"] =50
 		param_dict["limit_sd"] =50
-		param_dict["open_interest_edge"] =0
-		param_dict["band_open_edge1"] =0
-		param_dict["band_open_edge2"] =0.5
-		param_dict["band_loss_edge"] =0.5
-		param_dict["limit_sd_close_edge"] =1
-		param_dict["limit_sd_open_edge"] =2
-		param_dict["spread"] =100
-		param_dict["limit_wvad"] =500
+		param_dict["limit_sd_close_edge"] =5
+		param_dict["limit_multiple"] =2
+		param_dict["limit_large_period"] =5
+		param_dict["max_loss"] =50
+		param_dict["max_profit"] =2000
+	elif "zn" in filename:
+		param_dict["limit_sd"] =50
+		param_dict["limit_sd_close_edge"] =5
+		param_dict["limit_multiple"] =3
+		param_dict["limit_large_period"] =5
+		param_dict["max_loss"] =50
+		param_dict["max_profit"] =50
 	elif "cu" in filename:
 		param_dict["volume_open_edge"] =100
 		param_dict["limit_sd"] =40
@@ -435,10 +346,10 @@ if __name__=='__main__':
 	#     		tmp_path = tmp_path.split('/')[2]
 	#     		print tmp_path
 	#     		main(tmp_path)
-	# data = [20171012]
-	data =[20170925,20170926,20170927,20170928,20170929,20171009,20171010,20171011,20171012,20171013]
+	data = [20171016,20171017,20171018]
+	# data =[20171018]
 	# instrumentid = ["ru1801","rb1801","zn1710","pb1710","cu1710","hc1801","i1801","ni1801","al1710","au1712","ag1712","bu1712"]
-	instrumentid = ["rb1801"]
+	instrumentid = ["ru1801","rb1801","zn1712"]
 	for item in data:
 		for instrument in instrumentid:
 			path = instrument + "_"+ str(item)
