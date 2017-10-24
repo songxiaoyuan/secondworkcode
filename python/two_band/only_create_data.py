@@ -104,17 +104,17 @@ param_dic_sn = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
 nameDict = {
 	"rb1801":{"param":param_dict_rb},
 	"ru1801":{"param":param_dic_ru},
-	"zn1712":{"param":param_dic_zn},
-	"cu1712":{"param":param_dict_cu},
+	"zn1711":{"param":param_dic_zn},
+	"cu1710":{"param":param_dict_cu},
 	"i1801":{"param":param_dict_i},
 	"hc1801":{"param":param_dict_hc},
 	"ni1801":{"param":param_dic_ni},
-	"al1712":{"param":param_dic_al},
+	"al1710":{"param":param_dic_al},
 	"au1712":{"param":param_dic_au},
 	"ag1712":{"param":param_dic_ag},
 	"bu1712":{"param":param_dic_bu},
 	"sn1709":{"param":param_dic_sn},
-	"pb1712":{"param":param_dict_pb}
+	"pb1711":{"param":param_dict_pb}
 }
 
 class BandAndTrigger(object):
@@ -132,6 +132,11 @@ class BandAndTrigger(object):
 		self._now_middle_value =0
 		self._now_sd_val = 0
 
+
+		self._hour_pre_ema_val = 0
+		self._hour_lastprice_array = []
+		self._hour_ema_period = 20
+
 		self._multiple = param_dic["multiple"]
 
 		self._rsi_array = []
@@ -140,6 +145,8 @@ class BandAndTrigger(object):
 		self._ris_data = 0
 		self._rsi_period = param_dic["rsi_period"]
 		self._rsi_bar_period = param_dic["rsi_bar_period"]
+
+		self._current_hour = 9
 
 		self._moving_theo = "EMA"
 		# band param
@@ -153,15 +160,17 @@ class BandAndTrigger(object):
 			print "this is init function " + str(self._config_file)
 			tmp_pre_ema_array = []
 			tmp_rsi_lastprice = []
+			hour_pre_ema_array = []
 			config_file = "../config/"+str(self._config_file)
 			bf.get_config_info(tmp_pre_ema_array,self._lastprice_array,self._lastprice_map
-				,self._rsi_array,tmp_rsi_lastprice,config_file)
+				,self._rsi_array,tmp_rsi_lastprice,hour_pre_ema_array,self._hour_lastprice_array,config_file)
 			if len(tmp_pre_ema_array)==0:
 				self._pre_ema_val = 0
 				self._pre_rsi_lastprice = 0 
 			else:
 				self._pre_ema_val = tmp_pre_ema_array[0]
 				self._pre_rsi_lastprice = tmp_rsi_lastprice[0]
+				self._hour_pre_ema_val = hour_pre_ema_array[0]
 		print self._pre_ema_val
 		print len(self._lastprice_array)
 		print self._rsi_array
@@ -174,7 +183,9 @@ class BandAndTrigger(object):
 
 		config_file = "../config/"+str(self._config_file)
 		bf.write_config_info(self._pre_ema_val,self._lastprice_array
-			,self._rsi_array,self._rsi_period,self._now_md_price[LASTPRICE],config_file)
+			,self._rsi_array,self._rsi_period,self._now_md_price[LASTPRICE],
+			self._hour_pre_ema_val,self._hour_lastprice_array,self._hour_ema_period,
+			config_file)
 
 
 	# get the md data ,every line;
@@ -186,6 +197,7 @@ class BandAndTrigger(object):
 		md_array[TURNONER] = float(md_array[TURNONER])
 		md_array[BIDPRICE1] = float(md_array[BIDPRICE1])
 		md_array[ASKPRICE1] = float(md_array[ASKPRICE1])
+
 
 
 		self._pre_md_price = self._now_md_price
@@ -242,6 +254,18 @@ class BandAndTrigger(object):
 		else:
 			self._now_middle_value = bf.get_ma_data(self._lastprice_array,self._param_period)
 		
+		if self._hour_pre_ema_val ==0:
+			self._hour_pre_ema_val = lastprice
+		hour = int(self._now_md_price[TIME].split(':')[0])
+		if hour == self._current_hour or hour ==13:
+			# print "the hour is equal "
+			self._hour_middle_val = bf.get_ema_data(lastprice,self._hour_pre_ema_val,self._hour_ema_period)
+		else:
+			# print "find the new lastprice "+ str(hour)
+			self._current_hour =hour
+			self._hour_middle_val = bf.get_ema_data(lastprice,self._hour_pre_ema_val,self._hour_ema_period)
+			self._hour_pre_ema_val = self._hour_middle_val
+			self._hour_lastprice_array.append(lastprice)
 
 		
 		self._now_sd_val =bf.get_sd_data_by_map(self._lastprice_map,self._param_period)	
@@ -260,7 +284,8 @@ class BandAndTrigger(object):
 		tmp_to_csv = [self._now_md_price[TIME],self._now_md_price[LASTPRICE],
 					round(self._now_middle_value,2),round(self._now_sd_val,2),
 					round(self._ris_data,2),
-					round(diff_volume,2),round(diff_interest,2),round(spread,2)]
+					round(diff_volume,2),round(diff_interest,2),round(spread,2),
+					round(self._hour_middle_val,2)]
 		# print tmp_to_csv
 		self._write_to_csv_data.append(tmp_to_csv)
 
@@ -287,70 +312,6 @@ def clean_night_data(data):
 		# 	continue
 	return ret
 
-def getSortedData(data):
-	ret = []
-	night = []
-	zero = []
-	day = []
-	nightBegin = 21*3600
-	nightEnd = 23*3600+59*60+60
-	zeroBegin = 0
-	zeroEnd = 9*3600 - 100
-	dayBegin = 9*3600
-	dayEnd = 15*3600
-
-	for line in data:
-		# print line
-		timeLine = line[20].split(":")
-		# print timeLine
-		nowTime = int(timeLine[0])*3600+int(timeLine[1])*60+int(timeLine[2])
-
-		if nowTime >= zeroBegin and nowTime <zeroEnd:
-			zero.append(line)
-		elif nowTime >= dayBegin and nowTime <= dayEnd:
-			day.append(line)
-		elif nowTime >=nightBegin and nowTime <=nightEnd:
-			night.append(line)
-		# if int(line[22]) ==0 or int(line[4]) ==3629:
-		# 	continue
-	night = sorted(night, key = lambda x: (x[20], int(x[21])))
-	zero = sorted(zero, key = lambda x: (x[20], int(x[21])))
-	day = sorted(day, key = lambda x: (x[20], int(x[21])))
-
-	for line in night:
-		ret.append(line)
-	for line in zero:
-		ret.append(line)
-	for line in day:
-		ret.append(line)
-
-	return ret
-
-def getSqlData(myday,instrumentid): 
-
-	conn = cx_Oracle.connect('hq','hq','114.251.16.210:9921/quota')    
-	cursor = conn.cursor () 
-	for index in xrange(0,1):
-		date=myday+index
-		print date
-
-		mysql="select *from hyqh.quotatick where TRADINGDAY = '%s' AND INSTRUMENTID = '%s' " % (date,instrumentid)
-
-		print mysql
-		cursor.execute (mysql)  
-
-		icresult = cursor.fetchall()
-		# get the data and sort it.
-		# sortedlist = sorted(icresult, key = lambda x: (x[20], int(x[21])))
-		cleandata = getSortedData(icresult)
-		filename='../data/'+"%s_"%instrumentid
-		filename=filename+str(date)+'.csv'
-		print "we get the instrument id %s" % instrumentid
-
-		bf.write_data_to_csv(filename,cleandata)
-
-	cursor.close ()  
-	conn.close () 
 
 
 def main(filename):
@@ -390,19 +351,21 @@ if __name__=='__main__':
 	#     		tmp_path = tmp_path.split('/')[2]
 	#     		print tmp_path
 	#     		main(tmp_path)
-	# data1 =[20170918,20170919,20170920,20170921,20170922]
-	# data2 =[20170925,20170926,20170927,20170928,20170929]
-	# data3 =[20171009,20171010,20171011,20171012,20171013]
-	# data4 =[20171016,20171017,20171018,20171019]
-	# # data =[20170927]
-	# data = data1 + data2 + data3 +data4
-	data =[20171023]
-	instrumentid_array = ["ru1801","rb1801","zn1712"]
-	# instrumentid_array = ["al1712","ni1801","cu1712"]
+
+
+	data1 =[20170918,20170919,20170920,20170921,20170922]
+	data2 =[20170925,20170926,20170927,20170928,20170929]
+	data3 =[20171009,20171010,20171011,20171012,20171013]
+	data4 =[20171016,20171017,20171018,20171019,20171020]	
+	data5 =[20171023,20171024]
+	data = data1+data2+data3+data4+data5
+	# data =[20170918]
+	# instrumentid_array = ["ru1801","rb1801","zn1710","pb1710","cu1710","hc1801","i1801","ni1801","al1710","au1712","ag1712","bu1712"]
+	instrumentid_array = ["rb1801"]
 	for item in data:
 		for instrumentid in instrumentid_array:
 			# first get the sql data
-			getSqlData(item,instrumentid)
+			# getSqlData(item,instrumentid)
 
 			path = instrumentid+ "_"+str(item)
 			print path

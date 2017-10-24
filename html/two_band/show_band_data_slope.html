@@ -1,0 +1,826 @@
+<html>
+<head>
+	<meta charset="UTF-8">
+	<script src="./echarts.min.js"></script>
+	<script src="./jquery-3.2.1.min.js"></script>
+</head>
+
+<body style="width: 100%;height:100%;">
+<div>
+
+<div id="setting">
+	<div style="float: left;">
+        <input type="file" id="file" onchange="handleFiles(this.files)"/>
+		<!-- <div style="float: left;">合约代码</div>
+		<input type="text" id="contractcode" value="pb1707" style="float: left;"> -->
+	</div>
+	<div style="float: left;">
+		<div style="float: left;">SD</div>
+		<input style="float: left;" type="text" id="SD" value="0.5,1,2,3">
+	</div>
+	<div style="float: left;">
+		<button type="button" onclick="startdraw()">draw</button>
+	</div>
+</div>
+<br>
+<br>
+<br>
+<br>
+
+<div id="banddrawing" style="width: 3000px;height:500px;"></div>
+<div id="slopedrawing" style="width: 3000px;height:300px;"></div>
+<div id="sddrawing" style="width: 3000px;height:300px;"></div>
+<div id="diff_volume_drawing" style="width: 3000px;height:300px;"></div>
+<div id="ema_diff_volume_drawing" style="width: 3000px;height:300px;"></div>
+<div id="diff_openinterest_drawing" style="width: 3000px;height:300px;"></div>
+<div id="ema_diff_openinterest_drawing" style="width: 3000px;height:300px;"></div>
+<div id="spread_drawing" style="width: 3000px;height:300px;"></div>
+<div id="ema_spread_drawing" style="width: 3000px;height:300px;"></div>
+
+
+
+
+<script type="text/javascript">
+
+
+        // document.getElementById("slopedrawing").style.display="none";
+        document.getElementById("sddrawing").style.display="none";
+        document.getElementById("diff_volume_drawing").style.display="none";
+        document.getElementById("ema_diff_volume_drawing").style.display="none";
+        document.getElementById("diff_openinterest_drawing").style.display="none";
+        document.getElementById("ema_diff_openinterest_drawing").style.display="none";
+        document.getElementById("spread_drawing").style.display="none";
+        document.getElementById("ema_spread_drawing").style.display="none";
+
+        filedata =''
+        var band_myChart = echarts.init(document.getElementById('banddrawing'));
+        var rsi_myChart = echarts.init(document.getElementById('slopedrawing'));
+        var diff_volume_myChart = echarts.init(document.getElementById('diff_volume_drawing'));
+        var sd_myChart = echarts.init(document.getElementById('sddrawing'));
+        var sd_lastprice_myChart = echarts.init(document.getElementById('ema_spread_drawing'));
+        var openinterest_myChart = echarts.init(document.getElementById('diff_openinterest_drawing'));
+        var spread_myChart = echarts.init(document.getElementById('spread_drawing'));
+        var ema_volume_myChart = echarts.init(document.getElementById('ema_diff_volume_drawing'));
+        var ema_openinterest_myChart = echarts.init(document.getElementById('ema_diff_openinterest_drawing'));
+
+        // COMPXAVENUM = 10
+        // 得到具体的标题数据，和对应的标题数据的具体的数。
+        MIN=100000
+        MAX=0
+
+        band_legend_nums = []
+        band_legend_data= []
+        // 用来保存线的具体的数据。是一个数组，就是echart的band_series_data
+        // 他们的顺序是lastprice，middle，+0.5，-0.5，+1，-1等一次类推
+        band_series_data =[]
+        // 用来保存时间的数组，以后就是图片的横坐标轴。
+        times_array= []
+        rsi_times_array =[]
+        sd_array=[]
+        rsi_array = []
+
+        diff_volume_array = []
+        ema_diff_volume_array =[]
+        diff_volume_times_array =[]
+
+        diff_openinterest_array = []
+        ema_openinterest_array =[]
+
+        spread_array =[]
+        ema_spread_array =[]
+
+
+
+
+
+
+        band_option = {
+            toolbox: {
+                show : true,
+                feature : {
+                    mark : {show: true},
+                    dataView : {show: true, readOnly: false},
+                    magicType : {show: true, type: ['line', 'bar']},
+                    restore : {show: true},
+                    saveAsImage : {show: true}
+                }
+            },
+            tooltip : {
+                trigger: 'axis'
+            },
+            title: {
+                text: 'bollinger band'
+            },
+            legend: {
+                // data:['邮件营销','联盟广告','视频广告','直接访问','搜索引擎']
+            },
+            xAxis: {
+                type: 'category',
+                // data: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
+            },
+            yAxis: {
+                min:MIN,
+                max:MAX,
+                type: 'value'
+            },         
+        };
+
+        rsi_option = {
+            toolbox: {
+                show : true,
+                feature : {
+                    mark : {show: true},
+                    dataView : {show: true, readOnly: false},
+                    magicType : {show: true, type: ['line', 'bar']},
+                    restore : {show: true},
+                    saveAsImage : {show: true}
+                }
+            },
+            tooltip : {
+                trigger: 'axis'
+            },
+            title: {
+                text: 'rsi'
+            },
+            legend: {
+                 data:['rsi',"rsi3"]
+            },
+            xAxis: {
+                type: 'category',
+                // data: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
+            },
+            yAxis: {
+                // min:40,
+                // max:60,
+                type: 'value'
+            },  
+            series : [
+                {
+                    name:'rsi',
+                    type:'line',
+                    // data:[120, 132, 101, 134, 90, 230, 210]
+                },
+                {
+                    name:'rsi3',
+                    type:'line',
+                    // data:[120, 132, 101, 134, 90, 230, 210]
+                }
+            ]       
+        };
+
+        sd_option = {
+            toolbox: {
+                show : true,
+                feature : {
+                    mark : {show: true},
+                    dataView : {show: true, readOnly: false},
+                    magicType : {show: true, type: ['line', 'bar']},
+                    restore : {show: true},
+                    saveAsImage : {show: true}
+                }
+            },
+            tooltip : {
+                trigger: 'axis'
+            },
+            title: {
+                text: 'sd'
+            },
+            legend: {
+                 data:['sd']
+            },
+            xAxis: {
+                type: 'category',
+                // data: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
+            },
+            yAxis: {
+                // min:40,
+                // max:60,
+                type: 'value'
+            },  
+            series : [
+                {
+                    name:'sd',
+                    type:'line',
+                    stack: '百分比',
+                    // data:[120, 132, 101, 134, 90, 230, 210]
+                }
+            ]       
+        };
+
+        diff_volume_option = {
+            toolbox: {
+                show : true,
+                feature : {
+                    mark : {show: true},
+                    dataView : {show: true, readOnly: false},
+                    magicType : {show: true, type: ['line', 'bar']},
+                    restore : {show: true},
+                    saveAsImage : {show: true}
+                }
+            },
+            tooltip : {
+                trigger: 'axis'
+            },
+            title: {
+                text: 'diff_volume'
+            },
+            legend: {
+                 data:['diff_volume']
+            },
+            xAxis: {
+                type: 'category',
+                // data: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
+            },
+            yAxis: {
+                // min:40,
+                // max:60,
+                type: 'value'
+            },  
+            series : [
+                {
+                    name:'diff_volume',
+                    type:'line',
+                    // data:[120, 132, 101, 134, 90, 230, 210]
+                }
+            ]       
+        };
+
+        openinterest_option = {
+            toolbox: {
+                show : true,
+                feature : {
+                    mark : {show: true},
+                    dataView : {show: true, readOnly: false},
+                    magicType : {show: true, type: ['line', 'bar']},
+                    restore : {show: true},
+                    saveAsImage : {show: true}
+                }
+            },
+            tooltip : {
+                trigger: 'axis'
+            },
+            title: {
+                text: 'openinterest'
+            },
+            legend: {
+                 data:['openinterest']
+            },
+            xAxis: {
+                type: 'category',
+                // data: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
+            },
+            yAxis: {
+                // min:40,
+                // max:60,
+                type: 'value'
+            },  
+            series : [
+                {
+                    name:'openinterest',
+                    type:'line',
+                    // data:[120, 132, 101, 134, 90, 230, 210]
+                }
+            ]       
+        };
+
+        spread_option = {
+            toolbox: {
+                show : true,
+                feature : {
+                    mark : {show: true},
+                    dataView : {show: true, readOnly: false},
+                    magicType : {show: true, type: ['line', 'bar']},
+                    restore : {show: true},
+                    saveAsImage : {show: true}
+                }
+            },
+            tooltip : {
+                trigger: 'axis'
+            },
+            title: {
+                text: 'spread'
+            },
+            legend: {
+                 data:['spread']
+            },
+            xAxis: {
+                type: 'category',
+                // data: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
+            },
+            yAxis: {
+                // min:40,
+                // max:60,
+                type: 'value'
+            },  
+            series : [
+                {
+                    name:'spread',
+                    type:'line',
+                    // data:[120, 132, 101, 134, 90, 230, 210]
+                }
+            ]       
+        };
+
+        ema_openinterest_option = {
+            toolbox: {
+                show : true,
+                feature : {
+                    mark : {show: true},
+                    dataView : {show: true, readOnly: false},
+                    magicType : {show: true, type: ['line', 'bar']},
+                    restore : {show: true},
+                    saveAsImage : {show: true}
+                }
+            },
+            tooltip : {
+                trigger: 'axis'
+            },
+            title: {
+                text: 'ema_openinterest'
+            },
+            legend: {
+                 data:['ema_openinterest']
+            },
+            xAxis: {
+                type: 'category',
+                // data: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
+            },
+            yAxis: {
+                // min:40,
+                // max:60,
+                type: 'value'
+            },  
+            series : [
+                {
+                    name:'ema_openinterest',
+                    type:'line',
+                    // data:[120, 132, 101, 134, 90, 230, 210]
+                }
+            ]       
+        };
+
+        ema_diff_volume_option = {
+            toolbox: {
+                show : true,
+                feature : {
+                    mark : {show: true},
+                    dataView : {show: true, readOnly: false},
+                    magicType : {show: true, type: ['line', 'bar']},
+                    restore : {show: true},
+                    saveAsImage : {show: true}
+                }
+            },
+            tooltip : {
+                trigger: 'axis'
+            },
+            title: {
+                text: 'ema_diff_volume'
+            },
+            legend: {
+                 data:['ema_diff_volume']
+            },
+            xAxis: {
+                type: 'category',
+                // data: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
+            },
+            yAxis: {
+                // min:40,
+                // max:60,
+                type: 'value'
+            },  
+            series : [
+                {
+                    name:'ema_diff_volume',
+                    type:'line',
+                    // data:[120, 132, 101, 134, 90, 230, 210]
+                }
+            ]       
+        };
+
+        ema_spread_option = {
+            toolbox: {
+                show : true,
+                feature : {
+                    mark : {show: true},
+                    dataView : {show: true, readOnly: false},
+                    magicType : {show: true, type: ['line', 'bar']},
+                    restore : {show: true},
+                    saveAsImage : {show: true}
+                }
+            },
+            tooltip : {
+                trigger: 'axis'
+            },
+            title: {
+                text: 'ema_spread'
+            },
+            legend: {
+                 data:['ema_spread']
+            },
+            xAxis: {
+                type: 'category',
+                // data: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
+            },
+            yAxis: {
+                // min:40,
+                // max:60,
+                type: 'value'
+            },  
+            series : [
+                {
+                    name:'ema_spread',
+                    type:'line',
+                    // data:[120, 132, 101, 134, 90, 230, 210]
+                }
+            ]       
+        };
+
+
+        // 根据input的file标签读取出相对应的csv的数据。
+        // 首先有一个问题就是因为是针对一个合约的数据，所以不存在对其的问题，那么数据还需不需要补充。
+        // 如果数据库中的数据，就是接受到的行情的本身的数据，那么就不需要补充，直接去除非交易时间的，直接用就可以了。
+        // 补充的话，还会影响最后的效果。
+        function  handleFiles(files)
+        {
+          if(files.length)
+          {
+             var file = files[0];
+             var reader = new FileReader();
+             reader.onload = function()
+             {
+                 // document.getElementById("filecontent").innerHTML = this.result;
+                 // console.log(this.result)
+                 var data = this.result
+                 filedata = data.split("\n")
+             };
+             reader.readAsText(file);
+          }
+        }
+
+        // 得到标题的参数和具体的每一个series
+        function getLegendAndband_series_data(){
+            var SD = $('#SD').val()  //画线的md参数
+            var sds =SD.split(',')
+
+            band_legend_data.push("lastprice")
+            band_legend_nums.push(0)
+            tmpobjlastprice = {}
+            tmpobjlastprice.name = "lastprice"
+            tmpobjlastprice.type = "line"
+            tmpobjlastprice.data = []
+            band_series_data.push(tmpobjlastprice)
+
+            band_legend_data.push('middle')
+            band_legend_nums.push(0)
+            tmpobj = {}
+            tmpobj.name = "middle"
+            tmpobj.type = "line"
+            tmpobj.data = []
+            band_series_data.push(tmpobj)
+
+
+            for (var i = 0; i < sds.length; i++) {
+                band_legend_data.push('+'+sds[i]) 
+                band_legend_nums.push(Number(sds[i]))
+                tmpobj = {}
+                tmpobj.name= '+'+sds[i]
+                tmpobj.type = "line"
+                tmpobj.data = []
+                band_series_data.push(tmpobj)
+
+                band_legend_data.push('-'+sds[i]) 
+                band_legend_nums.push(0-Number(sds[i]))
+                tmpobjneg = {}
+                tmpobjneg.name= '-'+sds[i]
+                tmpobjneg.type = "line"
+                tmpobjneg.data = []
+                band_series_data.push(tmpobjneg)
+            }
+        }
+
+
+        // 根据传入的参数进行画图，
+        function startdraw(){
+            // 首先确定一些基本的参数。确定要选择的几条线，然后和周期的评价指标，ema还是ma。
+            getLegendAndband_series_data()
+
+            for (var i = 0; i < filedata.length; i++) {
+                var linedata = filedata[i].split(',')
+                // 首先判断是不是已经达到我们所需要的周期了，如果还没有达到，那么就继续等着，不然就开始计算数据。
+                var time = linedata[0]
+                var lastprice = Number(linedata[1])
+                var middle = Number(linedata[2])
+                var sd = Number(linedata[3])
+                // var rsi = Number(linedata[4])
+                // var sd = Number(linedata[11])
+                var rsi = Number(linedata[5])
+                // var diff_volume =Number(linedata[11])
+
+                // // var diff_volume = Number(linedata[5])
+                // var diff_openinterest = Number(linedata[6])
+                // var spread = Number(linedata[7])
+                // var ema_diff_volume = Number(linedata[8])
+                // var ema_openinterest = Number(linedata[9])
+                // var ema_spread = Number(linedata[10])
+
+                var diff_volume =0
+
+                // var diff_volume = Number(linedata[5])
+                var diff_openinterest = 0
+                var spread = 0
+                var ema_diff_volume = 0
+                var ema_openinterest = 0
+                var ema_spread = 0
+                
+
+                // if (diff_volume >1000) {
+                //     diff_volume = 1000
+                // }
+                // diff_volume_array.push(diff_volume)
+
+                // if (ema_diff_volume >15000) {
+                //     ema_diff_volume = 15000
+                // }
+                // ema_diff_volume_array.push(ema_diff_volume)
+
+
+                // if (ema_openinterest >500) {
+                //     ema_openinterest = 500
+                // }
+                // if (ema_openinterest < -500) {
+                //     ema_openinterest = -500
+                // }
+                // diff_openinterest_array.push(diff_openinterest)
+
+                // if (ema_openinterest >1000) {
+                //     ema_openinterest = 1000
+                // }
+                // if (ema_openinterest < -1000) {
+                //     ema_openinterest = -1000
+                // }
+
+                // ema_openinterest_array.push(ema_openinterest)
+                // spread_array.push(spread)
+
+                // if (ema_spread >100) {
+                //     ema_spread = 100
+                // }
+                // if (ema_spread < 0) {
+                //     ema_spread = 0
+                // }
+
+                // ema_spread_array.push(ema_spread)
+
+                var openband = 0.5
+                if (sd>20) {
+                    //开仓边界是0.5，
+                    openband = 0.5
+                }
+                else{
+                    //开仓边界是1
+                    openband = 1
+                }
+                // if (lastprice < middle + openband*sd && lastprice > middle - openband*sd) {
+                    if (diff_volume >1000) {
+                        diff_volume = 1000
+                    }
+                    diff_volume_array.push(diff_volume)
+
+                    // if (ema_diff_volume >15000) {
+                    //     ema_diff_volume = 15000
+                    // }
+                    ema_diff_volume_array.push(ema_diff_volume)
+
+
+                    if (ema_openinterest >500) {
+                        ema_openinterest = 500
+                    }
+                    if (ema_openinterest < -500) {
+                        ema_openinterest = -500
+                    }
+                    diff_openinterest_array.push(diff_openinterest)
+
+                    if (ema_openinterest >1000) {
+                        ema_openinterest = 1000
+                    }
+                    if (ema_openinterest < -1000) {
+                        ema_openinterest = -1000
+                    }
+
+                    ema_openinterest_array.push(ema_openinterest)
+                    spread_array.push(spread)
+
+                    if (ema_spread >10000) {
+                        ema_spread = 10000
+                    }
+                    if (ema_spread < -10000) {
+                        ema_spread = -10000
+                    }
+
+                    ema_spread_array.push(ema_spread)
+                // }
+                // else{
+
+                //     diff_volume_array.push(0)
+                //     ema_diff_volume_array.push(0)
+                //     diff_openinterest_array.push(0)
+                //     ema_openinterest_array.push(0)
+                //     spread_array.push(50)
+                //     ema_spread_array.push(50)
+                // }
+                // // 这个是long的情况
+                // if (lastprice > middle && lastprice < middle + openband*sd) {
+                //     if (ema_diff_volume>300 && ema_openinterest>0 && ema_spread >= 100) {
+                //         console.log(time)
+                //         if (ema_diff_volume >900) {
+                //             ema_diff_volume = 900
+                //         }
+                //         if (spread > 150) {
+                //             spread =150
+                //         }
+                //         else if (spread < -150) {
+                //             spread = -150
+                //         }
+                //         if (ema_openinterest > 500) {
+                //             ema_openinterest =500
+                //         }
+                //         else if (ema_openinterest < -500) {
+                //             ema_openinterest = -500
+                //         }
+                //        diff_volume_array.push(diff_volume)
+                //        ema_diff_volume_array.push(ema_diff_volume)
+                //        diff_openinterest_array.push(diff_openinterest)
+                //        ema_openinterest_array.push(ema_openinterest)
+                //        spread_array.push(spread) 
+                //        ema_spread_array.push(ema_spread)
+                //     }
+                //     else{
+                //         diff_volume_array.push(0)
+                //         diff_openinterest_array.push(0)
+                //         ema_openinterest_array.push(0)
+                //         ema_diff_volume_array.push(0)
+                //         spread_array.push(0)
+                //         ema_spread_array.push(0)
+                //     }
+                    
+                // }
+                // // 这个是short的情况
+                // else if (lastprice < middle && lastprice > middle - openband*sd) {
+                //     if (ema_diff_volume>300 && ema_openinterest>0  && ema_spread <= 0) {
+                //         console.log(time)
+                //         if (ema_diff_volume >900) {
+                //             ema_diff_volume = 900
+                //         }
+                //         if (spread > 150) {
+                //             spread =150
+                //         }
+                //         else if (spread < -150) {
+                //             spread = -150
+                //         }
+                //         if (ema_openinterest > 500) {
+                //             ema_openinterest =500
+                //         }
+                //         else if (ema_openinterest < -500) {
+                //             ema_openinterest = -500
+                //         }
+                //        diff_volume_array.push(diff_volume)
+                //        ema_diff_volume_array.push(ema_diff_volume)
+                //        diff_openinterest_array.push(diff_openinterest)
+                //        ema_openinterest_array.push(ema_openinterest)
+                //        spread_array.push(spread) 
+                //        ema_spread_array.push(ema_spread)
+                //     }
+                //     else{
+                //         diff_volume_array.push(0)
+                //         diff_openinterest_array.push(0)
+                //         ema_openinterest_array.push(0)
+                //         ema_diff_volume_array.push(0)
+                //         spread_array.push(0)
+                //         ema_spread_array.push(0)
+                //     }
+                    
+                // }
+                // else{
+                //     diff_volume_array.push(0)
+                //     diff_openinterest_array.push(0)
+                //     ema_openinterest_array.push(0)
+                //     ema_diff_volume_array.push(0)
+                //     spread_array.push(0)
+                //     ema_spread_array.push(0)
+                // }
+
+                if (lastprice==NaN) {
+                    break
+                }
+                    
+                times_array.push(time)
+                sd_array.push(sd)
+
+
+                // ema_openinterest_array.push(ema_openinterest)
+                // ema_diff_volume_array.push(ema_diff_volume)
+
+                // if (rsi >0) {
+                    if (rsi > 20000) {
+                        rsi = 20000
+                    }
+                    if (rsi < -20000) {
+                        rsi = -20000
+                    }
+                    rsi_times_array.push(time)
+                    rsi_array.push(rsi)
+
+                // }
+
+                if (MIN > lastprice) {
+                    MIN = lastprice
+                }
+                if (MAX < lastprice) {
+                    MAX = lastprice
+                }
+
+                band_series_data[0].data.push(lastprice)
+
+                // 在各个线里面插入数据。用来显示所用。
+                for (var j = 1; j < band_series_data.length; j++) {
+                    var num = middle + band_legend_nums[j]*(sd)
+                    // console.log(num)
+                    // console.log(typeof(num))
+                    if (MIN > num) {
+                        MIN = num
+                    }
+                    if (MAX < num) {
+                        MAX = num
+                    }
+                    band_series_data[j].data.push(num)
+                }
+            }
+
+
+            band_option.legend.data = band_legend_data
+            band_option.series = band_series_data
+            // console.log(band_legend_data)
+
+            band_option.yAxis.min = MIN
+            band_option.yAxis.max = MAX
+            band_option.xAxis.data = times_array
+            // console.log(option)
+
+            rsi_option.xAxis.data = rsi_times_array
+            rsi_option.series[0].data = rsi_array
+            // rsi_option.series[1].data = rsi_array_3
+
+            sd_option.xAxis.data = times_array
+            sd_option.series[0].data = sd_array
+
+
+            diff_volume_option.xAxis.data = times_array
+            // diff_volume_option.xAxis.data = diff_volume_times_array
+            diff_volume_option.series[0].data = diff_volume_array
+
+            openinterest_option.xAxis.data = times_array
+            openinterest_option.series[0].data = diff_openinterest_array
+
+            spread_option.xAxis.data = times_array
+            spread_option.series[0].data = spread_array
+
+            ema_diff_volume_option.xAxis.data = times_array
+            ema_diff_volume_option.series[0].data = ema_diff_volume_array
+
+            ema_openinterest_option.xAxis.data = times_array
+            ema_openinterest_option.series[0].data = ema_openinterest_array
+
+            ema_spread_option.xAxis.data = times_array
+            ema_spread_option.series[0].data = ema_spread_array
+
+            band_myChart.setOption(band_option);
+            diff_volume_myChart.setOption(diff_volume_option)
+            rsi_myChart.setOption(rsi_option);
+            sd_myChart.setOption(sd_option)
+            sd_lastprice_myChart.setOption(ema_spread_option)
+            openinterest_myChart.setOption(openinterest_option)
+            spread_myChart.setOption(spread_option)
+            ema_volume_myChart.setOption(ema_diff_volume_option)
+            ema_openinterest_myChart.setOption(ema_openinterest_option)
+            // console.log(rsi_option)
+
+        }
+
+
+        band_myChart.setOption(band_option);
+        diff_volume_myChart.setOption(diff_volume_option)
+        sd_myChart.setOption(sd_option)
+        sd_lastprice_myChart.setOption(ema_spread_option)
+        rsi_myChart.setOption(rsi_option);
+
+        // ema_diff_volume_drawing.setOption(ema_diff_volume_option)
+        // ema_diff_openinterest_drawing.setOption(ema_openinterest_option)
+
+         // 使用刚指定的配置项和数据显示图表。
+         
+</script>
+
+</div>
+
+</body>
+</html>
