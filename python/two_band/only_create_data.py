@@ -256,9 +256,8 @@ class BandAndTrigger(object):
 		
 		if self._hour_pre_ema_val ==0:
 			self._hour_pre_ema_val = lastprice
-		hour = int(self._now_md_price[TIME].split(':')[0])
-		if hour == self._current_hour or hour ==13:
-			# print "the hour is equal "
+		minute = int(self._now_md_price[TIME].split(":")[1])
+		if minute%60 != 0:
 			self._hour_middle_val = bf.get_ema_data(lastprice,self._hour_pre_ema_val,self._hour_ema_period)
 		else:
 			# print "find the new lastprice "+ str(hour)
@@ -351,22 +350,24 @@ if __name__=='__main__':
 	#     		tmp_path = tmp_path.split('/')[2]
 	#     		print tmp_path
 	#     		main(tmp_path)
+	minute  = int("01")
+	print minute
+	print minute%60
 
+	# data1 =[20170918,20170919,20170920,20170921,20170922]
+	# data2 =[20170925,20170926,20170927,20170928,20170929]
+	# data3 =[20171009,20171010,20171011,20171012,20171013]
+	# data4 =[20171016,20171017,20171018,20171019,20171020]	
+	# data5 =[20171023,20171024]
+	# data = data1+data2+data3+data4+data5
+	# # data =[20170918]
+	# # instrumentid_array = ["ru1801","rb1801","zn1710","pb1710","cu1710","hc1801","i1801","ni1801","al1710","au1712","ag1712","bu1712"]
+	# instrumentid_array = ["rb1801"]
+	# for item in data:
+	# 	for instrumentid in instrumentid_array:
+	# 		# first get the sql data
+	# 		# getSqlData(item,instrumentid)
 
-	data1 =[20170918,20170919,20170920,20170921,20170922]
-	data2 =[20170925,20170926,20170927,20170928,20170929]
-	data3 =[20171009,20171010,20171011,20171012,20171013]
-	data4 =[20171016,20171017,20171018,20171019,20171020]	
-	data5 =[20171023,20171024]
-	data = data1+data2+data3+data4+data5
-	# data =[20170918]
-	# instrumentid_array = ["ru1801","rb1801","zn1710","pb1710","cu1710","hc1801","i1801","ni1801","al1710","au1712","ag1712","bu1712"]
-	instrumentid_array = ["rb1801"]
-	for item in data:
-		for instrumentid in instrumentid_array:
-			# first get the sql data
-			# getSqlData(item,instrumentid)
-
-			path = instrumentid+ "_"+str(item)
-			print path
-			main(path)	
+	# 		path = instrumentid+ "_"+str(item)
+	# 		print path
+	# 		main(path)	
