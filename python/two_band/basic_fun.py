@@ -12,40 +12,82 @@ TIME = 20
 LONG =1
 SHORT =0
 
-def is_band_open_time(direction,lastprice,middle_val,sd_val,open_edge1,open_edge2):
+def is_band_open_time(direction,lastprice,middle_val,open_edge1,open_edge2):
 	# this is used to judge is time to band open
 	if direction ==LONG:
-		upval = middle_val + open_edge2*sd_val
-		if lastprice > middle_val + open_edge1*sd_val and lastprice < upval:
+		downval = middle_val + open_edge1
+		upval = middle_val + open_edge2
+		if lastprice > middle_val and lastprice < upval:
 			return True
 	elif direction ==SHORT:
-		downval = middle_val - open_edge2*sd_val
-		if lastprice < middle_val - open_edge1*sd_val and lastprice > downval:
+		upval = middle_val - open_edge1
+		downval = middle_val - open_edge2
+		if lastprice < upval and lastprice > downval:
 			return True
 	return False
 
-def is_band_close_time(direction,lastprice,middle_val,sd_val,open_edge,close_edge,cur_rsi_data,limit_rsi_data):
+def is_band_close_time(direction,lastprice,middle_val,sd_val,close_edge,profit_close_edge,cur_rsi_data,limit_rsi_data):
 	# this is used to judge is time to band is close time
 	if direction ==LONG:
-		profitval = middle_val + close_edge*sd_val
-		lossvla = middle_val - open_edge*sd_val
-		# 尽量避免损失，如果达到止损条件，即使止损
-		if lastprice < lossvla:
+		if lastprice < middle_val - close_edge:
 			return True
+		profitval = middle_val + profit_close_edge*sd_val
 		# 判断止盈条件，大于几倍的band，并且同时rsi大于80，然后可能在加上最大回撤的值。
 		# 因为ris是按照这个bar来计算的，所以应该一段时间判断一次，如果没有达到这个段的时间，应该就直接不平仓
 		if lastprice > profitval and cur_rsi_data >= limit_rsi_data and cur_rsi_data >=0:
 			return True
 	elif direction ==SHORT:
-		profitval = middle_val - close_edge*sd_val
-		lossval = middle_val + open_edge*sd_val
-		if lastprice > lossval:
+		if lastprice > middle_val + close_edge:
 			return True
+		profitval = middle_val - profit_close_edge*sd_val
 		ris = 100 - cur_rsi_data
 		if lastprice < profitval and ris >= limit_rsi_data and cur_rsi_data >=0 :
 			return True
 	return False
 
+
+def is_diff_volume_open_time(tmp_sum_diff_volume,diff_volume_array,limit_multiple,limit_large_period):
+	left_index = len(diff_volume_array) - limit_large_period
+	if len(diff_volume_array) ==0:
+		return False
+	if left_index <0:
+		left_index = 0
+	for x in xrange(left_index+1,len(diff_volume_array)):
+		if (diff_volume_array[left_index] * limit_multiple) > diff_volume_array[x]:
+			return False
+	if (diff_volume_array[left_index] * limit_multiple) > tmp_sum_diff_volume :
+		return False
+	return True
+
+
+def is_lastprice_open_time(direction,lastprice,lastprice_array,limit_large_period):
+	left_index = len(lastprice_array) - limit_large_period
+	if len(lastprice_array) ==0 or left_index < 0:
+		return False
+	series = 0
+	if direction == LONG:
+		for x in xrange(left_index+1,len(lastprice_array)):
+			if lastprice_array[x] >= lastprice_array[left_index]:
+				series +=1
+			else:
+				return False
+		if lastprice >= lastprice_array[left_index]:
+			series +=1
+	elif direction ==SHORT:
+		for x in xrange(left_index+1,len(lastprice_array)):
+			if lastprice_array[x] <= lastprice_array[left_index]:
+				series +=1
+			else:
+				return False
+		if lastprice <= lastprice_array[left_index]:
+			series +=1
+	else:
+		return False
+	if series == limit_large_period:
+		return True
+	else:
+		return False
+		
 def is_trigger_up_time(now_md_price,pre_md_price,spread_edge,multiple):
 	# judge the tirgger size price is up
 	diff_volume = now_md_price[VOLUME] - pre_md_price[VOLUME]
@@ -78,33 +120,30 @@ def is_trigger_down_time(now_md_price,pre_md_price,spread_edge,multiple):
 		return True
 	return False
 
-def is_trigger_size_open_time(direction,now_md_price,pre_md_price,volume_open_edge,
-							openinterest_edge,spread_edge,multiple):
+def is_trigger_size_open_time(direction,diff_volume,limit_diff_volume,spread,limit_spread):
 	# this is used to judge the time of trigger size to open
-	# print now_md_price[VOLUME] - pre_md_price[VOLUME]
-	if now_md_price[VOLUME] - pre_md_price[VOLUME] < volume_open_edge:
+	if diff_volume < limit_diff_volume:
 		return False
-	tmp = now_md_price[OPENINTEREST] - pre_md_price[OPENINTEREST]
-	if tmp != 0 and tmp < openinterest_edge:
-		return False
-	# return True
 	if direction ==LONG:
-		return is_trigger_up_time(now_md_price,pre_md_price,spread_edge,multiple)
+		if spread > limit_spread:
+			return True
 	elif direction ==SHORT:
-		return is_trigger_down_time(now_md_price,pre_md_price,spread_edge,multiple)
+		spread = 100 - spread
+		if spread > limit_spread:
+			return True
 	return False
 
-def is_trigger_size_close_time(direction,now_md_price,pre_md_price,volume_open_edge,
-							openinterest_edge,spread_edge,multiple):
+def is_trigger_size_close_time(direction,diff_volume,limit_diff_volume,spread,limit_spread):
 	# this is used to judge the time of trigger size to close
-	if now_md_price[VOLUME] - pre_md_price[VOLUME] < volume_open_edge:
-		return False
-	if now_md_price[OPENINTEREST] - pre_md_price[OPENINTEREST] <= openinterest_edge:
+	if diff_volume < limit_diff_volume:
 		return False
 	if direction ==LONG:
-		return is_trigger_down_time(now_md_price,pre_md_price,spread_edge,multiple)
+		if spread > limit_spread:
+			return True
 	elif direction ==SHORT:
-		return is_trigger_up_time(now_md_price,pre_md_price,spread_edge,multiple)
+		spread = 100 - spread
+		if spread > limit_spread:
+			return True
 	return False
 
 def get_ema_data(lastprice,pre_ema_val,period):
@@ -112,6 +151,12 @@ def get_ema_data(lastprice,pre_ema_val,period):
 	if period ==1:
 		return lastprice
 	tmp = float(((period -1)*pre_ema_val + 2*lastprice))/(period + 1)
+	return tmp
+
+def get_sma_data(lastprice,pre_sma_val,period,weight):
+	if period ==1:
+		return lastprice
+	tmp = float(weight*lastprice+(period - weight)*pre_sma_val)/(period)
 	return tmp
 
 def get_ema_data_2(data_array,period):
@@ -124,34 +169,47 @@ def get_ema_data_2(data_array,period):
 		tmp +=1
 	return float(2*sum_tmp)/(tmp *(tmp-1))
 
-def get_ma_data(price_array,period):
+def get_ma_data(lastprice,price_array,period):
 	# this is used to get the ma data
 	if len(price_array) ==0 or period ==0:
-		return 0
+		return lastprice
 	tmpsum =0
 	l = len(price_array)
 	for i in xrange(l-1,-1,-1):
-		if i >= (l - period):
+		if i >= (l - period +1):
 			tmpsum +=price_array[i]
-	ret=float(tmpsum)/period
-	print time + "," + str(ret)
+	tmpsum +=lastprice
+	if period >= len(price_array):
+		ret = float(tmpsum)/len(price_array)
+	else:
+		ret=float(tmpsum)/period
+	# print time + "," + str(ret)
 	return ret
 
-def get_sd_data(time,price_array,period):
+def get_sd_data(lastprice,price_array,period):
 	# this is used to get the sd data
 	if len(price_array) ==0 or period ==0:
 		return 0
 	tmpsum = 0
 	l = len(price_array)
 	for i in xrange(l-1,-1,-1):
-		if i>=(l - period):
+		if i>=(l - period+1):
 			tmpsum +=price_array[i]
-	avg = float(tmpsum)/period
+	tmpsum += lastprice
+	if period >= len(price_array):
+		avg = float(tmpsum)/len(price_array)
+	else:
+		avg = float(tmpsum)/period
 	tmpsum = 0
 	for i in xrange(l-1,-1,-1):
-		if i>= (l - period):
+		if i>= (l - period+1):
 			tmpsum += (price_array[i]-avg)**2
-	tmpsum = float(tmpsum)/period
+	tmpsum += (lastprice -avg)**2
+	if len(price_array) <period:
+		tmpsum = float(tmpsum)/len(price_array)
+	else:
+		tmpsum = float(tmpsum)/(period-1)
+	# print "get the sd data"
 	return math.sqrt(tmpsum)
 
 def get_sd_data_by_map(price_map,period):
@@ -165,27 +223,29 @@ def get_sd_data_by_map(price_map,period):
 	tmpsum = float(tmpsum)/period
 	return math.sqrt(tmpsum) 
 
-def get_rsi_data(tmpdiff,rsi_array,period):
+def get_rsi_data(lastprice,lastprice_array,period):
 	# get the current rsi ,the array is the increase and low val
-	period = period -1
-	if len(rsi_array) ==0:
-		return 0
-	rise =0
-	total =0
-	if tmpdiff >0:
-		rise += tmpdiff
-		total +=tmpdiff
+	if len(lastprice_array) ==0:
+		return 50
+	rise = 0
+	total = 0
+	tmp = lastprice - lastprice_array[-1]
+	if tmp > 0:
+		rise += tmp
+		total += tmp
 	else:
-		total -=tmpdiff
-	l = len(rsi_array)
-	for i in xrange(l-1,-1,-1):
+		tmp = 0 - tmp
+		total += tmp
+	l = len(lastprice_array)
+	for i in xrange(l-2,-1,-1):
 		if i >= (l - period):
-			tmp = rsi_array[i]
+			tmp = lastprice_array[i+1] - lastprice_array[i]
 			if tmp > 0:
-				rise +=tmp
-				total +=tmp
+				rise += tmp
+				total += tmp
 			else:
-				total -=tmp
+				tmp = 0 - tmp
+				total += tmp
 	if rise ==0 or total ==0:
 		return 0
 	return 100*float(rise)/total
@@ -238,32 +298,20 @@ def get_weighted_mean(target_array,weight_array,period):
 		return 0
 	return float(total_sum)/weight_sum
 
-def write_config_info(pre_ema_val,lastprice_array,rsi_array,rsi_array_period,pre_rsi_lastprice,
-	hour_pre_ema_val,hour_last_price_array,hour_ema_period,config_path):
+def write_config_info(pre_ema_val,lastprice_array,ema_period,config_path):
 	config_file = open(config_path,"w")
 	line1 = "pre_ema_val:,"+str(pre_ema_val)
-	line2 = "lastpricearray:"
-	for i in lastprice_array:
-		line2 = line2 + ","+str(i)
-	line3 = "rsiarray:"
-	for i in xrange(len(rsi_array)-rsi_array_period,len(rsi_array)):
-		line3 = line3 + "," + str(rsi_array[i])
-	line4 = "pre_rsi_val:,"+str(pre_rsi_lastprice)
-	line5 = "hour_ema_val:,"+str(hour_pre_ema_val)
-	line6 = "hour_last_price_array:"
-	left = len(hour_last_price_array)-hour_ema_period
+	line2 = "lastprice_array:"
+	left = len(lastprice_array)-ema_period
 	if left<0:
 		left = 0
-	for i in xrange(left,len(hour_last_price_array)):
-		line6 = line6 + "," + str(hour_last_price_array[i])
-	
-	write_lines = [line1+'\n',line2+'\n',line3+'\n',line4+'\n',line5+'\n',line6+'\n']
+	for i in xrange(left,len(lastprice_array)):
+		line2 = line2 + "," + str(lastprice_array[i])
+	write_lines = [line1+'\n',line2]
 	config_file.writelines(write_lines)
 	config_file.close()
 
-def get_config_info(pre_ema_val_array,lastprice_array,lastprice_dic,
-	rsi_array,rsi_pre_lastprice_array,
-	hour_pre_ema_array,hour_lastprice_array,config_path):
+def get_config_info(pre_ema_val_array,lastprice_array,config_path):
 	try:
 		config_file = open(config_path)
 	except Exception as e:
@@ -276,33 +324,13 @@ def get_config_info(pre_ema_val_array,lastprice_array,lastprice_dic,
 			print "this is pre_ema_val"
 			line = line.split(',')
 			pre_ema_val_array.append(float(line[1].strip()))
-		elif "lastpricearray" in line:
-			print "this is lastprice array"
+		elif "lastprice_array" in line:
+			print "this is lastprice_array"
 			line = line.split(',')[1:]
 			for tmp in line:
 				tmp = float(tmp.strip())
-				if tmp not in lastprice_dic:
-					lastprice_dic[tmp] =1
-				else:
-					lastprice_dic[tmp] +=1
 				lastprice_array.append(tmp)
 			# print "the length of lastprice is: " + str(len(lastprice_array))
-		elif "rsiarray" in line:
-			print "this is rsiarray"
-			line = line.split(',')[1:]
-			for tmp in line:
-				rsi_array.append(float(tmp.strip()))
-		elif "pre_rsi_val" in line:
-			print "this is the pre rsi lastprice"
-			rsi_pre_lastprice_array.append(float(line.split(',')[1].strip()))
-		elif "hour_ema_val" in line:
-			print "this is hour_pre_ema_val"
-			line = line.split(',')[1:]
-			for tmp in line:
-				hour_pre_ema_array.append(float(tmp.strip()))
-		elif "hour_last_price_array" in line:
-			print "this is the pre rsi hour_last_price_array"
-			hour_lastprice_array.append(float(line.split(',')[1].strip()))
 		else:
 			print "this is not the config line"
 	config_file.close()

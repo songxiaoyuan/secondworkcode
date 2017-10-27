@@ -104,8 +104,8 @@ param_dic_sn = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
 nameDict = {
 	"rb1801":{"param":param_dict_rb},
 	"ru1801":{"param":param_dic_ru},
-	"zn1711":{"param":param_dic_zn},
-	"cu1710":{"param":param_dict_cu},
+	"zn1712":{"param":param_dic_zn},
+	"cu1712":{"param":param_dict_cu},
 	"i1801":{"param":param_dict_i},
 	"hc1801":{"param":param_dict_hc},
 	"ni1801":{"param":param_dic_ni},
@@ -114,7 +114,7 @@ nameDict = {
 	"ag1712":{"param":param_dic_ag},
 	"bu1712":{"param":param_dic_bu},
 	"sn1709":{"param":param_dic_sn},
-	"pb1711":{"param":param_dict_pb}
+	"pb1710":{"param":param_dict_pb}
 }
 
 class BandAndTrigger(object):
@@ -127,31 +127,16 @@ class BandAndTrigger(object):
 		self._pre_md_price = []
 		self._now_md_price = []
 		self._lastprice_array = []
-		self._lastprice_map = dict()
 		self._pre_ema_val = 0
 		self._now_middle_value =0
-		self._now_sd_val = 0
 
-
-		self._hour_pre_ema_val = 0
-		self._hour_lastprice_array = []
-		self._hour_ema_period = 20
+		self._ema_period = 20
+		self._current_hour = 9
 
 		self._multiple = param_dic["multiple"]
 
-		self._rsi_array = []
-		self._pre_rsi_lastprice =0 
-		self._now_bar_rsi_tick = 0
-		self._ris_data = 0
 		self._rsi_period = param_dic["rsi_period"]
-		self._rsi_bar_period = param_dic["rsi_bar_period"]
-
-		self._current_hour = 9
-
-		self._moving_theo = "EMA"
-		# band param
-		self._param_period = param_dic["band_period"]
-
+		self._rsi_val = 0
 
 		self._file = param_dic["file"]
 		self._config_file = param_dic["config_file"]
@@ -159,33 +144,24 @@ class BandAndTrigger(object):
 		if len(self._lastprice_array) ==0:
 			print "this is init function " + str(self._config_file)
 			tmp_pre_ema_array = []
-			tmp_rsi_lastprice = []
-			hour_pre_ema_array = []
-			config_file = "../config/"+str(self._config_file)
-			bf.get_config_info(tmp_pre_ema_array,self._lastprice_array,self._lastprice_map
-				,self._rsi_array,tmp_rsi_lastprice,hour_pre_ema_array,self._hour_lastprice_array,config_file)
+			config_file = "../config_two/"+str(self._config_file)
+			bf.get_config_info(tmp_pre_ema_array,self._lastprice_array,config_file)
 			if len(tmp_pre_ema_array)==0:
 				self._pre_ema_val = 0
-				self._pre_rsi_lastprice = 0 
 			else:
 				self._pre_ema_val = tmp_pre_ema_array[0]
-				self._pre_rsi_lastprice = tmp_rsi_lastprice[0]
-				self._hour_pre_ema_val = hour_pre_ema_array[0]
 		print self._pre_ema_val
 		print len(self._lastprice_array)
-		print self._rsi_array
-		print self._pre_rsi_lastprice
 		# print "the length of lastprice is: " +str(len(self._lastprice_array))
 
 
 	def __del__(self):
 		print "this is the over function " + str(self._config_file)
 
-		config_file = "../config/"+str(self._config_file)
-		bf.write_config_info(self._pre_ema_val,self._lastprice_array
-			,self._rsi_array,self._rsi_period,self._now_md_price[LASTPRICE],
-			self._hour_pre_ema_val,self._hour_lastprice_array,self._hour_ema_period,
+		config_file = "../config_two/"+str(self._config_file)
+		bf.write_config_info(self._pre_ema_val,self._lastprice_array,self._ema_period,
 			config_file)
+		print "has write the config file"
 
 
 	# get the md data ,every line;
@@ -210,65 +186,20 @@ class BandAndTrigger(object):
 			# "the is the first line data"
 			return
 
-		# self._rsi_array.append(lastprice - self._pre_md_price[LASTPRICE])
-		if self._now_bar_rsi_tick >= self._rsi_bar_period:
-			# 表示已经到了一个bar的周期。
-			tmpdiff = lastprice - self._pre_rsi_lastprice		
-			self._pre_rsi_lastprice = lastprice
-			self._now_bar_rsi_tick = 1
-			self._ris_data =bf.get_rsi_data(tmpdiff,self._rsi_array,self._rsi_period)
-			self._rsi_array.append(tmpdiff)
-		else:
-			self._now_bar_rsi_tick +=1
-			tmpdiff = lastprice - self._pre_rsi_lastprice
-			self._ris_data =bf.get_rsi_data(tmpdiff,self._rsi_array,self._rsi_period)
-				# self._ris_data = 0
-
-		self._lastprice_array.append(lastprice)
-		if len(self._lastprice_array) <= self._param_period:
-			# this is we dont start the period.
-			# print  "the lastprice length is small: " +str(len(self._lastprice_array))
-			ema_period = len(self._lastprice_array)
-			pre_ema_val = bf.get_ema_data(lastprice,self._pre_ema_val,ema_period)
-			self._pre_ema_val = pre_ema_val
-			# save the pre_ema_val and return
-			if lastprice not in self._lastprice_map:
-				self._lastprice_map[lastprice] =1
-			else:
-				self._lastprice_map[lastprice] +=1
-			return True
-
-		front_lastprice = self._lastprice_array[0]
-		self._lastprice_array.pop(0)
-		if front_lastprice != lastprice:
-			if lastprice not in self._lastprice_map :
-				self._lastprice_map[lastprice] = 1
-			else:
-				self._lastprice_map[lastprice] +=1
-
-			self._lastprice_map[front_lastprice] -=1
-		# start the judge
-		if self._moving_theo =="EMA":
-			self._now_middle_value = bf.get_ema_data(lastprice,self._pre_ema_val,self._param_period)
-			self._pre_ema_val = self._now_middle_value
-		else:
-			self._now_middle_value = bf.get_ma_data(self._lastprice_array,self._param_period)
+		if self._pre_ema_val ==0:
+			self._pre_ema_val = lastprice
+		self._now_middle_value = bf.get_ema_data(lastprice,self._pre_ema_val,self._ema_period)
 		
-		if self._hour_pre_ema_val ==0:
-			self._hour_pre_ema_val = lastprice
+		self._sd_val = bf.get_sd_data(lastprice,self._lastprice_array,self._ema_period)
+		self._rsi_val = bf.get_rsi_data(lastprice,self._lastprice_array,self._rsi_period)
+
+		# print len(self._lastprice_array)
 		hour = int(self._now_md_price[TIME].split(':')[0])
-		if hour == self._current_hour or hour ==13:
-			# print "the hour is equal "
-			self._hour_middle_val = bf.get_ema_data(lastprice,self._hour_pre_ema_val,self._hour_ema_period)
-		else:
-			# print "find the new lastprice "+ str(hour)
-			self._current_hour =hour
-			self._hour_middle_val = bf.get_ema_data(lastprice,self._hour_pre_ema_val,self._hour_ema_period)
-			self._hour_pre_ema_val = self._hour_middle_val
-			self._hour_lastprice_array.append(lastprice)
-
-		
-		self._now_sd_val =bf.get_sd_data_by_map(self._lastprice_map,self._param_period)	
+		if hour != self._current_hour and hour !=13 and hour != 21:
+			# print "the hour is not  equal "
+			self._current_hour = hour
+			self._pre_ema_val = self._now_middle_value
+			self._lastprice_array.append(lastprice)
 
 		diff_volume = self._now_md_price[VOLUME] - self._pre_md_price[VOLUME]
 		diff_interest = self._now_md_price[OPENINTEREST] - self._pre_md_price[OPENINTEREST]
@@ -282,10 +213,8 @@ class BandAndTrigger(object):
 
 
 		tmp_to_csv = [self._now_md_price[TIME],self._now_md_price[LASTPRICE],
-					round(self._now_middle_value,2),round(self._now_sd_val,2),
-					round(self._ris_data,2),
-					round(diff_volume,2),round(diff_interest,2),round(spread,2),
-					round(self._hour_middle_val,2)]
+					round(self._now_middle_value,2),round(self._sd_val,2),
+					round(self._rsi_val,2),round(diff_volume,2),round(spread,2)]
 		# print tmp_to_csv
 		self._write_to_csv_data.append(tmp_to_csv)
 
@@ -314,28 +243,48 @@ def clean_night_data(data):
 
 
 
-def main(filename):
-	path = "../data/"+filename+".csv"
-	# path = "../data/"+filename
-	# read_data_from_csv(path)
-	f = open(path,'rb')
-	instrumentid = filename.split("_")[0]
-	print "the instrument id is: "+instrumentid
-	reader = csv.reader(f)
+def main():
+	data1 =[20170801,20170802,20170803,20170804]
+	data2 =[20170807,20170808,20170809,20170810,20170811]
+	data3 =[20170814,20170815,20170816,20170817,20170818]
+	data4 =[20170821,20170822,20170823,20170824,20170825]	
+	data5 =[20170828,20170829,20170830,20170831,20170901]
+	data6 =[20170904,20170905,20170906,20170907,20170908]
+	data7 =[20170911,20170912,20170913,20170914,20170915]	
+	data8 =[20170918,20170919,20170920,20170921,20170922]
+	data9 =[20170925,20170926,20170927,20170928,20170929]
+	data10 =[20171009,20171010,20171011,20171012,20171013]
+	data11 =[20171016,20171017,20171018,20171019,20171020]	
+	data12 =[20171023,20171024,20171025,20171026]
+	data = data1+data2+data3+data4+data5+data6+data7+data8+data9+data10+data11+data12
+	# data = data8+data9+data10+data11+data12
+	# data =[20170918]
+	# instrumentid_array = ["ru1801","rb1801","zn1710","pb1710","cu1710","hc1801","i1801","ni1801","al1710","au1712","ag1712","bu1712"]
+	instrumentid_array = ["ag1712"]
 
-	# reader =getSortedData(reader)
 	
-	bt = BandAndTrigger(nameDict[instrumentid]["param"])
-	for row in reader:
-		bt.get_md_data(row)
-		# tranfer the string to float
-	f.close()
+	for item in data:
+		for instrumentid in instrumentid_array:
+			# first get the sql data
+			# getSqlData(item,instrumentid)
+			bt = BandAndTrigger(nameDict[instrumentid]["param"])
+			filename = instrumentid+ "_"+str(item)
+			path = "../data/"+filename+".csv"
+			# path = "../data/"+filename
+			# read_data_from_csv(path)
+			f = open(path,'rb')
+			print "the instrument id is: "+filename
+			reader = csv.reader(f)
+			for row in reader:
+				bt.get_md_data(row)
+				# tranfer the string to float
+			f.close()
 	
-	data = bt.get_to_csv_data()
+			data = bt.get_to_csv_data()
 
-	data = clean_night_data(data)
-	path_new = "../create_data/"+filename+ "_band_data"+".csv"
-	bf.write_data_to_csv(path_new,data)
+			data = clean_night_data(data)
+			path_new = "../create_data/"+filename+ "_band_data"+".csv"
+			bf.write_data_to_csv(path_new,data)
 
 
 
@@ -353,20 +302,21 @@ if __name__=='__main__':
 	#     		main(tmp_path)
 
 
-	data1 =[20170918,20170919,20170920,20170921,20170922]
-	data2 =[20170925,20170926,20170927,20170928,20170929]
-	data3 =[20171009,20171010,20171011,20171012,20171013]
-	data4 =[20171016,20171017,20171018,20171019,20171020]	
-	data5 =[20171023,20171024]
-	data = data1+data2+data3+data4+data5
+	# data1 =[20170918,20170919,20170920,20170921,20170922]
+	# data2 =[20170925,20170926,20170927,20170928,20170929]
+	# data3 =[20171009,20171010,20171011,20171012,20171013]
+	# data4 =[20171016,20171017,20171018,20171019,20171020]	
+	# data5 =[20171023,20171024]
+	# data = data1+data2+data3+data4+data5
+	main()
 	# data =[20170918]
-	# instrumentid_array = ["ru1801","rb1801","zn1710","pb1710","cu1710","hc1801","i1801","ni1801","al1710","au1712","ag1712","bu1712"]
-	instrumentid_array = ["rb1801"]
-	for item in data:
-		for instrumentid in instrumentid_array:
-			# first get the sql data
-			# getSqlData(item,instrumentid)
+	# # instrumentid_array = ["ru1801","rb1801","zn1710","pb1710","cu1710","hc1801","i1801","ni1801","al1710","au1712","ag1712","bu1712"]
+	# instrumentid_array = ["rb1801"]
+	# for item in data:
+	# 	for instrumentid in instrumentid_array:
+	# 		# first get the sql data
+	# 		# getSqlData(item,instrumentid)
 
-			path = instrumentid+ "_"+str(item)
-			print path
-			main(path)	
+	# 		path = instrumentid+ "_"+str(item)
+	# 		print path
+	# 		main(path)	
