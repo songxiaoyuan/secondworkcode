@@ -373,7 +373,7 @@ def main(filename):
 	data = bt.get_to_csv_data()
 
 	data = clean_night_data(data)
-	path_new = "../create_data/"+filename+ "_band_data"+".csv"
+	path_new = "../create_data_series/"+filename+ "_band_data"+".csv"
 	bf.write_data_to_csv(path_new,data)
 
 
@@ -396,8 +396,8 @@ if __name__=='__main__':
 	# data4 =[20171016,20171017,20171018,20171019]
 	# # data =[20170927]
 	# data = data1 + data2 + data3 +data4
-	data =[20171023]
-	instrumentid_array = ["ru1801","rb1801","zn1712"]
+	data =[20171025]
+	instrumentid_array = ["ru1801","rb1801","zn1712","pb1712"]
 	# instrumentid_array = ["al1712","ni1801","cu1712"]
 	for item in data:
 		for instrumentid in instrumentid_array:
