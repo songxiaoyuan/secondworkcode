@@ -116,19 +116,6 @@ class BandAndTrigger(object):
 				self._has_open = 0
 		return True
 
-	def is_band_open_time(self,direction,lastprice,middle_val,bigger_edge1,bigger_edge2):
-		# this is used to judge is time to band open
-		if direction ==LONG:
-			upval = middle_val + bigger_edge2
-			downval = middle_val + bigger_edge1
-			if lastprice > downval  and lastprice < upval:
-				return True
-		elif direction ==SHORT:
-			downval = middle_val - bigger_edge2
-			upval = middle_val - bigger_edge1
-			if lastprice < upval  and lastprice > downval:
-				return True
-		return False
 
 	def is_trend_open_time(self):
 
@@ -175,24 +162,20 @@ class BandAndTrigger(object):
 			if tmp <0 and ((0 - tmp) > self._limit_max_loss):
 				return True
 
-			# base the max profit to decide leave.if the max profit is too small,we don't need to leave
 			if self._max_profit < tmp:
-				self._max_profit = tmp
-			if self._max_profit < self._limit_max_profit:
-				return False
+				self._max_profit =tmp
 
 
 		is_band_close = bf.is_band_close_time(self._direction,self._lastprice,
-											self._now_middle_value_60,self._now_sd_val,self._param_loss_edge,self._param_profit_edge)
-		if is_band_close ==True:
-			return True
-		is_rsi_close = bf.is_rsi_close_time(self._direction,self._ris_data,self._limit_rsi_data)
-		if is_rsi_close == True:
+											self._now_middle_value_60,self._now_sd_val,self._param_loss_edge,self._param_profit_edge,
+											self._ris_data,self._limit_rsi_data)
+		if is_band_close ==True :
 			return True
 		is_middle_cross_close = bf.is_middle_cross_close_time(self._direction,self._lastprice,self._now_middle_value_1,
 															self._now_middle_value_5)
-		if is_middle_cross_close == True:
-			return True
+		if self._max_profit != 0 and self._max_profit > self._limit_max_profit:
+			if is_middle_cross_close == True:
+				return True
 		return False
 
 	def get_total_profit(self):
@@ -217,6 +200,7 @@ def create_band_obj(data,param_dict):
 			profit = band_and_trigger_obj.get_total_profit()
 			file.write(str(profit)+"\n")
 		else:
+			# continue
 			print "方向是long的交易情况："
 			# param_dict["open_interest_edge"] =1
 			band_and_trigger_obj = BandAndTrigger(param_dict)
@@ -228,7 +212,8 @@ def create_band_obj(data,param_dict):
 
 
 def main(filename):
-	path = "../create_data/"+filename+"_band_data.csv"
+	# path = "../create_data/"+filename+"_band_data.csv"
+	path = "../tmp/"+filename+"_band_data.csv"
 	# path = "../zn/"+filename
 	csv_data = bf.read_data_from_csv(path)
 	path = "../outdata_one_hour/"+filename+"_trade_limit_time_triggersize.txt"
@@ -353,20 +338,20 @@ if __name__=='__main__':
 	#     		tmp_path = tmp_path.split('/')[2]
 	#     		print tmp_path
 	#     		main(tmp_path)
-	data1 =[20170801,20170802,20170803,20170804]
-	data2 =[20170807,20170808,20170809,20170810,20170811]
-	data3 =[20170814,20170815,20170816,20170817,20170818]
-	data4 =[20170821,20170822,20170823,20170824,20170825]	
-	data5 =[20170828,20170829,20170830,20170831,20170901]
-	data6 =[20170904,20170905,20170906,20170907,20170908]
-	data7 =[20170911,20170912,20170913,20170914,20170915]	
-	data8 =[20170918,20170919,20170920,20170921,20170922]
-	data9 =[20170925,20170926,20170927,20170928,20170929]
-	data10 =[20171009,20171010,20171011,20171012,20171013]
-	data11 =[20171016,20171017,20171018,20171019,20171020]	
-	data12 =[20171023,20171024,20171025,20171026]
-	data = data1+data2+data3+data4+data5+data6+data7+data8+data9+data10+data11+data12
-	# data =[20171026]
+	# data1 =[20170801,20170802,20170803,20170804]
+	# data2 =[20170807,20170808,20170809,20170810,20170811]
+	# data3 =[20170814,20170815,20170816,20170817,20170818]
+	# data4 =[20170821,20170822,20170823,20170824,20170825]	
+	# data5 =[20170828,20170829,20170830,20170831,20170901]
+	# data6 =[20170904,20170905,20170906,20170907,20170908]
+	# data7 =[20170911,20170912,20170913,20170914,20170915]	
+	# data8 =[20170918,20170919,20170920,20170921,20170922]
+	# data9 =[20170925,20170926,20170927,20170928,20170929]
+	# data10 =[20171009,20171010,20171011,20171012,20171013]
+	# data11 =[20171016,20171017,20171018,20171019,20171020]	
+	# data12 =[20171023,20171024,20171025,20171026]
+	# data = data1+data2+data3+data4+data5+data6+data7+data8+data9+data10+data11+data12
+	data =[20171024]
 	instrumentid = ["rb1801"]
 	for item in data:
 		for instrument in instrumentid:
