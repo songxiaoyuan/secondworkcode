@@ -5,6 +5,12 @@ import time
 #!/usr/bin/python
 # -*- coding:utf8 -*-
 
+
+conn = cx_Oracle.connect('hq','hq','114.251.16.210:9921/quota')    
+# conn = cx_Oracle.connect('hyqh','hyqh','114.251.16.210:9921/quota')    
+cursor = conn.cursor () 
+
+
 def writefile(result,filename):
 	print "start to write the file "+filename
 	csvfile = file(filename, 'wb')
@@ -58,9 +64,6 @@ def getSortedData(data):
 
 def getSqlData(myday,instrumentid): 
 
-	conn = cx_Oracle.connect('hq','hq','114.251.16.210:9921/quota')    
-	# conn = cx_Oracle.connect('hyqh','hyqh','114.251.16.210:9921/quota')    
-	cursor = conn.cursor () 
 	for index in xrange(0,1):
 		date=myday+index
 		print date
@@ -80,8 +83,6 @@ def getSqlData(myday,instrumentid):
 
 		writefile(cleandata,filename)
 
-	cursor.close ()  
-	conn.close () 
 
 if __name__=='__main__': 
 	data1 =[20170801,20170802,20170803,20170804]
@@ -98,7 +99,11 @@ if __name__=='__main__':
 	data12 =[20171023,20171024,20171025,20171026]
 	data = data1+data2+data3+data4+data5+data6+data7+data8+data9+data10+data11+data12
 	# instrumentid_array = ["ru1801","rb1801","zn1710","pb1710","cu1710","hc1801","i1801","ni1801","al1710","au1712","ag1712","bu1712"]
-	instrumentid_array = ["al1710"]
+	instrumentid_array = ["pp1801","j1801","jm1801"]
 	for myday in data:
 		for instrumentid in instrumentid_array:
 			getSqlData(myday,instrumentid)
+
+
+	cursor.close ()  
+	conn.close () 
