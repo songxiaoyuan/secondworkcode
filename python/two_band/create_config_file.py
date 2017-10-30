@@ -3,6 +3,8 @@ import csv
 import basic_fun as bf
 import os
 import cx_Oracle  
+import time
+import shutil
 
 LASTPRICE = 4
 VOLUME = 11
@@ -15,6 +17,9 @@ ASKPRICE1VOLUME =25
 TIME = 20
 LONG =1
 SHORT =0
+
+date = time.strftime('%Y%m%d',time.localtime(time.time()))
+hour = time.strftime('%H',time.localtime(time.time()))
 
 # 这个是铅的
 param_dict_pb = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
@@ -32,7 +37,7 @@ param_dic_zn = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
 			"multiple":5,"file":file,"config_file":340}
 
 param_dict_i = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
-			"multiple":100,"file":file,"config_file":350}
+			"multiple":100,"file":file,"config_file":340}
 
 param_dic_ni = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
 			"multiple":1,"file":file,"config_file":360}
@@ -46,42 +51,16 @@ param_dict_hc = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
 param_dict_cu = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
 			"multiple":5,"file":file,"config_file":390}
 
-
-param_dic_au = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
-			"multiple":1000,"file":file,"config_file":400}
-
-param_dic_ag = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
-			"multiple":15,"file":file,"config_file":410}
-
-param_dic_j = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
-			"multiple":100,"file":file,"config_file":420}
-
-param_dic_jm = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
-			"multiple":60,"file":file,"config_file":430}
-
-param_dic_pp = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
-			"multiple":5,"file":file,"config_file":440}
-
-param_dic_v = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
-			"multiple":5,"file":file,"config_file":450}
-
-
 nameDict = {
 	"rb1801":{"param":param_dict_rb},
 	"ru1801":{"param":param_dic_ru},
-	"zn1712":{"param":param_dic_zn},
+	"zn1801":{"param":param_dic_zn},
 	"cu1712":{"param":param_dict_cu},
 	"i1801":{"param":param_dict_i},
 	"hc1801":{"param":param_dict_hc},
 	"ni1801":{"param":param_dic_ni},
 	"al1710":{"param":param_dic_al},
-	"au1712":{"param":param_dic_au},
-	"ag1712":{"param":param_dic_ag},
-	"j1801":{"param":param_dic_j},
-	"jm1801":{"param":param_dic_jm},
-	"pp1801":{"param":param_dic_pp},
-	"v1801":{"param":param_dic_v},
-	"pb1710":{"param":param_dict_pb}
+	"pb1712":{"param":param_dict_pb}
 }
 
 class BandAndTrigger(object):
@@ -125,7 +104,7 @@ class BandAndTrigger(object):
 			tmp_pre_ema_array_60 = []
 			tmp_pre_ema_array_5 = []
 			tmp_pre_ema_array_1 = []
-			config_file = "../config_two/"+str(self._config_file)
+			config_file = "../hour_config/config/"+str(self._config_file+2)
 			bf.get_config_info(tmp_pre_ema_array_60,tmp_pre_ema_array_5,tmp_pre_ema_array_1,self._lastprice_array,config_file)
 			if len(tmp_pre_ema_array_60)==0:
 				self._pre_ema_val_60 = 0
@@ -143,7 +122,19 @@ class BandAndTrigger(object):
 	def __del__(self):
 		print "this is the over function " + str(self._config_file)
 
-		config_file = "../config_two/"+str(self._config_file)
+		config_file = "../hour_config/config/"+str(self._config_file+2)
+		bf.write_config_info(self._pre_ema_val_60,self._pre_ema_val_5,self._pre_ema_val_5,
+			self._lastprice_array,self._ema_period,config_file)
+
+		config_file = "../hour_config/config/"+str(self._config_file+3)
+		bf.write_config_info(self._pre_ema_val_60,self._pre_ema_val_5,self._pre_ema_val_5,
+			self._lastprice_array,self._ema_period,config_file)
+
+		config_file = "../hour_config/config/"+str(self._config_file+4)
+		bf.write_config_info(self._pre_ema_val_60,self._pre_ema_val_5,self._pre_ema_val_5,
+			self._lastprice_array,self._ema_period,config_file)
+
+		config_file = "../hour_config/config/"+str(self._config_file+5)
 		bf.write_config_info(self._pre_ema_val_60,self._pre_ema_val_5,self._pre_ema_val_5,
 			self._lastprice_array,self._ema_period,config_file)
 		print "has write the config file"
@@ -152,12 +143,12 @@ class BandAndTrigger(object):
 	# get the md data ,every line;
 	def get_md_data(self,md_array):
 		# tranfer the string to float
-		md_array[LASTPRICE] = float(md_array[LASTPRICE])
-		md_array[VOLUME] = float(md_array[VOLUME])
-		md_array[OPENINTEREST] = float(md_array[OPENINTEREST])
-		md_array[TURNONER] = float(md_array[TURNONER])
-		md_array[BIDPRICE1] = float(md_array[BIDPRICE1])
-		md_array[ASKPRICE1] = float(md_array[ASKPRICE1])
+		# md_array[LASTPRICE] = float(md_array[LASTPRICE])
+		# md_array[VOLUME] = float(md_array[VOLUME])
+		# md_array[OPENINTEREST] = float(md_array[OPENINTEREST])
+		# md_array[TURNONER] = float(md_array[TURNONER])
+		# md_array[BIDPRICE1] = float(md_array[BIDPRICE1])
+		# md_array[ASKPRICE1] = float(md_array[ASKPRICE1])
 
 
 
@@ -222,69 +213,109 @@ class BandAndTrigger(object):
 	def get_to_csv_data(self):
 		return self._write_to_csv_data
 
-def clean_night_data(data):
+def copy_file():
+	print "start create the real server data"
+
+
+def getSortedData(data):
 	ret = []
-	amBegin = 9*3600
-	pmEnd = 15*3600
+	night = []
+	zero = []
+	day = []
+	nightBegin = 21*3600
+	nightEnd = 23*3600+59*60+60
+	zeroBegin = 0
+	zeroEnd = 9*3600 - 100
+	dayBegin = 9*3600
+	dayEnd = 15*3600
 
 	for line in data:
 		# print line
-		timeLine = line[0].split(":")
+		timeLine = line[20].split(":")
 		# print timeLine
-		# tick = line[21]
-		nowTime = int(timeLine[0])*3600+int(timeLine[1])*60+int(timeLine[2])
+		try:
+			nowTime = int(timeLine[0])*3600+int(timeLine[1])*60+int(timeLine[2])
+		except Exception as e:
+			nowTime = 0
 
-		if nowTime>=amBegin and nowTime <=pmEnd:
-			ret.append(line)
+		if nowTime >= zeroBegin and nowTime <zeroEnd:
+			zero.append(line)
+		elif nowTime >= dayBegin and nowTime <= dayEnd:
+			day.append(line)
+		elif nowTime >=nightBegin and nowTime <=nightEnd:
+			night.append(line)
 		# if int(line[22]) ==0 or int(line[4]) ==3629:
 		# 	continue
+	night = sorted(night, key = lambda x: (x[20], int(x[21])))
+	zero = sorted(zero, key = lambda x: (x[20], int(x[21])))
+	day = sorted(day, key = lambda x: (x[20], int(x[21])))
+	if int(hour) >= 15:
+		print "this is afternoon dont need the night data"
+	else:	
+		for line in night:
+			ret.append(line)
+		for line in zero:
+			ret.append(line)
+	for line in day:
+		ret.append(line)
+
 	return ret
 
+def start_create_config(instrumentid,data):
+	print "start create the config file of " + instrumentid
+	if instrumentid not in nameDict:
+		print "the instrument id " + instrumentid + " is not in the dict"
+	param =  nameDict[instrumentid]["param"]
+	bt = BandAndTrigger(param)
+	for row in data:
+		bt.get_md_data(row)
+		# tranfer the string to float
 
+	if int(hour)>=15:
+		data = bt.get_to_csv_data()
+
+		path_new = "../everydayoutdata/"+instrumentid+'_'+date+ "_band_data"+".csv"
+		bf.write_data_to_csv(path_new,data)
+
+def copy_file_one_to_one(from_path,to_path):
+	for root, dirs, files in os.walk(from_path):
+	    for file in files:
+    		tmp_path = os.path.join(root,file)
+    		# print tmp_path
+    		shutil.copy(tmp_path, to_path+file)
+
+def copy_file_to_save():
+	path = "../hour_config/save_config_file/"
+	new_path = os.path.join(path, date)
+	if not os.path.isdir(new_path) and os.path.isdir(path):
+	    os.mkdir(new_path)
+	copy_file_one_to_one("../hour_config/config/",new_path+'/')
 
 def main():
-	data1 =[20170801,20170802,20170803,20170804]
-	data2 =[20170807,20170808,20170809,20170810,20170811]
-	data3 =[20170814,20170815,20170816,20170817,20170818]
-	data4 =[20170821,20170822,20170823,20170824,20170825]	
-	data5 =[20170828,20170829,20170830,20170831,20170901]
-	data6 =[20170904,20170905,20170906,20170907,20170908]
-	data7 =[20170911,20170912,20170913,20170914,20170915]	
-	data8 =[20170918,20170919,20170920,20170921,20170922]
-	data9 =[20170925,20170926,20170927,20170928,20170929]
-	data10 =[20171009,20171010,20171011,20171012,20171013]
-	data11 =[20171016,20171017,20171018,20171019,20171020]	
-	data12 =[20171023,20171024,20171025,20171026,20171027]
-	data = data1+data2+data3+data4+data5+data6+data7+data8+data9+data10+data11+data12
-	# # data = data8+data9+data10+data11+data12
-	# data =[20171024]
 	# instrumentid_array = ["ru1801","rb1801","zn1710","pb1710","cu1710","hc1801","i1801","ni1801","al1710","au1712","ag1712","bu1712"]
-	instrumentid_array = ["pp1801"]
+	instrumentid_array = ["rb1801","ru1801","zn1801","pb1712"]
+
+	conn = cx_Oracle.connect('hq','hq','114.251.16.210:9921/quota')    
+	cursor = conn.cursor () 
 
 	
-	for item in data:
-		for instrumentid in instrumentid_array:
-			# first get the sql data
-			# getSqlData(item,instrumentid)
-			bt = BandAndTrigger(nameDict[instrumentid]["param"])
-			filename = instrumentid+ "_"+str(item)
-			path = "../data/"+filename+".csv"
-			# path = "../data/"+filename
-			# read_data_from_csv(path)
-			f = open(path,'rb')
-			print "the instrument id is: "+filename
-			reader = csv.reader(f)
-			for row in reader:
-				bt.get_md_data(row)
-				# tranfer the string to float
-			f.close()
-	
-			data = bt.get_to_csv_data()
+	for instrumentid in instrumentid_array:
+		# first get the sql data
+		mysql="select * from hyqh.quotatick where TRADINGDAY = '%s' AND INSTRUMENTID = '%s'" % (str(date),instrumentid)
 
-			data = clean_night_data(data)
-			path_new = "../tmp/"+filename+ "_band_data"+".csv"
-			bf.write_data_to_csv(path_new,data)
+		print mysql
+		cursor.execute (mysql)  
+		icresult = cursor.fetchall()
 
+		cleandata = getSortedData(icresult)
+		start_create_config(instrumentid,cleandata)
+
+	cursor.close ()  
+	conn.close () 
+
+	copy_file()
+	if int(hour)<9:
+		copy_file_to_save()
 
 
 if __name__=='__main__':

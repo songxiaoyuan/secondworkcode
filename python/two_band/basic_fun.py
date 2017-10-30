@@ -17,31 +17,52 @@ def is_band_open_time(direction,lastprice,middle_val,open_edge1,open_edge2):
 	if direction ==LONG:
 		downval = middle_val + open_edge1
 		upval = middle_val + open_edge2
-		if lastprice > middle_val and lastprice < upval:
+		if lastprice >= middle_val and lastprice <= upval:
 			return True
 	elif direction ==SHORT:
 		upval = middle_val - open_edge1
 		downval = middle_val - open_edge2
-		if lastprice < upval and lastprice > downval:
+		if lastprice <= upval and lastprice >= downval:
 			return True
 	return False
 
-def is_band_close_time(direction,lastprice,middle_val,sd_val,close_edge,profit_close_edge,cur_rsi_data,limit_rsi_data):
+def is_band_close_time(direction,lastprice,middle_val,sd_val,close_edge,profit_edge,rsi_data,limit_rsi_data):
 	# this is used to judge is time to band is close time
 	if direction ==LONG:
 		if lastprice < middle_val - close_edge:
 			return True
-		profitval = middle_val + profit_close_edge*sd_val
+		profitval = middle_val + profit_edge*sd_val
 		# 判断止盈条件，大于几倍的band，并且同时rsi大于80，然后可能在加上最大回撤的值。
 		# 因为ris是按照这个bar来计算的，所以应该一段时间判断一次，如果没有达到这个段的时间，应该就直接不平仓
-		if lastprice > profitval and cur_rsi_data >= limit_rsi_data and cur_rsi_data >=0:
+		if lastprice > profitval and rsi_data > limit_rsi_data:
 			return True
 	elif direction ==SHORT:
 		if lastprice > middle_val + close_edge:
 			return True
-		profitval = middle_val - profit_close_edge*sd_val
-		ris = 100 - cur_rsi_data
-		if lastprice < profitval and ris >= limit_rsi_data and cur_rsi_data >=0 :
+		profitval = middle_val - profit_edge*sd_val
+		rsi_data = 100 - rsi_data
+		if lastprice < profitval and rsi_data > limit_rsi_data:
+			return True
+	return False
+
+def is_rsi_close_time(direction,rsi_data,limit_rsi_data):
+	if limit_rsi_data ==0:
+		return True
+	if direction ==LONG:
+		if rsi_data >= limit_rsi_data:
+			return True
+	elif direction ==SHORT:
+		rsi = 100 - rsi_data
+		if rsi_data >= limit_rsi_data:
+			return True
+	return False
+
+def is_middle_cross_close_time(direction,lastprice,middle_value_1,middle_value_5):
+	if direction ==LONG:
+		if lastprice < middle_value_1 and middle_value_1 < middle_value_5:
+			return True
+	elif direction ==SHORT:
+		if lastprice > middle_value_1 and middle_value_1 > middle_value_5:
 			return True
 	return False
 
@@ -125,11 +146,11 @@ def is_trigger_size_open_time(direction,diff_volume,limit_diff_volume,spread,lim
 	if diff_volume < limit_diff_volume:
 		return False
 	if direction ==LONG:
-		if spread > limit_spread:
+		if spread >= limit_spread:
 			return True
 	elif direction ==SHORT:
 		spread = 100 - spread
-		if spread > limit_spread:
+		if spread >= limit_spread:
 			return True
 	return False
 
@@ -250,11 +271,22 @@ def get_rsi_data(lastprice,lastprice_array,period):
 		return 0
 	return 100*float(rise)/total
 
+
 def write_data_to_csv(path,data):
 	csvfile = file(path, 'wb')
 	writer = csv.writer(csvfile)
  	writer.writerows(data)
 	csvfile.close()
+
+def read_data_from_csv(path):
+	f = open(path,'rb')
+	reader = csv.reader(f)
+	ret = []
+	for row in reader:
+		# obj.get_md_data(row)
+		ret.append(row)
+	# only get the day data
+	return ret
 
 def is_max_draw_down(direction,cur_price,open_price,multiple,max_profit,limit_max_draw_down):
 	if open_price ==0 or limit_max_draw_down ==0:
@@ -298,20 +330,22 @@ def get_weighted_mean(target_array,weight_array,period):
 		return 0
 	return float(total_sum)/weight_sum
 
-def write_config_info(pre_ema_val,lastprice_array,ema_period,config_path):
+def write_config_info(pre_ema_val_60,pre_ema_val_5,pre_ema_val_1,lastprice_array,ema_period,config_path):
 	config_file = open(config_path,"w")
-	line1 = "pre_ema_val:,"+str(pre_ema_val)
-	line2 = "lastprice_array:"
+	line1 = "pre_ema_val_60:,"+str(pre_ema_val_60)
+	line2 = "pre_ema_val_5:,"+str(pre_ema_val_5)
+	line3 = "pre_ema_val_1:,"+str(pre_ema_val_1)
+	line4 = "lastprice_array:"
 	left = len(lastprice_array)-ema_period
 	if left<0:
 		left = 0
 	for i in xrange(left,len(lastprice_array)):
-		line2 = line2 + "," + str(lastprice_array[i])
-	write_lines = [line1+'\n',line2]
+		line4 = line4 + "," + str(lastprice_array[i])
+	write_lines = [line1+'\n',line2+'\n',line3+'\n',line4]
 	config_file.writelines(write_lines)
 	config_file.close()
 
-def get_config_info(pre_ema_val_array,lastprice_array,config_path):
+def get_config_info(pre_ema_val_array_60,pre_ema_val_array_5,pre_ema_val_array_1,lastprice_array,config_path):
 	try:
 		config_file = open(config_path)
 	except Exception as e:
@@ -320,10 +354,18 @@ def get_config_info(pre_ema_val_array,lastprice_array,config_path):
 	config_file = open(config_path)
 	lines = config_file.readlines()
 	for line in lines:
-		if "pre_ema_val" in line:
-			print "this is pre_ema_val"
+		if "pre_ema_val_60" in line:
+			print "this is pre_ema_val_60"
 			line = line.split(',')
-			pre_ema_val_array.append(float(line[1].strip()))
+			pre_ema_val_array_60.append(float(line[1].strip()))
+		elif "pre_ema_val_5" in line:
+			print "this is pre_ema_val_5"
+			line = line.split(',')
+			pre_ema_val_array_5.append(float(line[1].strip()))
+		elif "pre_ema_val_1" in line:
+			print "this is pre_ema_val_1"
+			line = line.split(',')
+			pre_ema_val_array_1.append(float(line[1].strip()))
 		elif "lastprice_array" in line:
 			print "this is lastprice_array"
 			line = line.split(',')[1:]
