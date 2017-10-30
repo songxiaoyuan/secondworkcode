@@ -73,7 +73,8 @@ class BandAndTrigger(object):
 
 		self._tmp_sum_diff_volume += self._diff_volume
 		self._now_bar_volume_tick +=1
-		if self._now_bar_volume_tick >= self._limit_bar_volume_tick:
+		if self._now_bar_volume_tick >= self._limit_bar_volume_tick or ( 
+			len(self._diff_volume_array) >0 and self._tmp_sum_diff_volume > self._limit_multiple* self._diff_volume_array[-1]):
 			self._diff_volume_array.append(self._tmp_sum_diff_volume)
 			self._lastprice_array.append(self._lastprice)
 			self._tmp_sum_diff_volume = 0
@@ -244,7 +245,8 @@ def create_band_obj(data,param_dict):
 
 def main(filename):
 	# path = "../create_data/"+filename+"_band_data.csv"
-	path = "../tmp/"+filename+"_band_data.csv"
+	# path = "../tmp/"+filename+"_band_data.csv"
+	path = "../everydayoutdata/"+filename+"_band_data.csv"
 	# path = "../zn/"+filename
 	csv_data = bf.read_data_from_csv(path)
 	path = "../outdata_one_hour/"+filename+"_trade_limit_time_volume.txt"
@@ -254,34 +256,39 @@ def main(filename):
 	param_dict = {"limit_rsi_data":70,"band_profit_edge":2,"limit_bar_volume_tick":10,
 				"limit_large_period":5,"limit_multiple":2,"file":file}
 	if "rb" in filename:
+		param_dict["volume_open_edge"] =600
 		param_dict["band_open_edge1"] = 0
 		param_dict["band_open_edge2"] = 10
 		param_dict["band_loss_edge"] = 5
 		param_dict["max_loss"] =10
-		param_dict["max_profit"] =30
+		param_dict["max_profit"] = 30
 	elif "ru" in filename:
 		param_dict["volume_open_edge"] =20
-		param_dict["limit_sd"] =10
-		param_dict["band_open_edge1"] = 25
-		param_dict["band_open_edge2"] = 35
-	elif "pb" in filename:
 		param_dict["band_open_edge1"] = 0
 		param_dict["band_open_edge2"] = 50
 		param_dict["band_loss_edge"] = 25
-		param_dict["limit_multiple"] =2
-		param_dict["limit_large_period"] =5
 		param_dict["max_loss"] =50
-		param_dict["max_profit"] =2000
-	elif "zn" in filename:
-		param_dict["volume_open_edge"] =10
-		param_dict["limit_sd"] =10
-		param_dict["band_open_edge1"] = 25
-		param_dict["band_open_edge2"] = 35
-	elif "cu" in filename:
+		param_dict["max_profit"] = 150
+	elif "pb" in filename:
 		param_dict["volume_open_edge"] =20
-		param_dict["limit_sd"] =10
-		param_dict["band_open_edge1"] = 25
-		param_dict["band_open_edge2"] = 35
+		param_dict["band_open_edge1"] = 0
+		param_dict["band_open_edge2"] = 50
+		param_dict["band_loss_edge"] = 25
+		param_dict["max_loss"] =50
+		param_dict["max_profit"] = 150
+	elif "zn" in filename:
+		param_dict["volume_open_edge"] =20
+		param_dict["band_open_edge1"] = 0
+		param_dict["band_open_edge2"] = 50
+		param_dict["band_loss_edge"] = 25
+		param_dict["max_loss"] =50
+		param_dict["max_profit"] = 150
+	elif "cu" in filename:
+		param_dict["volume_open_edge"] =40
+		param_dict["band_open_edge1"] = 0
+		param_dict["band_open_edge2"] = 100
+		param_dict["band_loss_edge"] = 50
+		param_dict["max_loss"] = 100
 	elif "hc" in filename:
 		param_dict["volume_open_edge"] =400
 		param_dict["band_open_edge1"] =0
@@ -305,50 +312,61 @@ def main(filename):
 		param_dict["spread"] =100
 		param_dict["limit_wvad"] =5000
 	elif "ni" in filename:
+		param_dict["volume_open_edge"] =200
+		param_dict["band_open_edge1"] = 0
+		param_dict["band_open_edge2"] = 100
+		param_dict["band_loss_edge"] = 50
+	elif "al" in filename:
 		param_dict["volume_open_edge"] =100
-		param_dict["limit_sd"] =60
+		param_dict["band_open_edge1"] = 0
+		param_dict["band_open_edge2"] = 50
+		param_dict["band_loss_edge"] = 25
+		param_dict["max_loss"] = 50
+	elif "au" in filename:
+		param_dict["volume_open_edge"] =20
+		param_dict["limit_sd"] =0.3
 		param_dict["open_interest_edge"] =0
 		param_dict["band_open_edge1"] =0
 		param_dict["band_open_edge2"] =0.5
 		param_dict["band_loss_edge"] =0.5
 		param_dict["limit_sd_close_edge"] =1
-		param_dict["limit_sd_open_edge"] =2
 		param_dict["spread"] =100
 		param_dict["limit_wvad"] =2000
-	elif "al" in filename:
-		param_dict["band_open_edge1"] = 0
-		param_dict["band_open_edge2"] = 50
-		param_dict["limit_multiple"] =25
-		param_dict["limit_large_period"] =5
-		param_dict["max_loss"] =50
-		param_dict["max_profit"] =2000
-	elif "au" in filename:
-		param_dict["band_open_edge1"] = 0
-		param_dict["band_open_edge2"] = 0.5
-		param_dict["band_loss_edge"] = 0.25
-		param_dict["limit_multiple"] =2
-		param_dict["limit_large_period"] =5
-		param_dict["max_loss"] =0.5
-		param_dict["max_profit"] =2000
 	elif "ag" in filename:
+		param_dict["volume_open_edge"] =600
 		param_dict["band_open_edge1"] = 0
 		param_dict["band_open_edge2"] = 10
 		param_dict["band_loss_edge"] = 5
-		param_dict["limit_multiple"] =2
-		param_dict["limit_large_period"] =5
 		param_dict["max_loss"] =10
-		param_dict["max_profit"] =2000
-	elif "bu" in filename:
-		param_dict["volume_open_edge"] =500
-		param_dict["limit_sd"] =12
-		param_dict["open_interest_edge"] =0
-		param_dict["band_open_edge1"] =0
-		param_dict["band_open_edge2"] =0.5
-		param_dict["band_loss_edge"] =0.5
-		param_dict["limit_sd_close_edge"] =1
-		param_dict["limit_sd_open_edge"] =2
-		param_dict["spread"] =100
-		param_dict["limit_wvad"] =2200
+		param_dict["max_profit"] = 30
+	elif "j" in filename and "m" not in filename:
+		param_dict["volume_open_edge"] =100
+		param_dict["band_open_edge1"] = 0
+		param_dict["band_open_edge2"] = 5
+		param_dict["band_loss_edge"] = 2.5
+		param_dict["max_loss"] =5
+		param_dict["max_profit"] = 20
+	elif "jm" in filename:
+		param_dict["volume_open_edge"] =100
+		param_dict["band_open_edge1"] = 0
+		param_dict["band_open_edge2"] = 5
+		param_dict["band_loss_edge"] = 2.5
+		param_dict["max_loss"] =5
+		param_dict["max_profit"] = 20
+	elif "pp" in filename:
+		param_dict["volume_open_edge"] =80
+		param_dict["band_open_edge1"] = 0
+		param_dict["band_open_edge2"] = 10
+		param_dict["band_loss_edge"] = 5
+		param_dict["max_loss"] =10
+		param_dict["max_profit"] = 30
+	elif "v" in filename:
+		param_dict["volume_open_edge"] =80
+		param_dict["band_open_edge1"] = 0
+		param_dict["band_open_edge2"] = 50
+		param_dict["band_loss_edge"] = 25
+		param_dict["max_loss"] =50
+		param_dict["max_profit"] = 200
 	else:
 		print "the instrument is not in the parm " + filename
 		return
@@ -358,18 +376,6 @@ def main(filename):
 
 
 if __name__=='__main__': 
-	# main("ru1709_20170622")
-	# data1 = [20170724,20170725,20170726,20170727,20170728]
-	# data =[20170731,20170801,20170802,20170803,20170804,20170807,20170808,20170809,20170810]
-	# data = data+data1
-	# file_dir = "../zn"
-	# for root, dirs, files in os.walk(file_dir):
-	#     for file in files:
-	#     	if "band_data" in file:
-	#     		tmp_path = os.path.join(root,file)
-	#     		tmp_path = tmp_path.split('/')[2]
-	#     		print tmp_path
-	#     		main(tmp_path)
 	# data1 =[20170801,20170802,20170803,20170804]
 	# data2 =[20170807,20170808,20170809,20170810,20170811]
 	# data3 =[20170814,20170815,20170816,20170817,20170818]
@@ -381,13 +387,15 @@ if __name__=='__main__':
 	# data9 =[20170925,20170926,20170927,20170928,20170929]
 	# data10 =[20171009,20171010,20171011,20171012,20171013]
 	# data11 =[20171016,20171017,20171018,20171019,20171020]	
-	# data12 =[20171023,20171024,20171025,20171026]
+	# data12 =[20171023,20171024,20171025,20171026,20172027]
 	# data = data1+data2+data3+data4+data5+data6+data7+data8+data9+data10+data11+data12
-	data =[20171024]
-	instrumentid = ["rb1801"]
+	data =[20171030]
+	instrumentid = ["rb1801","ru1801","zn1801","pb1712"]
+	# instrumentid = ["pp1801"]
 	for item in data:
 		for instrument in instrumentid:
-			path = instrument + "_"+ str(item)
+			path = instrument
+			# path = instrument + "_"+ str(item)
 			print path
 			main(path)	
 		# print WRITETOFILE

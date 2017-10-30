@@ -29,94 +29,38 @@ param_dict_rb = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
 			"multiple":10,"file":file,"config_file":320}
 
 # 这个是橡胶的
-param_dic_ru = {"limit_max_profit":250,"limit_max_loss":100,"rsi_bar_period":120
-			,"limit_rsi_data":80,"rsi_period":14,"diff_period":60,"tick_num":5
-			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
-			,"volume_open_edge":120,"limit_max_draw_down":0,"multiple":10,"file":file
-			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":330}
+param_dic_ru = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
+			"multiple":10,"file":file,"config_file":330}
 
 # 这个是锌的
-param_dic_zn = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
-			,"limit_rsi_data":80,"rsi_period":14,"diff_period":60,"tick_num":5
-			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
-			,"volume_open_edge":100,"limit_max_draw_down":0,"multiple":5,"file":file
-			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":340}
+param_dic_zn = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
+			"multiple":5,"file":file,"config_file":340}
 
-param_dict_i = {"limit_max_profit":10000,"limit_max_loss":10000,"multiple":100
-			,"rsi_bar_period":120,"limit_rsi_data":80,"rsi_period":14
-			,"diff_period":60
-			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
-			,"limit_max_draw_down":0,"file":file
-			,"open_interest_edge":0,"spread":100,"volume_open_edge":900
-			,"limit_sd":2,"limit_sd_open_edge":1,"limit_sd_close_edge":3,"config_file":350}
+param_dict_i = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
+			"multiple":100,"file":file,"config_file":340}
 
-param_dic_ni = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
-			,"limit_rsi_data":80,"rsi_period":14,"diff_period":60
-			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
-			,"volume_open_edge":100,"limit_max_draw_down":0,"multiple":1,"file":file
-			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":360}
+param_dic_ni = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
+			"multiple":1,"file":file,"config_file":360}
 
-param_dic_al = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
-			,"limit_rsi_data":80,"rsi_period":14,"diff_period":60
-			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
-			,"volume_open_edge":100,"limit_max_draw_down":0,"multiple":5,"file":file
-			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":370}
+param_dic_al = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
+			"multiple":5,"file":file,"config_file":370}
 
-param_dict_hc = {"limit_max_profit":10000,"limit_max_loss":10000,"multiple":10
-			,"rsi_bar_period":120,"limit_rsi_data":80,"rsi_period":14
-			,"diff_period":60
-			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
-			,"limit_max_draw_down":0,"file":file
-			,"open_interest_edge":0,"spread":100,"volume_open_edge":100
-			,"limit_sd":2,"limit_sd_open_edge":1,"limit_sd_close_edge":3,"config_file":380}
+param_dict_hc = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
+			"multiple":10,"file":file,"config_file":380}
 
-param_dict_cu = {"limit_max_profit":10000,"limit_max_loss":10000,"multiple":5
-			,"rsi_bar_period":120,"limit_rsi_data":80,"rsi_period":14
-			,"diff_period":60
-			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
-			,"limit_max_draw_down":0,"file":file
-			,"open_interest_edge":0,"spread":100,"volume_open_edge":900
-			,"limit_sd":40,"limit_sd_open_edge":1,"limit_sd_close_edge":3,"config_file":390}
-
-
-param_dic_au = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
-			,"limit_rsi_data":80,"rsi_period":14,"diff_period":60
-			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
-			,"volume_open_edge":100,"limit_max_draw_down":0,"multiple":1000,"file":file
-			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":400}
-
-param_dic_ag = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
-			,"limit_rsi_data":80,"rsi_period":14,"diff_period":60
-			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
-			,"volume_open_edge":100,"limit_max_draw_down":0,"multiple":15,"file":file
-			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":410}
-
-param_dic_bu = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
-			,"limit_rsi_data":80,"rsi_period":14,"diff_period":60
-			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
-			,"volume_open_edge":100,"limit_max_draw_down":0,"multiple":10,"file":file
-			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":420}
-
-param_dic_sn = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
-			,"limit_rsi_data":80,"rsi_period":14,"diff_period":60
-			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
-			,"volume_open_edge":100,"limit_max_draw_down":0,"multiple":5,"file":file
-			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":430}
+param_dict_cu = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
+			"multiple":5,"file":file,"config_file":390}
 
 nameDict = {
 	"rb1801":{"param":param_dict_rb},
 	"ru1801":{"param":param_dic_ru},
-	"zn1712":{"param":param_dic_zn},
+	"zn1801":{"param":param_dic_zn},
 	"cu1712":{"param":param_dict_cu},
 	"i1801":{"param":param_dict_i},
 	"hc1801":{"param":param_dict_hc},
 	"ni1801":{"param":param_dic_ni},
 	"al1710":{"param":param_dic_al},
-	"au1712":{"param":param_dic_au},
-	"ag1712":{"param":param_dic_ag},
-	"bu1712":{"param":param_dic_bu},
-	"sn1709":{"param":param_dic_sn},
-	"pb1710":{"param":param_dict_pb}
+	"pb1712":{"param":param_dict_pb}
 }
 
 class BandAndTrigger(object):
@@ -160,7 +104,7 @@ class BandAndTrigger(object):
 			tmp_pre_ema_array_60 = []
 			tmp_pre_ema_array_5 = []
 			tmp_pre_ema_array_1 = []
-			config_file = "../config/"+str(self._config_file+2)
+			config_file = "../hour_config/config/"+str(self._config_file+2)
 			bf.get_config_info(tmp_pre_ema_array_60,tmp_pre_ema_array_5,tmp_pre_ema_array_1,self._lastprice_array,config_file)
 			if len(tmp_pre_ema_array_60)==0:
 				self._pre_ema_val_60 = 0
@@ -178,19 +122,19 @@ class BandAndTrigger(object):
 	def __del__(self):
 		print "this is the over function " + str(self._config_file)
 
-		config_file = "../config/"+str(self._config_file+2)
+		config_file = "../hour_config/config/"+str(self._config_file+2)
 		bf.write_config_info(self._pre_ema_val_60,self._pre_ema_val_5,self._pre_ema_val_5,
 			self._lastprice_array,self._ema_period,config_file)
 
-		config_file = "../config/"+str(self._config_file+3)
+		config_file = "../hour_config/config/"+str(self._config_file+3)
 		bf.write_config_info(self._pre_ema_val_60,self._pre_ema_val_5,self._pre_ema_val_5,
 			self._lastprice_array,self._ema_period,config_file)
 
-		config_file = "../config/"+str(self._config_file+4)
+		config_file = "../hour_config/config/"+str(self._config_file+4)
 		bf.write_config_info(self._pre_ema_val_60,self._pre_ema_val_5,self._pre_ema_val_5,
 			self._lastprice_array,self._ema_period,config_file)
 
-		config_file = "../config/"+str(self._config_file+5)
+		config_file = "../hour_config/config/"+str(self._config_file+5)
 		bf.write_config_info(self._pre_ema_val_60,self._pre_ema_val_5,self._pre_ema_val_5,
 			self._lastprice_array,self._ema_period,config_file)
 		print "has write the config file"
@@ -326,12 +270,22 @@ def start_create_config(instrumentid,data):
 
 
 def main():
-	data1 =[20171009,20171010,20171011,20171012,20171013]
-	data2 =[20171016,20171017,20171018,20171019,20171020]	
-	data3 =[20171023,20171024,20171025,20171026]
-	data = data1+data2+data3
+	data1 =[20170801,20170802,20170803,20170804]
+	data2 =[20170807,20170808,20170809,20170810,20170811]
+	data3 =[20170814,20170815,20170816,20170817,20170818]
+	data4 =[20170821,20170822,20170823,20170824,20170825]	
+	data5 =[20170828,20170829,20170830,20170831,20170901]
+	data6 =[20170904,20170905,20170906,20170907,20170908]
+	data7 =[20170911,20170912,20170913,20170914,20170915]	
+	data8 =[20170918,20170919,20170920,20170921,20170922]
+	data9 =[20170925,20170926,20170927,20170928,20170929]
+	data10 =[20171009,20171010,20171011,20171012,20171013]
+	data11 =[20171016,20171017,20171018,20171019,20171020]	
+	data12 =[20171023,20171024,20171025,20171026,20171027]
+	data13 =[20171030]
+	data = data1+data2+data3+data4+data5+data6+data7+data8+data9+data10+data11+data12+data13
 	# instrumentid_array = ["ru1801","rb1801","zn1710","pb1710","cu1710","hc1801","i1801","ni1801","al1710","au1712","ag1712","bu1712"]
-	instrumentid_array = ["rb1801"]
+	instrumentid_array = ["rb1801","ru1801","zn1801","pb1712"]
 
 	for mydate in data:
 		for instrumentid in instrumentid_array:

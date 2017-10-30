@@ -29,94 +29,38 @@ param_dict_rb = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
 			"multiple":10,"file":file,"config_file":320}
 
 # 这个是橡胶的
-param_dic_ru = {"limit_max_profit":250,"limit_max_loss":100,"rsi_bar_period":120
-			,"limit_rsi_data":80,"rsi_period":14,"diff_period":60,"tick_num":5
-			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
-			,"volume_open_edge":120,"limit_max_draw_down":0,"multiple":10,"file":file
-			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":330}
+param_dic_ru = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
+			"multiple":10,"file":file,"config_file":330}
 
 # 这个是锌的
-param_dic_zn = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
-			,"limit_rsi_data":80,"rsi_period":14,"diff_period":60,"tick_num":5
-			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
-			,"volume_open_edge":100,"limit_max_draw_down":0,"multiple":5,"file":file
-			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":340}
+param_dic_zn = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
+			"multiple":5,"file":file,"config_file":340}
 
-param_dict_i = {"limit_max_profit":10000,"limit_max_loss":10000,"multiple":100
-			,"rsi_bar_period":120,"limit_rsi_data":80,"rsi_period":14
-			,"diff_period":60
-			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
-			,"limit_max_draw_down":0,"file":file
-			,"open_interest_edge":0,"spread":100,"volume_open_edge":900
-			,"limit_sd":2,"limit_sd_open_edge":1,"limit_sd_close_edge":3,"config_file":350}
+param_dict_i = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
+			"multiple":100,"file":file,"config_file":340}
 
-param_dic_ni = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
-			,"limit_rsi_data":80,"rsi_period":14,"diff_period":60
-			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
-			,"volume_open_edge":100,"limit_max_draw_down":0,"multiple":1,"file":file
-			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":360}
+param_dic_ni = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
+			"multiple":1,"file":file,"config_file":360}
 
-param_dic_al = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
-			,"limit_rsi_data":80,"rsi_period":14,"diff_period":60
-			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
-			,"volume_open_edge":100,"limit_max_draw_down":0,"multiple":5,"file":file
-			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":370}
+param_dic_al = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
+			"multiple":5,"file":file,"config_file":370}
 
-param_dict_hc = {"limit_max_profit":10000,"limit_max_loss":10000,"multiple":10
-			,"rsi_bar_period":120,"limit_rsi_data":80,"rsi_period":14
-			,"diff_period":60
-			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
-			,"limit_max_draw_down":0,"file":file
-			,"open_interest_edge":0,"spread":100,"volume_open_edge":100
-			,"limit_sd":2,"limit_sd_open_edge":1,"limit_sd_close_edge":3,"config_file":380}
+param_dict_hc = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
+			"multiple":10,"file":file,"config_file":380}
 
-param_dict_cu = {"limit_max_profit":10000,"limit_max_loss":10000,"multiple":5
-			,"rsi_bar_period":120,"limit_rsi_data":80,"rsi_period":14
-			,"diff_period":60
-			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
-			,"limit_max_draw_down":0,"file":file
-			,"open_interest_edge":0,"spread":100,"volume_open_edge":900
-			,"limit_sd":40,"limit_sd_open_edge":1,"limit_sd_close_edge":3,"config_file":390}
-
-
-param_dic_au = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
-			,"limit_rsi_data":80,"rsi_period":14,"diff_period":60
-			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
-			,"volume_open_edge":100,"limit_max_draw_down":0,"multiple":1000,"file":file
-			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":400}
-
-param_dic_ag = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
-			,"limit_rsi_data":80,"rsi_period":14,"diff_period":60
-			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
-			,"volume_open_edge":100,"limit_max_draw_down":0,"multiple":15,"file":file
-			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":410}
-
-param_dic_bu = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
-			,"limit_rsi_data":80,"rsi_period":14,"diff_period":60
-			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
-			,"volume_open_edge":100,"limit_max_draw_down":0,"multiple":10,"file":file
-			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":420}
-
-param_dic_sn = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
-			,"limit_rsi_data":80,"rsi_period":14,"diff_period":60
-			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":7200
-			,"volume_open_edge":100,"limit_max_draw_down":0,"multiple":5,"file":file
-			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":430}
+param_dict_cu = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
+			"multiple":5,"file":file,"config_file":390}
 
 nameDict = {
 	"rb1801":{"param":param_dict_rb},
 	"ru1801":{"param":param_dic_ru},
-	"zn1712":{"param":param_dic_zn},
+	"zn1801":{"param":param_dic_zn},
 	"cu1712":{"param":param_dict_cu},
 	"i1801":{"param":param_dict_i},
 	"hc1801":{"param":param_dict_hc},
 	"ni1801":{"param":param_dic_ni},
 	"al1710":{"param":param_dic_al},
-	"au1712":{"param":param_dic_au},
-	"ag1712":{"param":param_dic_ag},
-	"bu1712":{"param":param_dic_bu},
-	"sn1709":{"param":param_dic_sn},
-	"pb1710":{"param":param_dict_pb}
+	"pb1712":{"param":param_dict_pb}
 }
 
 class BandAndTrigger(object):
@@ -199,12 +143,12 @@ class BandAndTrigger(object):
 	# get the md data ,every line;
 	def get_md_data(self,md_array):
 		# tranfer the string to float
-		md_array[LASTPRICE] = float(md_array[LASTPRICE])
-		md_array[VOLUME] = float(md_array[VOLUME])
-		md_array[OPENINTEREST] = float(md_array[OPENINTEREST])
-		md_array[TURNONER] = float(md_array[TURNONER])
-		md_array[BIDPRICE1] = float(md_array[BIDPRICE1])
-		md_array[ASKPRICE1] = float(md_array[ASKPRICE1])
+		# md_array[LASTPRICE] = float(md_array[LASTPRICE])
+		# md_array[VOLUME] = float(md_array[VOLUME])
+		# md_array[OPENINTEREST] = float(md_array[OPENINTEREST])
+		# md_array[TURNONER] = float(md_array[TURNONER])
+		# md_array[BIDPRICE1] = float(md_array[BIDPRICE1])
+		# md_array[ASKPRICE1] = float(md_array[ASKPRICE1])
 
 
 
@@ -330,7 +274,7 @@ def start_create_config(instrumentid,data):
 	if int(hour)>=15:
 		data = bt.get_to_csv_data()
 
-		path_new = "../everydayoutdata/"+instrumentid+ "_band_data"+".csv"
+		path_new = "../everydayoutdata/"+instrumentid+'_'+date+ "_band_data"+".csv"
 		bf.write_data_to_csv(path_new,data)
 
 def copy_file_one_to_one(from_path,to_path):
@@ -349,7 +293,7 @@ def copy_file_to_save():
 
 def main():
 	# instrumentid_array = ["ru1801","rb1801","zn1710","pb1710","cu1710","hc1801","i1801","ni1801","al1710","au1712","ag1712","bu1712"]
-	instrumentid_array = ["rb1801"]
+	instrumentid_array = ["rb1801","ru1801","zn1801","pb1712"]
 
 	conn = cx_Oracle.connect('hq','hq','114.251.16.210:9921/quota')    
 	cursor = conn.cursor () 
@@ -357,7 +301,7 @@ def main():
 	
 	for instrumentid in instrumentid_array:
 		# first get the sql data
-		mysql="select *from hyqh.quotatick where TRADINGDAY = '%s' AND INSTRUMENTID = '%s'" % (str(date),instrumentid)
+		mysql="select * from hyqh.quotatick where TRADINGDAY = '%s' AND INSTRUMENTID = '%s'" % (str(date),instrumentid)
 
 		print mysql
 		cursor.execute (mysql)  

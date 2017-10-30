@@ -453,6 +453,8 @@
                  // console.log(this.result)
                  var data = this.result
                  filedata = data.split("\n")
+                 // console.log(file["name"].split("_"))
+                band_option.title.text = file["name"].split("_")[0]
              };
              reader.readAsText(file);
           }
