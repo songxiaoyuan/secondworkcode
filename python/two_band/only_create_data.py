@@ -65,6 +65,17 @@ param_dic_pp = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
 param_dic_v = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
 			"multiple":5,"file":file,"config_file":450}
 
+param_dic_y = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
+			"multiple":10,"file":file,"config_file":460}
+
+param_dic_p = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
+			"multiple":10,"file":file,"config_file":470}
+
+param_dic_c = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
+			"multiple":10,"file":file,"config_file":480}
+
+param_dic_a = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
+			"multiple":10,"file":file,"config_file":490}
 
 nameDict = {
 	"rb1801":{"param":param_dict_rb},
@@ -81,6 +92,10 @@ nameDict = {
 	"jm1801":{"param":param_dic_jm},
 	"pp1801":{"param":param_dic_pp},
 	"v1801":{"param":param_dic_v},
+	"y1801":{"param":param_dic_y},
+	"p1801":{"param":param_dic_p},
+	"c1801":{"param":param_dic_c},
+	"a1801":{"param":param_dic_a},
 	"pb1710":{"param":param_dict_pb}
 }
 
@@ -144,7 +159,7 @@ class BandAndTrigger(object):
 		print "this is the over function " + str(self._config_file)
 
 		config_file = "../config_two/"+str(self._config_file)
-		bf.write_config_info(self._pre_ema_val_60,self._pre_ema_val_5,self._pre_ema_val_5,
+		bf.write_config_info(self._pre_ema_val_60,self._pre_ema_val_5,self._pre_ema_val_1,
 			self._lastprice_array,self._ema_period,config_file)
 		print "has write the config file"
 
@@ -255,12 +270,12 @@ def main():
 	data10 =[20171009,20171010,20171011,20171012,20171013]
 	data11 =[20171016,20171017,20171018,20171019,20171020]	
 	data12 =[20171023,20171024,20171025,20171026,20171027]
-	data = data1+data2+data3+data4+data5+data6+data7+data8+data9+data10+data11+data12
+	data13 =[20171030,20171031]
+	data = data1+data2+data3+data4+data5+data6+data7+data8+data9+data10+data11+data12+ data13
 	# # data = data8+data9+data10+data11+data12
 	# data =[20171024]
 	# instrumentid_array = ["ru1801","rb1801","zn1710","pb1710","cu1710","hc1801","i1801","ni1801","al1710","au1712","ag1712","bu1712"]
-	instrumentid_array = ["pp1801"]
-
+	instrumentid_array = ["a1801"]
 	
 	for item in data:
 		for instrumentid in instrumentid_array:

@@ -123,19 +123,19 @@ class BandAndTrigger(object):
 		print "this is the over function " + str(self._config_file)
 
 		config_file = "../hour_config/config/"+str(self._config_file+2)
-		bf.write_config_info(self._pre_ema_val_60,self._pre_ema_val_5,self._pre_ema_val_5,
+		bf.write_config_info(self._pre_ema_val_60,self._pre_ema_val_5,self._pre_ema_val_1,
 			self._lastprice_array,self._ema_period,config_file)
 
 		config_file = "../hour_config/config/"+str(self._config_file+3)
-		bf.write_config_info(self._pre_ema_val_60,self._pre_ema_val_5,self._pre_ema_val_5,
+		bf.write_config_info(self._pre_ema_val_60,self._pre_ema_val_5,self._pre_ema_val_1,
 			self._lastprice_array,self._ema_period,config_file)
 
 		config_file = "../hour_config/config/"+str(self._config_file+4)
-		bf.write_config_info(self._pre_ema_val_60,self._pre_ema_val_5,self._pre_ema_val_5,
+		bf.write_config_info(self._pre_ema_val_60,self._pre_ema_val_5,self._pre_ema_val_1,
 			self._lastprice_array,self._ema_period,config_file)
 
 		config_file = "../hour_config/config/"+str(self._config_file+5)
-		bf.write_config_info(self._pre_ema_val_60,self._pre_ema_val_5,self._pre_ema_val_5,
+		bf.write_config_info(self._pre_ema_val_60,self._pre_ema_val_5,self._pre_ema_val_1,
 			self._lastprice_array,self._ema_period,config_file)
 		print "has write the config file"
 

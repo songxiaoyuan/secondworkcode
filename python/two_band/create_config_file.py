@@ -123,19 +123,19 @@ class BandAndTrigger(object):
 		print "this is the over function " + str(self._config_file)
 
 		config_file = "../hour_config/config/"+str(self._config_file+2)
-		bf.write_config_info(self._pre_ema_val_60,self._pre_ema_val_5,self._pre_ema_val_5,
+		bf.write_config_info(self._pre_ema_val_60,self._pre_ema_val_5,self._pre_ema_val_1,
 			self._lastprice_array,self._ema_period,config_file)
 
 		config_file = "../hour_config/config/"+str(self._config_file+3)
-		bf.write_config_info(self._pre_ema_val_60,self._pre_ema_val_5,self._pre_ema_val_5,
+		bf.write_config_info(self._pre_ema_val_60,self._pre_ema_val_5,self._pre_ema_val_1,
 			self._lastprice_array,self._ema_period,config_file)
 
 		config_file = "../hour_config/config/"+str(self._config_file+4)
-		bf.write_config_info(self._pre_ema_val_60,self._pre_ema_val_5,self._pre_ema_val_5,
+		bf.write_config_info(self._pre_ema_val_60,self._pre_ema_val_5,self._pre_ema_val_1,
 			self._lastprice_array,self._ema_period,config_file)
 
 		config_file = "../hour_config/config/"+str(self._config_file+5)
-		bf.write_config_info(self._pre_ema_val_60,self._pre_ema_val_5,self._pre_ema_val_5,
+		bf.write_config_info(self._pre_ema_val_60,self._pre_ema_val_5,self._pre_ema_val_1,
 			self._lastprice_array,self._ema_period,config_file)
 		print "has write the config file"
 
@@ -215,6 +215,13 @@ class BandAndTrigger(object):
 
 def copy_file():
 	print "start create the real server data"
+	shutil.copy('../hour_config/config/312', '../hour_config/real_server/532')
+	shutil.copy('../hour_config/config/312', '../hour_config/real_server/533')
+	shutil.copy('../hour_config/config/322', '../hour_config/real_server/530')
+	shutil.copy('../hour_config/config/322', '../hour_config/real_server/531')
+	# shutil.copy('../hour_config/config/332', '../hour_config/real_server/524')
+	shutil.copy('../hour_config/config/342', '../hour_config/real_server/528')
+	shutil.copy('../hour_config/config/342', '../hour_config/real_server/529')
 
 
 def getSortedData(data):
@@ -276,6 +283,7 @@ def start_create_config(instrumentid,data):
 
 		path_new = "../everydayoutdata/"+instrumentid+'_'+date+ "_band_data"+".csv"
 		bf.write_data_to_csv(path_new,data)
+
 
 def copy_file_one_to_one(from_path,to_path):
 	for root, dirs, files in os.walk(from_path):

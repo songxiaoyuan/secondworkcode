@@ -365,8 +365,36 @@ def main(filename):
 		param_dict["band_open_edge1"] = 0
 		param_dict["band_open_edge2"] = 50
 		param_dict["band_loss_edge"] = 25
-		param_dict["max_loss"] =50
-		param_dict["max_profit"] = 200
+		param_dict["max_loss"] =25
+		param_dict["max_profit"] = 100
+	elif "y" in filename:
+		param_dict["volume_open_edge"] =100
+		param_dict["band_open_edge1"] = 0
+		param_dict["band_open_edge2"] = 20
+		param_dict["band_loss_edge"] = 10
+		param_dict["max_loss"] =10
+		param_dict["max_profit"] = 140
+	elif "p" in filename and "pp" not in filename:
+		param_dict["volume_open_edge"] =100
+		param_dict["band_open_edge1"] = 0
+		param_dict["band_open_edge2"] = 20
+		param_dict["band_loss_edge"] = 10
+		param_dict["max_loss"] =20
+		param_dict["max_profit"] = 100
+	elif "c1801" in filename:
+		param_dict["volume_open_edge"] =40
+		param_dict["band_open_edge1"] = 0
+		param_dict["band_open_edge2"] = 5
+		param_dict["band_loss_edge"] = 3
+		param_dict["max_loss"] =5
+		param_dict["max_profit"] = 30
+	elif "a1801" in filename:
+		param_dict["volume_open_edge"] =40
+		param_dict["band_open_edge1"] = 0
+		param_dict["band_open_edge2"] = 10
+		param_dict["band_loss_edge"] = 3
+		param_dict["max_loss"] =5
+		param_dict["max_profit"] = 30
 	else:
 		print "the instrument is not in the parm " + filename
 		return
@@ -387,15 +415,16 @@ if __name__=='__main__':
 	# data9 =[20170925,20170926,20170927,20170928,20170929]
 	# data10 =[20171009,20171010,20171011,20171012,20171013]
 	# data11 =[20171016,20171017,20171018,20171019,20171020]	
-	# data12 =[20171023,20171024,20171025,20171026,20172027]
-	# data = data1+data2+data3+data4+data5+data6+data7+data8+data9+data10+data11+data12
-	data =[20171030]
+	# data12 =[20171023,20171024,20171025,20171026,20171027]
+	# data13 =[20171030,20171031]
+	# data = data1+data2+data3+data4+data5+data6+data7+data8+data9+data10+data11+data12+ data13
+	data =[20171101]
 	instrumentid = ["rb1801","ru1801","zn1801","pb1712"]
-	# instrumentid = ["pp1801"]
+	# instrumentid = ["a1801"]
 	for item in data:
 		for instrument in instrumentid:
-			path = instrument
-			# path = instrument + "_"+ str(item)
+			# path = instrument
+			path = instrument + "_"+ str(item)
 			print path
 			main(path)	
 		# print WRITETOFILE
