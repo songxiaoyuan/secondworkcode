@@ -77,6 +77,12 @@ param_dic_c = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
 param_dic_a = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
 			"multiple":10,"file":file,"config_file":490}
 
+param_dic_m = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
+			"multiple":10,"file":file,"config_file":500}
+
+param_dic_jd = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
+			"multiple":10,"file":file,"config_file":510}
+
 nameDict = {
 	"rb1801":{"param":param_dict_rb},
 	"ru1801":{"param":param_dic_ru},
@@ -96,6 +102,8 @@ nameDict = {
 	"p1801":{"param":param_dic_p},
 	"c1801":{"param":param_dic_c},
 	"a1801":{"param":param_dic_a},
+	"m1801":{"param":param_dic_m},
+	"jd1801":{"param":param_dic_jd},
 	"pb1710":{"param":param_dict_pb}
 }
 
@@ -275,7 +283,7 @@ def main():
 	# # data = data8+data9+data10+data11+data12
 	# data =[20171024]
 	# instrumentid_array = ["ru1801","rb1801","zn1710","pb1710","cu1710","hc1801","i1801","ni1801","al1710","au1712","ag1712","bu1712"]
-	instrumentid_array = ["a1801"]
+	instrumentid_array = ["rb1801"]
 	
 	for item in data:
 		for instrumentid in instrumentid_array:

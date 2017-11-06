@@ -52,7 +52,7 @@ param_dict_cu = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
 			"multiple":5,"file":file,"config_file":390}
 
 nameDict = {
-	"rb1801":{"param":param_dict_rb},
+	"rb1805":{"param":param_dict_rb},
 	"ru1801":{"param":param_dic_ru},
 	"zn1801":{"param":param_dic_zn},
 	"cu1712":{"param":param_dict_cu},
@@ -301,7 +301,7 @@ def copy_file_to_save():
 
 def main():
 	# instrumentid_array = ["ru1801","rb1801","zn1710","pb1710","cu1710","hc1801","i1801","ni1801","al1710","au1712","ag1712","bu1712"]
-	instrumentid_array = ["rb1801","ru1801","zn1801","pb1712"]
+	instrumentid_array = ["rb1805","ru1801","zn1801","pb1712"]
 
 	conn = cx_Oracle.connect('hq','hq','114.251.16.210:9921/quota')    
 	cursor = conn.cursor () 
