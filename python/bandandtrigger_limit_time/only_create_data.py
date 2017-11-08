@@ -379,17 +379,6 @@ def main(filename):
 
 
 if __name__=='__main__':
-	# data2 =[20170724,20170725,20170726,20170727,20170728]
-	# data3 =[20170731,20170801,20170802,20170803,20170804,20170807,20170808,20170809]
-	# data = data2+ data3
-	# file_dir = "../zn"
-	# for root, dirs, files in os.walk(file_dir):
-	#     for file in files:
-	#     	if "band_data" not in file and "csv" in file:
-	#     		tmp_path = os.path.join(root,file)
-	#     		tmp_path = tmp_path.split('/')[2]
-	#     		print tmp_path
-	#     		main(tmp_path)
 	# data1 =[20170918,20170919,20170920,20170921,20170922]
 	# data2 =[20170925,20170926,20170927,20170928,20170929]
 	# data3 =[20171009,20171010,20171011,20171012,20171013]

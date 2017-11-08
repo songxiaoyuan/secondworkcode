@@ -77,6 +77,12 @@ param_dic_c = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
 param_dic_a = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
 			"multiple":10,"file":file,"config_file":490}
 
+param_dic_m = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
+			"multiple":10,"file":file,"config_file":500}
+
+param_dic_jd = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
+			"multiple":10,"file":file,"config_file":510}
+
 nameDict = {
 	"rb1801":{"param":param_dict_rb},
 	"ru1801":{"param":param_dic_ru},
@@ -96,6 +102,8 @@ nameDict = {
 	"p1801":{"param":param_dic_p},
 	"c1801":{"param":param_dic_c},
 	"a1801":{"param":param_dic_a},
+	"m1801":{"param":param_dic_m},
+	"jd1801":{"param":param_dic_jd},
 	"pb1710":{"param":param_dict_pb}
 }
 

@@ -245,9 +245,8 @@ def create_band_obj(data,param_dict):
 
 def main(filename):
 	# path = "../create_data/"+filename+"_band_data.csv"
-	# path = "../tmp/"+filename+"_band_data.csv"
-	path = "../everydayoutdata/"+filename+"_band_data.csv"
-	# path = "../zn/"+filename
+	path = "../tmp/"+filename+"_band_data.csv"
+	# path = "../everydayoutdata/"+filename+"_band_data.csv"
 	csv_data = bf.read_data_from_csv(path)
 	path = "../outdata_one_hour/"+filename+"_trade_limit_time_volume.txt"
 	file = open(path,"w")
@@ -395,6 +394,20 @@ def main(filename):
 		param_dict["band_loss_edge"] = 3
 		param_dict["max_loss"] =5
 		param_dict["max_profit"] = 30
+	elif "m1801" in filename:
+		param_dict["volume_open_edge"] =100
+		param_dict["band_open_edge1"] = 0
+		param_dict["band_open_edge2"] = 10
+		param_dict["band_loss_edge"] = 3
+		param_dict["max_loss"] =5
+		param_dict["max_profit"] = 20
+	elif "jd1801" in filename:
+		param_dict["volume_open_edge"] =30
+		param_dict["band_open_edge1"] = 0
+		param_dict["band_open_edge2"] = 10
+		param_dict["band_loss_edge"] = 5
+		param_dict["max_loss"] =10
+		param_dict["max_profit"] = 20
 	else:
 		print "the instrument is not in the parm " + filename
 		return
@@ -404,23 +417,23 @@ def main(filename):
 
 
 if __name__=='__main__': 
-	# data1 =[20170801,20170802,20170803,20170804]
-	# data2 =[20170807,20170808,20170809,20170810,20170811]
-	# data3 =[20170814,20170815,20170816,20170817,20170818]
-	# data4 =[20170821,20170822,20170823,20170824,20170825]	
-	# data5 =[20170828,20170829,20170830,20170831,20170901]
-	# data6 =[20170904,20170905,20170906,20170907,20170908]
-	# data7 =[20170911,20170912,20170913,20170914,20170915]	
-	# data8 =[20170918,20170919,20170920,20170921,20170922]
-	# data9 =[20170925,20170926,20170927,20170928,20170929]
-	# data10 =[20171009,20171010,20171011,20171012,20171013]
-	# data11 =[20171016,20171017,20171018,20171019,20171020]	
-	# data12 =[20171023,20171024,20171025,20171026,20171027]
-	# data13 =[20171030,20171031]
-	# data = data1+data2+data3+data4+data5+data6+data7+data8+data9+data10+data11+data12+ data13
-	data =[20171101]
-	instrumentid = ["rb1801","ru1801","zn1801","pb1712"]
-	# instrumentid = ["a1801"]
+	data1 =[20170801,20170802,20170803,20170804]
+	data2 =[20170807,20170808,20170809,20170810,20170811]
+	data3 =[20170814,20170815,20170816,20170817,20170818]
+	data4 =[20170821,20170822,20170823,20170824,20170825]	
+	data5 =[20170828,20170829,20170830,20170831,20170901]
+	data6 =[20170904,20170905,20170906,20170907,20170908]
+	data7 =[20170911,20170912,20170913,20170914,20170915]	
+	data8 =[20170918,20170919,20170920,20170921,20170922]
+	data9 =[20170925,20170926,20170927,20170928,20170929]
+	data10 =[20171009,20171010,20171011,20171012,20171013]
+	data11 =[20171016,20171017,20171018,20171019,20171020]	
+	data12 =[20171023,20171024,20171025,20171026,20171027]
+	data13 =[20171030,20171031]
+	data = data1+data2+data3+data4+data5+data6+data7+data8+data9+data10+data11+data12+ data13
+	# data =[20171101]
+	# instrumentid = ["rb1801","ru1801","zn1801","pb1712"]
+	instrumentid = ["rb1801"]
 	for item in data:
 		for instrument in instrumentid:
 			# path = instrument
