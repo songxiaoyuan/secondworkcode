@@ -43,9 +43,9 @@
 <script type="text/javascript">
 
 
-        // document.getElementById("rsidrawing").style.display="none";
+        document.getElementById("rsidrawing").style.display="none";
         document.getElementById("sddrawing").style.display="none";
-        // document.getElementById("diff_volume_drawing").style.display="none";
+        document.getElementById("diff_volume_drawing").style.display="none";
         document.getElementById("ema_diff_volume_drawing").style.display="none";
         document.getElementById("diff_openinterest_drawing").style.display="none";
         document.getElementById("ema_diff_openinterest_drawing").style.display="none";
@@ -479,23 +479,23 @@
             band_series_data.push(tmpobj)
 
 
-            for (var i = 0; i < sds.length; i++) {
-                band_legend_data.push('+'+sds[i]) 
-                band_legend_nums.push(Number(sds[i]))
-                tmpobj = {}
-                tmpobj.name= '+'+sds[i]
-                tmpobj.type = "line"
-                tmpobj.data = []
-                band_series_data.push(tmpobj)
+            // for (var i = 0; i < sds.length; i++) {
+            //     band_legend_data.push('+'+sds[i]) 
+            //     band_legend_nums.push(Number(sds[i]))
+            //     tmpobj = {}
+            //     tmpobj.name= '+'+sds[i]
+            //     tmpobj.type = "line"
+            //     tmpobj.data = []
+            //     band_series_data.push(tmpobj)
 
-                band_legend_data.push('-'+sds[i]) 
-                band_legend_nums.push(0-Number(sds[i]))
-                tmpobjneg = {}
-                tmpobjneg.name= '-'+sds[i]
-                tmpobjneg.type = "line"
-                tmpobjneg.data = []
-                band_series_data.push(tmpobjneg)
-            }
+            //     band_legend_data.push('-'+sds[i]) 
+            //     band_legend_nums.push(0-Number(sds[i]))
+            //     tmpobjneg = {}
+            //     tmpobjneg.name= '-'+sds[i]
+            //     tmpobjneg.type = "line"
+            //     tmpobjneg.data = []
+            //     band_series_data.push(tmpobjneg)
+            // }
         }
 
 
@@ -510,9 +510,9 @@
                 var time = linedata[0]
                 var lastprice = Number(linedata[1])
                 var middle = Number(linedata[2])
-                var sd = Number(linedata[3])
-                var rsi = Number(linedata[4])
-                var diff_volume = Number(linedata[6])
+                // var sd = Number(linedata[3])
+                // var rsi = Number(linedata[4])
+                // var diff_volume = Number(linedata[6])
 
                 // var diff_volume = Number(linedata[5])
                 // var diff_openinterest = Number(linedata[6])
@@ -566,53 +566,53 @@
 
                 // ema_spread_array.push(ema_spread)
 
-                var openband = 0.5
-                if (sd>20) {
-                    //开仓边界是0.5，
-                    openband = 0.5
-                }
-                else{
-                    //开仓边界是1
-                    openband = 1
-                }
-                // if (lastprice < middle + openband*sd && lastprice > middle - openband*sd) {
-                    // if (diff_volume >1000) {
-                    //     diff_volume = 1000
-                    // }
-                    diff_volume_array.push(diff_volume)
+                // var openband = 0.5
+                // if (sd>20) {
+                //     //开仓边界是0.5，
+                //     openband = 0.5
+                // }
+                // else{
+                //     //开仓边界是1
+                //     openband = 1
+                // }
+                // // if (lastprice < middle + openband*sd && lastprice > middle - openband*sd) {
+                //     // if (diff_volume >1000) {
+                //     //     diff_volume = 1000
+                //     // }
+                //     diff_volume_array.push(diff_volume)
 
-                    // if (ema_diff_volume >15000) {
-                    //     ema_diff_volume = 15000
-                    // }
-                    ema_diff_volume_array.push(ema_diff_volume)
+                //     // if (ema_diff_volume >15000) {
+                //     //     ema_diff_volume = 15000
+                //     // }
+                //     ema_diff_volume_array.push(ema_diff_volume)
 
 
-                    if (ema_openinterest >500) {
-                        ema_openinterest = 500
-                    }
-                    if (ema_openinterest < -500) {
-                        ema_openinterest = -500
-                    }
-                    diff_openinterest_array.push(diff_openinterest)
+                //     if (ema_openinterest >500) {
+                //         ema_openinterest = 500
+                //     }
+                //     if (ema_openinterest < -500) {
+                //         ema_openinterest = -500
+                //     }
+                //     diff_openinterest_array.push(diff_openinterest)
 
-                    if (ema_openinterest >1000) {
-                        ema_openinterest = 1000
-                    }
-                    if (ema_openinterest < -1000) {
-                        ema_openinterest = -1000
-                    }
+                //     if (ema_openinterest >1000) {
+                //         ema_openinterest = 1000
+                //     }
+                //     if (ema_openinterest < -1000) {
+                //         ema_openinterest = -1000
+                //     }
 
-                    ema_openinterest_array.push(ema_openinterest)
-                    spread_array.push(spread)
+                //     ema_openinterest_array.push(ema_openinterest)
+                //     spread_array.push(spread)
 
-                    if (ema_spread >10000) {
-                        ema_spread = 10000
-                    }
-                    if (ema_spread < -10000) {
-                        ema_spread = -10000
-                    }
+                //     if (ema_spread >10000) {
+                //         ema_spread = 10000
+                //     }
+                //     if (ema_spread < -10000) {
+                //         ema_spread = -10000
+                //     }
 
-                    ema_spread_array.push(ema_spread)
+                //     ema_spread_array.push(ema_spread)
                 // }
                 // else{
 
@@ -709,21 +709,21 @@
                 }
                     
                 times_array.push(time)
-                sd_array.push(sd)
+                // sd_array.push(sd)
 
 
                 // ema_openinterest_array.push(ema_openinterest)
                 // ema_diff_volume_array.push(ema_diff_volume)
 
                 // if (rsi >0) {
-                    if (rsi > 20000) {
-                        rsi = 20000
-                    }
-                    if (rsi < -20000) {
-                        rsi = -20000
-                    }
-                    rsi_times_array.push(time)
-                    rsi_array.push(rsi)
+                    // if (rsi > 20000) {
+                    //     rsi = 20000
+                    // }
+                    // if (rsi < -20000) {
+                    //     rsi = -20000
+                    // }
+                    // rsi_times_array.push(time)
+                    // rsi_array.push(rsi)
 
                 // }
 
@@ -734,21 +734,30 @@
                     MAX = lastprice
                 }
 
+                if (MIN > middle) {
+                    MIN = middle
+                }
+                if (MAX < middle) {
+                    MAX = middle
+                }
+
                 band_series_data[0].data.push(lastprice)
+                band_series_data[1].data.push(middle)
+
 
                 // 在各个线里面插入数据。用来显示所用。
-                for (var j = 1; j < band_series_data.length; j++) {
-                    var num = middle + band_legend_nums[j]*(sd)
-                    // console.log(num)
-                    // console.log(typeof(num))
-                    if (MIN > num) {
-                        MIN = num
-                    }
-                    if (MAX < num) {
-                        MAX = num
-                    }
-                    band_series_data[j].data.push(num)
-                }
+                // for (var j = 1; j < band_series_data.length; j++) {
+                //     var num = middle + band_legend_nums[j]*(sd)
+                //     // console.log(num)
+                //     // console.log(typeof(num))
+                //     if (MIN > num) {
+                //         MIN = num
+                //     }
+                //     if (MAX < num) {
+                //         MAX = num
+                //     }
+                //     band_series_data[j].data.push(num)
+                // }
             }
 
 

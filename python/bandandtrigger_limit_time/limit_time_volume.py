@@ -64,8 +64,7 @@ class BandAndTrigger(object):
 
 		self._tmp_sum_diff_volume += self._diff_volume
 		self._now_bar_volume_tick +=1
-		if self._now_bar_volume_tick >= self._limit_bar_volume_tick or ( 
-			len(self._diff_volume_array) >0 and self._tmp_sum_diff_volume > self._limit_multiple* self._diff_volume_array[-1]):
+		if self._now_bar_volume_tick >= self._limit_bar_volume_tick:
 			self._diff_volume_array.append(self._tmp_sum_diff_volume)
 			self._lastprice_array.append(self._lastprice)
 			self._tmp_sum_diff_volume = 0
@@ -233,12 +232,12 @@ def main(filename):
 	file = open(path,"w")
 
 	# 这个是螺纹钢的 tick 1
-	param_dict = {"limit_bar_volume_tick":10,
+	param_dict = {"limit_bar_volume_tick":20,
 				"limit_large_period":5,"limit_multiple":2,"file":file}
 	if "rb" in filename:
 		param_dict["volume_open_edge"] =600
 		param_dict["band_open_edge1"] = 0
-		param_dict["band_open_edge2"] = 10
+		param_dict["band_open_edge2"] = 5
 		param_dict["band_loss_edge"] = 5
 		param_dict["max_loss"] =10
 		param_dict["max_profit"] = 30
