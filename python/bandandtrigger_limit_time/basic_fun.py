@@ -26,25 +26,16 @@ def is_band_open_time(direction,lastprice,middle_val,bigger_edge1,bigger_edge2):
 			return True
 	return False
 
-def is_band_close_time(direction,lastprice,middle_val,sd_val,open_edge,close_edge,cur_rsi_data,limit_rsi_data):
+def is_band_close_time(direction,lastprice,middle_val,close_edge):
 	# this is used to judge is time to band is close time
 	if direction ==LONG:
-		profitval = middle_val + close_edge*sd_val
-		lossvla = middle_val - open_edge*sd_val
+		lossval = middle_val - close_edge
 		# 尽量避免损失，如果达到止损条件，即使止损
-		if lastprice < lossvla:
-			return True
-		# 判断止盈条件，大于几倍的band，并且同时rsi大于80，然后可能在加上最大回撤的值。
-		# 因为ris是按照这个bar来计算的，所以应该一段时间判断一次，如果没有达到这个段的时间，应该就直接不平仓
-		if lastprice > profitval and cur_rsi_data >= limit_rsi_data and cur_rsi_data >=0:
+		if lastprice < lossval:
 			return True
 	elif direction ==SHORT:
-		profitval = middle_val - close_edge*sd_val
-		lossval = middle_val + open_edge*sd_val
+		lossval = middle_val + close_edge
 		if lastprice > lossval:
-			return True
-		ris = 100 - cur_rsi_data
-		if lastprice < profitval and ris >= limit_rsi_data and cur_rsi_data >=0 :
 			return True
 	return False
 
@@ -80,20 +71,60 @@ def is_trigger_down_time(now_md_price,pre_md_price,spread_edge,multiple):
 		return True
 	return False
 
-def is_trigger_size_open_time(direction,now_md_price,pre_md_price,volume_open_edge,
-							openinterest_edge,spread_edge,multiple):
-	# this is used to judge the time of trigger size to open
-	# print now_md_price[VOLUME] - pre_md_price[VOLUME]
-	if now_md_price[VOLUME] - pre_md_price[VOLUME] < volume_open_edge:
+def is_diff_volume_open_time(tmp_sum_diff_volume,diff_volume_array,limit_multiple,limit_large_period):
+	left_index = len(diff_volume_array) - limit_large_period
+	if len(diff_volume_array) ==0:
 		return False
-	tmp = now_md_price[OPENINTEREST] - pre_md_price[OPENINTEREST]
-	if tmp != 0 and tmp < openinterest_edge:
+	if left_index <0:
+		left_index = 0
+	for x in xrange(left_index+1,len(diff_volume_array)):
+		if (diff_volume_array[left_index] * limit_multiple) > diff_volume_array[x]:
+			return False
+	if (diff_volume_array[left_index] * limit_multiple) > tmp_sum_diff_volume :
 		return False
-	# return True
-	if direction ==LONG:
-		return is_trigger_up_time(now_md_price,pre_md_price,spread_edge,multiple)
+	return True
+
+
+def is_lastprice_open_time(direction,lastprice,lastprice_array,limit_large_period):
+	left_index = len(lastprice_array) - limit_large_period
+	if len(lastprice_array) ==0 or left_index < 0:
+		return False
+	series = 0
+	if direction == LONG:
+		for x in xrange(left_index+1,len(lastprice_array)):
+			if lastprice_array[x] >= lastprice_array[left_index]:
+				series +=1
+			else:
+				return False
+		if lastprice >= lastprice_array[left_index]:
+			series +=1
 	elif direction ==SHORT:
-		return is_trigger_down_time(now_md_price,pre_md_price,spread_edge,multiple)
+		for x in xrange(left_index+1,len(lastprice_array)):
+			if lastprice_array[x] <= lastprice_array[left_index]:
+				series +=1
+			else:
+				return False
+		if lastprice <= lastprice_array[left_index]:
+			series +=1
+	else:
+		return False
+	if series == limit_large_period:
+		return True
+	else:
+		return False
+
+
+def is_trigger_size_open_time(direction,diff_volume,limit_diff_volume,spread,limit_spread):
+	# this is used to judge the time of trigger size to open
+	if diff_volume < limit_diff_volume:
+		return False
+	if direction ==LONG:
+		if spread >= limit_spread:
+			return True
+	elif direction ==SHORT:
+		spread = 100 - spread
+		if spread >= limit_spread:
+			return True
 	return False
 
 def is_trigger_size_close_time(direction,now_md_price,pre_md_price,volume_open_edge,
@@ -240,21 +271,17 @@ def get_weighted_mean(target_array,weight_array,period):
 		return 0
 	return float(total_sum)/weight_sum
 
-def write_config_info(pre_ema_val,lastprice_array,rsi_array,rsi_array_period,pre_rsi_lastprice,config_path):
+def write_config_info(pre_ema_val,lastprice_array,config_path):
 	config_file = open(config_path,"w")
 	line1 = "pre_ema_val:,"+str(pre_ema_val)
 	line2 = "lastpricearray:"
 	for i in lastprice_array:
 		line2 = line2 + ","+str(i)
-	line3 = "rsiarray:"
-	for i in xrange(len(rsi_array)-rsi_array_period,len(rsi_array)):
-		line3 = line3 + "," + str(rsi_array[i])
-	line4 = "pre_rsi_val:,"+str(pre_rsi_lastprice)
-	write_lines = [line1+'\n',line2+'\n',line3+'\n',line4+'\n']
+	write_lines = [line1+'\n',line2+'\n']
 	config_file.writelines(write_lines)
 	config_file.close()
 
-def get_config_info(pre_ema_val_array,lastprice_array,lastprice_dic,rsi_array,rsi_pre_lastprice_array,config_path):
+def get_config_info(pre_ema_val_array,lastprice_array,config_path):
 	try:
 		config_file = open(config_path)
 	except Exception as e:
@@ -272,20 +299,7 @@ def get_config_info(pre_ema_val_array,lastprice_array,lastprice_dic,rsi_array,rs
 			line = line.split(',')[1:]
 			for tmp in line:
 				tmp = float(tmp.strip())
-				if tmp not in lastprice_dic:
-					lastprice_dic[tmp] =1
-				else:
-					lastprice_dic[tmp] +=1
 				lastprice_array.append(tmp)
-			# print "the length of lastprice is: " + str(len(lastprice_array))
-		elif "rsiarray" in line:
-			print "this is rsiarray"
-			line = line.split(',')[1:]
-			for tmp in line:
-				rsi_array.append(float(tmp.strip()))
-		elif "pre_rsi_val" in line:
-			print "this is the pre rsi lastprice"
-			rsi_pre_lastprice_array.append(float(line.split(',')[1].strip()))
 		else:
 			print "this is not the config line"
 	config_file.close()
@@ -299,6 +313,16 @@ def is_wvad_open_time(direction,wvad,limit_wvad):
 		if wvad > limit_wvad:
 			return True
 	return False
+
+def read_data_from_csv(path):
+	f = open(path,'rb')
+	reader = csv.reader(f)
+	ret = []
+	for row in reader:
+		# obj.get_md_data(row)
+		ret.append(row)
+	# only get the day data
+	return ret
 
 if __name__=='__main__': 
 	print "this is basic fun like c++ so"

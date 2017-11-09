@@ -127,20 +127,10 @@ class BandAndTrigger(object):
 		self._pre_md_price = []
 		self._now_md_price = []
 		self._lastprice_array = []
-		self._lastprice_map = dict()
 		self._pre_ema_val = 0
 		self._now_middle_value =0
-		self._now_sd_val = 0
 
 		self._multiple = param_dic["multiple"]
-
-		self._rsi_array = []
-		self._pre_rsi_lastprice =0 
-		self._now_bar_rsi_tick = 0
-		self._ris_data = 0
-		self._rsi_period = param_dic["rsi_period"]
-		self._rsi_bar_period = param_dic["rsi_bar_period"]
-
 		self._moving_theo = "EMA"
 		# band param
 		self._param_period = param_dic["band_period"]
@@ -152,29 +142,19 @@ class BandAndTrigger(object):
 		if len(self._lastprice_array) ==0:
 			print "this is init function " + str(self._config_file)
 			tmp_pre_ema_array = []
-			tmp_rsi_lastprice = []
 			config_file = "../config/"+str(self._config_file)
-			bf.get_config_info(tmp_pre_ema_array,self._lastprice_array,self._lastprice_map
-				,self._rsi_array,tmp_rsi_lastprice,config_file)
+			bf.get_config_info(tmp_pre_ema_array,self._lastprice_array,config_file)
 			if len(tmp_pre_ema_array)==0:
 				self._pre_ema_val = 0
-				self._pre_rsi_lastprice = 0 
 			else:
 				self._pre_ema_val = tmp_pre_ema_array[0]
-				self._pre_rsi_lastprice = tmp_rsi_lastprice[0]
 		print self._pre_ema_val
 		print len(self._lastprice_array)
-		print self._rsi_array
-		print self._pre_rsi_lastprice
-		# print "the length of lastprice is: " +str(len(self._lastprice_array))
 
 
-	def __del__(self):
-		print "this is the over function " + str(self._config_file)
-
+	def write_config(self):
 		config_file = "../config/"+str(self._config_file)
-		bf.write_config_info(self._pre_ema_val,self._lastprice_array
-			,self._rsi_array,self._rsi_period,self._now_md_price[LASTPRICE],config_file)
+		bf.write_config_info(self._pre_ema_val,self._lastprice_array,config_file)
 
 
 	# get the md data ,every line;
@@ -192,25 +172,12 @@ class BandAndTrigger(object):
 		self._now_md_price = md_array
 
 		lastprice = self._now_md_price[LASTPRICE]
-		# self._lastprice_array.append(lastprice)
-		# print lastprice
+		if self._pre_ema_val ==0:
+			self._pre_ema_val = lastprice
+
 		if len(self._pre_md_price) ==0:
 			# "the is the first line data"
 			return
-
-		# self._rsi_array.append(lastprice - self._pre_md_price[LASTPRICE])
-		if self._now_bar_rsi_tick >= self._rsi_bar_period:
-			# 表示已经到了一个bar的周期。
-			tmpdiff = lastprice - self._pre_rsi_lastprice		
-			self._pre_rsi_lastprice = lastprice
-			self._now_bar_rsi_tick = 1
-			self._ris_data =bf.get_rsi_data(tmpdiff,self._rsi_array,self._rsi_period)
-			self._rsi_array.append(tmpdiff)
-		else:
-			self._now_bar_rsi_tick +=1
-			tmpdiff = lastprice - self._pre_rsi_lastprice
-			self._ris_data =bf.get_rsi_data(tmpdiff,self._rsi_array,self._rsi_period)
-				# self._ris_data = 0
 
 		self._lastprice_array.append(lastprice)
 		if len(self._lastprice_array) <= self._param_period:
@@ -219,32 +186,14 @@ class BandAndTrigger(object):
 			ema_period = len(self._lastprice_array)
 			pre_ema_val = bf.get_ema_data(lastprice,self._pre_ema_val,ema_period)
 			self._pre_ema_val = pre_ema_val
-			# save the pre_ema_val and return
-			if lastprice not in self._lastprice_map:
-				self._lastprice_map[lastprice] =1
-			else:
-				self._lastprice_map[lastprice] +=1
 			return True
 
-		front_lastprice = self._lastprice_array[0]
-		self._lastprice_array.pop(0)
-		if front_lastprice != lastprice:
-			if lastprice not in self._lastprice_map :
-				self._lastprice_map[lastprice] = 1
-			else:
-				self._lastprice_map[lastprice] +=1
-
-			self._lastprice_map[front_lastprice] -=1
-		# start the judge
 		if self._moving_theo =="EMA":
 			self._now_middle_value = bf.get_ema_data(lastprice,self._pre_ema_val,self._param_period)
 			self._pre_ema_val = self._now_middle_value
 		else:
-			self._now_middle_value = bf.get_ma_data(self._lastprice_array,self._param_period)
-		
-
-		
-		self._now_sd_val =bf.get_sd_data_by_map(self._lastprice_map,self._param_period)	
+			self._now_middle_value = bf.get_ma_data(self._lastprice_array,self._param_period)	
+		self._lastprice_array.pop(0)
 
 		diff_volume = self._now_md_price[VOLUME] - self._pre_md_price[VOLUME]
 		diff_interest = self._now_md_price[OPENINTEREST] - self._pre_md_price[OPENINTEREST]
@@ -258,12 +207,10 @@ class BandAndTrigger(object):
 
 
 		tmp_to_csv = [self._now_md_price[TIME],self._now_md_price[LASTPRICE],
-					round(self._now_middle_value,2),round(self._now_sd_val,2),
-					round(self._ris_data,2),
+					round(self._now_middle_value,2),
 					round(diff_volume,2),round(diff_interest,2),round(spread,2)]
 		# print tmp_to_csv
 		self._write_to_csv_data.append(tmp_to_csv)
-
 		return True
 
 	def get_to_csv_data(self):
@@ -287,91 +234,21 @@ def clean_night_data(data):
 		# 	continue
 	return ret
 
-def getSortedData(data):
-	ret = []
-	night = []
-	zero = []
-	day = []
-	nightBegin = 21*3600
-	nightEnd = 23*3600+59*60+60
-	zeroBegin = 0
-	zeroEnd = 9*3600 - 100
-	dayBegin = 9*3600
-	dayEnd = 15*3600
-
-	for line in data:
-		# print line
-		timeLine = line[20].split(":")
-		# print timeLine
-		nowTime = int(timeLine[0])*3600+int(timeLine[1])*60+int(timeLine[2])
-
-		if nowTime >= zeroBegin and nowTime <zeroEnd:
-			zero.append(line)
-		elif nowTime >= dayBegin and nowTime <= dayEnd:
-			day.append(line)
-		elif nowTime >=nightBegin and nowTime <=nightEnd:
-			night.append(line)
-		# if int(line[22]) ==0 or int(line[4]) ==3629:
-		# 	continue
-	night = sorted(night, key = lambda x: (x[20], int(x[21])))
-	zero = sorted(zero, key = lambda x: (x[20], int(x[21])))
-	day = sorted(day, key = lambda x: (x[20], int(x[21])))
-
-	for line in night:
-		ret.append(line)
-	for line in zero:
-		ret.append(line)
-	for line in day:
-		ret.append(line)
-
-	return ret
-
-def getSqlData(myday,instrumentid): 
-
-	conn = cx_Oracle.connect('hq','hq','114.251.16.210:9921/quota')    
-	cursor = conn.cursor () 
-	for index in xrange(0,1):
-		date=myday+index
-		print date
-
-		mysql="select *from hyqh.quotatick where TRADINGDAY = '%s' AND INSTRUMENTID = '%s' " % (date,instrumentid)
-
-		print mysql
-		cursor.execute (mysql)  
-
-		icresult = cursor.fetchall()
-		# get the data and sort it.
-		# sortedlist = sorted(icresult, key = lambda x: (x[20], int(x[21])))
-		cleandata = getSortedData(icresult)
-		filename='../data/'+"%s_"%instrumentid
-		filename=filename+str(date)+'.csv'
-		print "we get the instrument id %s" % instrumentid
-
-		bf.write_data_to_csv(filename,cleandata)
-
-	cursor.close ()  
-	conn.close () 
-
 
 def main(filename):
 	path = "../data/"+filename+".csv"
-	# path = "../data/"+filename
-	# read_data_from_csv(path)
 	f = open(path,'rb')
 	instrumentid = filename.split("_")[0]
 	print "the instrument id is: "+instrumentid
 	reader = csv.reader(f)
-
-	# reader =getSortedData(reader)
-	
 	bt = BandAndTrigger(nameDict[instrumentid]["param"])
 	for row in reader:
 		bt.get_md_data(row)
 		# tranfer the string to float
+	bt.write_config()
 	f.close()
 	
 	data = bt.get_to_csv_data()
-
 	data = clean_night_data(data)
 	path_new = "../create_data/"+filename+ "_band_data"+".csv"
 	bf.write_data_to_csv(path_new,data)
@@ -379,20 +256,25 @@ def main(filename):
 
 
 if __name__=='__main__':
-	# data1 =[20170918,20170919,20170920,20170921,20170922]
-	# data2 =[20170925,20170926,20170927,20170928,20170929]
-	# data3 =[20171009,20171010,20171011,20171012,20171013]
-	# data4 =[20171016,20171017,20171018,20171019]
-	# # data =[20170927]
-	# data = data1 + data2 + data3 +data4
-	data =[20171020]
-	instrumentid_array = ["ru1801","rb1801","zn1712"]
+	data1 =[20170801,20170802,20170803,20170804]
+	data2 =[20170807,20170808,20170809,20170810,20170811]
+	data3 =[20170814,20170815,20170816,20170817,20170818]
+	data4 =[20170821,20170822,20170823,20170824,20170825]	
+	data5 =[20170828,20170829,20170830,20170831,20170901]
+	data6 =[20170904,20170905,20170906,20170907,20170908]
+	data7 =[20170911,20170912,20170913,20170914,20170915]	
+	data8 =[20170918,20170919,20170920,20170921,20170922]
+	data9 =[20170925,20170926,20170927,20170928,20170929]
+	data10 =[20171009,20171010,20171011,20171012,20171013]
+	data11 =[20171016,20171017,20171018,20171019,20171020]	
+	data12 =[20171023,20171024,20171025,20171026,20171027]
+	data13 = [20171030,20171031]
+	data = data1+data2+data3+data4+data5+data6+data7+data8+data9+data10+data11+data12+data13
+	# data =[20171020]
+	instrumentid_array = ["rb1801"]
 	# instrumentid_array = ["al1712","ni1801","cu1712"]
 	for item in data:
 		for instrumentid in instrumentid_array:
-			# first get the sql data
-			getSqlData(item,instrumentid)
-
 			path = instrumentid+ "_"+str(item)
 			print path
 			main(path)	
