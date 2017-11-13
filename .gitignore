@@ -1,5 +1,5 @@
 python/data/*
-python/hour_config/*
+python/hour_config/**
 **/.DS_Store
 .DS_Store
 **/*.txt
