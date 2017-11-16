@@ -36,30 +36,37 @@ param_dic_ru = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
 param_dic_zn = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
 			"multiple":5,"file":file,"config_file":340}
 
-param_dict_i = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
-			"multiple":100,"file":file,"config_file":340}
+# param_dict_i = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
+# 			"multiple":100,"file":file,"config_file":340}
 
 param_dic_ni = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
-			"multiple":1,"file":file,"config_file":360}
+			"multiple":1,"file":file,"config_file":350}
 
 param_dic_al = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
-			"multiple":5,"file":file,"config_file":370}
+			"multiple":5,"file":file,"config_file":360}
 
-param_dict_hc = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
-			"multiple":10,"file":file,"config_file":380}
+# param_dict_hc = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
+# 			"multiple":10,"file":file,"config_file":380}
 
 param_dict_cu = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
-			"multiple":5,"file":file,"config_file":390}
+			"multiple":5,"file":file,"config_file":370}
 
+
+param_dict_pp = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
+			"multiple":5,"file":file,"config_file":380}
+param_dict_v = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
+			"multiple":5,"file":file,"config_file":390}
 nameDict = {
 	"rb1805":{"param":param_dict_rb},
 	"ru1801":{"param":param_dic_ru},
 	"zn1801":{"param":param_dic_zn},
-	"cu1712":{"param":param_dict_cu},
-	"i1801":{"param":param_dict_i},
-	"hc1801":{"param":param_dict_hc},
-	"ni1801":{"param":param_dic_ni},
-	"al1710":{"param":param_dic_al},
+	"cu1801":{"param":param_dict_cu},
+	# "i1801":{"param":param_dict_i},
+	# "hc1801":{"param":param_dict_hc},
+	"ni1805":{"param":param_dic_ni},
+	"al1801":{"param":param_dic_al},
+	"pp1801":{"param":param_dict_pp},
+	"v1801":{"param":param_dict_v},
 	"pb1712":{"param":param_dict_pb}
 }
 
@@ -285,8 +292,12 @@ def main():
 	# data13 =[20171030]
 	# data = data1+data2+data3+data4+data5+data6+data7+data8+data9+data10+data11+data12+data13
 	# instrumentid_array = ["ru1801","rb1801","zn1710","pb1710","cu1710","hc1801","i1801","ni1801","al1710","au1712","ag1712","bu1712"]
-	data = [20171030,20171031,20171101,20171102,20171103]
-	instrumentid_array = ["rb1805"]
+	data13 = [20171030,20171031,20171101,20171102,20171103]
+	data14 = [20171106,20171107,20171108,20171109,20171110]
+	data15 = [20171113,20171114,20171115]
+	# data = data1+data2+data3+data4+data5+data6+data7+data8+data9+data10+data11+data12+data13
+	data = data13+data14+data15
+	instrumentid_array = ["pp1801","v1801"]
 
 	for mydate in data:
 		for instrumentid in instrumentid_array:

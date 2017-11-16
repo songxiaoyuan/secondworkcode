@@ -86,9 +86,9 @@ if __name__=='__main__':
 	# data2 =[20170802,20170803,20170804,20170807,20170808,20170809,20170810,20170811,20170814,20170815,20170816]
 	# data3 =[20170817,20170818,20170821,20170822,20170823,20170824,20170825,20170828,20170829]
 	# data = data2+ data3
-	data = [20171109]
+	data = [20171115]
 	# instrumentid_array = ["ru1801","rb1801","zn1710","pb1710","cu1710","hc1801","i1801","ni1801","al1710","au1712","ag1712","bu1712"]
-	instrumentid_array = ["rb1805"]
+	instrumentid_array = ["ni1805"]
 	for myday in data:
 		# pass
 		for instrumentid in instrumentid_array:
