@@ -29,17 +29,14 @@ param_dic_zn = {"tick":5,"config_file":"zn"}
 param_dict_i = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
 			"multiple":100,"file":file,"config_file":350}
 
-param_dic_ni = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
-			"multiple":1,"file":file,"config_file":360}
+param_dic_ni = {"tick":10,"config_file":"ni"}
 
-param_dic_al = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
-			"multiple":5,"file":file,"config_file":370}
+param_dic_al = {"tick":5,"config_file":"al"}
 
 param_dict_hc = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
 			"multiple":10,"file":file,"config_file":380}
 
-param_dict_cu = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
-			"multiple":5,"file":file,"config_file":390}
+param_dict_cu = {"tick":10,"config_file":"cu"}
 
 
 param_dic_au = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
@@ -54,11 +51,9 @@ param_dic_j = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
 param_dic_jm = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
 			"multiple":60,"file":file,"config_file":430}
 
-param_dic_pp = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
-			"multiple":5,"file":file,"config_file":440}
+param_dic_pp = {"tick":1,"config_file":"pp"}
 
-param_dic_v = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
-			"multiple":5,"file":file,"config_file":450}
+param_dic_v = {"tick":5,"config_file":"v"}
 
 param_dic_y = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
 			"multiple":10,"file":file,"config_file":460}
@@ -82,11 +77,11 @@ nameDict = {
 	"rb1801":{"param":param_dict_rb},
 	"ru1801":{"param":param_dic_ru},
 	"zn1712":{"param":param_dic_zn},
-	"cu1712":{"param":param_dict_cu},
+	"cu1801":{"param":param_dict_cu},
 	"i1801":{"param":param_dict_i},
 	"hc1801":{"param":param_dict_hc},
-	"ni1801":{"param":param_dic_ni},
-	"al1710":{"param":param_dic_al},
+	"ni1805":{"param":param_dic_ni},
+	"al1801":{"param":param_dic_al},
 	"au1712":{"param":param_dic_au},
 	"ag1712":{"param":param_dic_ag},
 	"j1801":{"param":param_dic_j},
@@ -175,39 +170,42 @@ def clean_night_data(data):
 
 
 def main():
-	data1 =[20170801,20170802,20170803,20170804]
-	data2 =[20170807,20170808,20170809,20170810,20170811]
-	data3 =[20170814,20170815,20170816,20170817,20170818]
-	data4 =[20170821,20170822,20170823,20170824,20170825]	
-	data5 =[20170828,20170829,20170830,20170831,20170901]
-	data6 =[20170904,20170905,20170906,20170907,20170908]
-	data7 =[20170911,20170912,20170913,20170914,20170915]	
-	data8 =[20170918,20170919,20170920,20170921,20170922]
-	data9 =[20170925,20170926,20170927,20170928,20170929]
-	data10 =[20171009,20171010,20171011,20171012,20171013]
-	data11 =[20171016,20171017,20171018,20171019,20171020]	
-	data12 =[20171023,20171024,20171025,20171026,20171027]
-	data13 =[20171030,20171031]
-	data = data1+data2+data3+data4+data5+data6+data7+data8+data9+data10+data11+data12+ data13
-	# # data = data8+data9+data10+data11+data12
-	# data =[20171024]
+	# data1 =[20170801,20170802,20170803,20170804]
+	# data2 =[20170807,20170808,20170809,20170810,20170811]
+	# data3 =[20170814,20170815,20170816,20170817,20170818]
+	# data4 =[20170821,20170822,20170823,20170824,20170825]	
+	# data5 =[20170828,20170829,20170830,20170831,20170901]
+	# data6 =[20170904,20170905,20170906,20170907,20170908]
+	# data7 =[20170911,20170912,20170913,20170914,20170915]	
+	# data8 =[20170918,20170919,20170920,20170921,20170922]
+	# data9 =[20170925,20170926,20170927,20170928,20170929]
+	# data10 =[20171009,20171010,20171011,20171012,20171013]
+	# data11 =[20171016,20171017,20171018,20171019,20171020]	
+	# data12 =[20171023,20171024,20171025,20171026,20171027]
+	# data13 =[20171030,20171031]
+	# data = data1+data2+data3+data4+data5+data6+data7+data8+data9+data10+data11+data12+ data13
+	data13 = [20171030,20171031,20171101,20171102,20171103]
+	data14 = [20171106,20171107,20171108,20171109,20171110]
+	data15 = [20171113,20171114]
+	data = data13+data14+data15
 	# instrumentid_array = ["ru1801","rb1801","zn1710","pb1710","cu1710","hc1801","i1801","ni1801","al1710","au1712","ag1712","bu1712"]
-	# instrumentid_array = ["zn1711"]
-	instrumentid = "pb1711"
-	bt = GetRange(nameDict[instrumentid]["param"])
-	for item in data:
-		filename = instrumentid+ "_"+str(item)
-		path = "../data/"+filename+".csv"
-		# path = "../data/"+filename
-		# read_data_from_csv(path)
-		f = open(path,'rb')
-		print "the instrument id is: "+filename
-		reader = csv.reader(f)
-		for row in reader:
-			bt.get_md_data(row)
-			# tranfer the string to float
-		bt.get_tick_num()
-		f.close()
+	instrumentid_array = ["pp1801","v1801"]
+	for instrumentid in instrumentid_array:
+		# instrumentid = "pb1711"
+		bt = GetRange(nameDict[instrumentid]["param"])
+		for item in data:
+			filename = instrumentid+ "_"+str(item)
+			path = "../data/"+filename+".csv"
+			# path = "../data/"+filename
+			# read_data_from_csv(path)
+			f = open(path,'rb')
+			print "the instrument id is: "+filename
+			reader = csv.reader(f)
+			for row in reader:
+				bt.get_md_data(row)
+				# tranfer the string to float
+			bt.get_tick_num()
+			f.close()
 
 
 if __name__=='__main__':

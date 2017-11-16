@@ -14,7 +14,7 @@ SHORT =0
 
 class BandAndTrigger(object):
 	"""docstring for BandAndTrigger"""
-	def __init__(self,param_dic):
+	def __init__(self,param_dic,total_obj):
 		super(BandAndTrigger, self).__init__()
 		# self.arg = arg
 		self._direction = param_dic["direction"]
@@ -26,7 +26,7 @@ class BandAndTrigger(object):
 		# band param
 		self._param_open_edge1 = param_dic["band_open_edge1"]
 		self._param_open_edge2 = param_dic["band_open_edge2"]
-		self._param_loss_edge = param_dic["band_loss_edge"]
+		self._cross_middle_edge = param_dic["band_loss_edge"]
 
 		self._limit_multiple = param_dic["limit_multiple"]
 		self._limit_large_period = param_dic["limit_large_period"]
@@ -47,6 +47,8 @@ class BandAndTrigger(object):
 		self._limit_max_drawdown = param_dic["max_drawdown"]
 
 		self._file = param_dic["file"]
+
+		self._open_status = 0
 
 
 	def __del__(self):
@@ -79,6 +81,7 @@ class BandAndTrigger(object):
 		# if open_time:
 			self._now_interest +=1
 			self._has_open +=1
+			total_obj._nums +=1
 			# print "we start to open"
 			self._open_lastprice = self._lastprice
 			mesg= "the time of open: "+self._time + ",the price: " + str(self._lastprice)
@@ -90,8 +93,10 @@ class BandAndTrigger(object):
 			# print "we need to close"
 			if self._direction ==LONG:
 				self._profit +=(self._lastprice - self._open_lastprice)
+				total_obj._profit +=(self._lastprice - self._open_lastprice)
 			elif self._direction ==SHORT:
 				self._profit +=(self._open_lastprice - self._lastprice)
+				total_obj._profit +=(self._lastprice - self._open_lastprice)
 			self._open_lastprice = 0
 			self._max_profit =0
 			mesg= "the time of close:"+self._time+ ",the price: " + str(self._lastprice)
@@ -138,9 +143,9 @@ class BandAndTrigger(object):
 		if hour ==9 and minute < 5:
 			return False
 
-		is_time_open = self.is_time_open_time()
-		if is_time_open == False:
-			return False
+		# is_time_open = self.is_time_open_time()
+		# if is_time_open == False:
+		# 	return False
 
 		is_band_open = self.is_band_open_time(self._direction,self._lastprice,
 											self._now_middle_value,
@@ -159,6 +164,16 @@ class BandAndTrigger(object):
 		# is_series_open = bf.is_lastprice_series_open_time(self._direction,self._series_lastprice,self._limit_series_lastprice)
 		is_lastprice_open = bf.is_lastprice_open_time(self._direction,self._lastprice,self._lastprice_array,self._limit_large_period)
 
+		# return is_lastprice_open
+		if is_lastprice_open == True:
+			if self._direction == LONG:
+				if self._lastprice < self._now_middle_value:
+					self._open_status = 1
+			elif self._direction == SHORT:
+				if self._lastprice > self._now_middle_value:
+					self._open_status = 1
+			else:
+				return False
 		return is_lastprice_open
 
 
@@ -181,32 +196,56 @@ class BandAndTrigger(object):
 			if tmp <0 and ((0 - tmp) > self._limit_max_loss):
 				return True
 
-			if self._max_profit < tmp:
-				self._max_profit =tmp
-			if self._max_profit >= self._limit_max_profit:
-				max_drawdown = self._max_profit - tmp
-				if max_drawdown >= self._limit_max_drawdown:
-					return True
-		is_band_close = bf.is_band_close_time(self._direction,self._lastprice,
-											self._now_middle_value,self._param_loss_edge)
+		# 	if self._max_profit < tmp:
+		# 		self._max_profit =tmp
+		# 	if self._max_profit >= self._limit_max_profit:
+		# 		max_drawdown = self._max_profit - tmp
+		# 		if max_drawdown >= self._limit_max_drawdown:
+		# 			return True
+		# return False
+		is_band_close = self.is_middle_cross_close_time(self._direction,self._lastprice,
+											self._now_middle_value)
 		return is_band_close
 
 	def get_total_profit(self):
 		return  self._profit
+
+	def is_middle_cross_close_time(self,direction,lastprice,middle_value):
+		if direction ==LONG:
+			if lastprice < middle_value - self._cross_middle_edge:
+				if self._open_status ==1:
+					return False
+				else:
+					return True
+			elif lastprice > middle_value + self._cross_middle_edge :
+				self._open_status = 0
+			else:
+				return False
+		elif direction ==SHORT:
+			if lastprice > middle_value + self._cross_middle_edge:
+				if self._open_status ==1:
+					return False
+				else:
+					return True
+			elif lastprice < middle_value - self._cross_middle_edge:
+				self._open_status = 0
+			else:
+				return False
+		return False
 		
 
 def start_to_run_md(band_obj,data):
 	for row in data:
 		band_obj.get_md_data(row)
 
-def create_band_obj(data,param_dict):
+def create_band_obj(data,param_dict,total_obj):
 	file = param_dict["file"]
 	for i in xrange(0,2):
 		param_dict["direction"] = i
 		if i==0:
 			# continue
 			# param_dict["open_interest_edge"] =1
-			band_and_trigger_obj = BandAndTrigger(param_dict)
+			band_and_trigger_obj = BandAndTrigger(param_dict,total_obj)
 			print "方向是short的交易情况:"
 			file.write("方向是short的交易情况:\n")
 			start_to_run_md(band_and_trigger_obj,data)
@@ -215,7 +254,7 @@ def create_band_obj(data,param_dict):
 		else:
 			print "方向是long的交易情况："
 			# param_dict["open_interest_edge"] =1
-			band_and_trigger_obj = BandAndTrigger(param_dict)
+			band_and_trigger_obj = BandAndTrigger(param_dict,total_obj)
 			file.write("方向是long的交易情况：:\n")
 			start_to_run_md(band_and_trigger_obj,data)
 			profit = band_and_trigger_obj.get_total_profit()
@@ -223,7 +262,7 @@ def create_band_obj(data,param_dict):
 
 
 
-def main(filename):
+def main(filename,total_obj):
 	path = "../create_data/"+filename+"_band_data.csv"
 	# path = "../tmp/"+filename+"_band_data.csv"
 	# path = "../everydayoutdata/"+filename+"_band_data.csv"
@@ -233,12 +272,12 @@ def main(filename):
 
 	# 这个是螺纹钢的 tick 1
 	param_dict = {"limit_bar_volume_tick":20,
-				"limit_large_period":5,"limit_multiple":2,"file":file}
+				"limit_large_period":5,"limit_multiple":3,"file":file}
 	if "rb" in filename:
 		param_dict["volume_open_edge"] =600
 		param_dict["band_open_edge1"] = 0
-		param_dict["band_open_edge2"] = 5
-		param_dict["band_loss_edge"] = 5
+		param_dict["band_open_edge2"] = 50000
+		param_dict["band_loss_edge"] = 2
 		param_dict["max_loss"] =10
 		param_dict["max_profit"] = 30
 		param_dict["max_drawdown"] = 10
@@ -392,10 +431,16 @@ def main(filename):
 	else:
 		print "the instrument is not in the parm " + filename
 		return
-	create_band_obj(csv_data,param_dict)
+	create_band_obj(csv_data,param_dict,total_obj)
 	file.close()
 
-
+class total(object):
+	"""docstring for total"""
+	def __init__(self, profit,nums):
+		super(total, self).__init__()
+		self._profit = profit
+		self._nums = nums
+		
 
 if __name__=='__main__': 
 	data1 =[20170801,20170802,20170803,20170804]
@@ -414,11 +459,14 @@ if __name__=='__main__':
 	data = data1+data2+data3+data4+data5+data6+data7+data8+data9+data10+data11+data12+ data13
 	# data =[20171101]
 	# instrumentid = ["rb1801","ru1801","zn1801","pb1712"]
+	total_obj = total(0,0)
 	instrumentid = ["rb1801"]
 	for item in data:
 		for instrument in instrumentid:
 			# path = instrument
 			path = instrument + "_"+ str(item)
 			print path
-			main(path)	
+			main(path,total_obj)	
 		# print WRITETOFILE
+	print total_obj._nums
+	print total_obj._profit
