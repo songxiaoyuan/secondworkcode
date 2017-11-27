@@ -1,4 +1,4 @@
-# -*- coding:utf8 -*-
+#-*- coding:utf8 -*-
 import csv
 import basic_fun as bf
 import os
@@ -48,19 +48,57 @@ param_dict_pp = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
 			"multiple":5,"file":file,"config_file":380}
 param_dict_v = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
 			"multiple":5,"file":file,"config_file":390}
+param_dict_au = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
+			"multiple":1000,"file":file,"config_file":400}
+param_dict_ag = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
+			"multiple":15,"file":file,"config_file":410}
+param_dict_bu = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
+			"multiple":10,"file":file,"config_file":420}
+
+param_dict_i = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
+			"multiple":100,"file":file,"config_file":430}
+param_dict_hc = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
+			"multiple":10,"file":file,"config_file":440}
+param_dict_j = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
+			"multiple":100,"file":file,"config_file":450}
+param_dict_jm = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
+			"multiple":60,"file":file,"config_file":460}
+param_dict_y = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
+			"multiple":10,"file":file,"config_file":470}
+param_dict_p = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
+			"multiple":10,"file":file,"config_file":480}
+param_dict_c = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
+			"multiple":10,"file":file,"config_file":490}
+param_dict_a = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
+			"multiple":10,"file":file,"config_file":500}
+param_dict_m = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
+			"multiple":10,"file":file,"config_file":510}
+param_dict_cs = {"rsi_period":14,"limit_ema_tick_5":600,"limit_ema_tick_1":120,
+			"multiple":10,"file":file,"config_file":520}
 
 nameDict = {
 	"rb1805":{"param":param_dict_rb},
 	"ru1801":{"param":param_dic_ru},
 	"zn1801":{"param":param_dic_zn},
 	"cu1801":{"param":param_dict_cu},
-	# "i1801":{"param":param_dict_i},
-	# "hc1801":{"param":param_dict_hc},
 	"ni1805":{"param":param_dic_ni},
 	"al1801":{"param":param_dic_al},
 	"pp1801":{"param":param_dict_pp},
 	"v1801":{"param":param_dict_v},
-	"pb1712":{"param":param_dict_pb}
+	"au1806":{"param":param_dict_au},
+	"ag1712":{"param":param_dict_ag},
+	"bu1806":{"param":param_dict_bu},
+	"i1805":{"param":param_dict_i},
+	"hc1805":{"param":param_dict_hc},
+	"j1801":{"param":param_dict_j},
+	"jm1801":{"param":param_dict_jm},
+	"y1801":{"param":param_dict_y},
+	"p1805":{"param":param_dict_p},
+	"c1801":{"param":param_dict_c},
+	"a1801":{"param":param_dict_a},
+	"m1805":{"param":param_dict_m},
+	"cs1801":{"param":param_dict_cs},
+	"pb1801":{"param":param_dict_pb}
 }
 
 class BandAndTrigger(object):
@@ -234,6 +272,50 @@ def copy_file():
 	shutil.copy('../hour_config/config/352', '../hour_config/real_server/540')
 	shutil.copy('../hour_config/config/352', '../hour_config/real_server/541')
 
+	shutil.copy('../hour_config/config/422', '../hour_config/real_server/542')
+	shutil.copy('../hour_config/config/422', '../hour_config/real_server/543')
+
+	shutil.copy('../hour_config/config/382', '../hour_config/real_server/544')
+	shutil.copy('../hour_config/config/382', '../hour_config/real_server/545')
+
+	shutil.copy('../hour_config/config/392', '../hour_config/real_server/546')
+	shutil.copy('../hour_config/config/392', '../hour_config/real_server/547')
+
+	shutil.copy('../hour_config/config/442', '../hour_config/real_server/548')
+	shutil.copy('../hour_config/config/442', '../hour_config/real_server/549')
+
+	shutil.copy('../hour_config/config/432', '../hour_config/real_server/550')
+	shutil.copy('../hour_config/config/432', '../hour_config/real_server/551')
+
+	shutil.copy('../hour_config/config/452', '../hour_config/real_server/552')
+	shutil.copy('../hour_config/config/452', '../hour_config/real_server/553')
+
+	shutil.copy('../hour_config/config/462', '../hour_config/real_server/554')
+	shutil.copy('../hour_config/config/462', '../hour_config/real_server/555')
+
+	shutil.copy('../hour_config/config/472', '../hour_config/real_server/556')
+	shutil.copy('../hour_config/config/472', '../hour_config/real_server/557')
+
+	shutil.copy('../hour_config/config/482', '../hour_config/real_server/558')
+	shutil.copy('../hour_config/config/482', '../hour_config/real_server/559')
+
+	shutil.copy('../hour_config/config/492', '../hour_config/real_server/560')
+	shutil.copy('../hour_config/config/492', '../hour_config/real_server/561')
+
+	shutil.copy('../hour_config/config/502', '../hour_config/real_server/562')
+	shutil.copy('../hour_config/config/502', '../hour_config/real_server/563')
+
+	shutil.copy('../hour_config/config/512', '../hour_config/real_server/564')
+	shutil.copy('../hour_config/config/512', '../hour_config/real_server/565')
+
+	shutil.copy('../hour_config/config/522', '../hour_config/real_server/566')
+	shutil.copy('../hour_config/config/522', '../hour_config/real_server/567')
+
+	shutil.copy('../hour_config/config/402', '../hour_config/real_server/568')
+	shutil.copy('../hour_config/config/402', '../hour_config/real_server/569')
+
+	shutil.copy('../hour_config/config/412', '../hour_config/real_server/570')
+	shutil.copy('../hour_config/config/412', '../hour_config/real_server/571')
 
 
 def getSortedData(data):
@@ -312,11 +394,13 @@ def copy_file_to_save():
 	copy_file_one_to_one("../hour_config/config/",new_path+'/')
 
 def main():
-	# instrumentid_array = ["ru1801","rb1801","zn1710","pb1710","cu1710","hc1801","i1801","ni1801","al1710","au1712","ag1712","bu1712"]
-	instrumentid_array = ["rb1805","ru1801","zn1801","pb1712","cu1801","al1801","ni1805","pp1801","v1801"]
+	# instrumentid_array = ["pb1801","bu1712"]
+	instrumentid_array1 = ["rb1805","ru1801","zn1801","cu1801","al1801","ni1805","pp1801","v1801","au1806","ag1712","pb1801","bu1806"]
+	instrumentid_array2 = ["j1801","jm1801","m1805","cs1801","c1801","a1801","i1805","hc1805","y1801","p1805"]
+	instrumentid_array = instrumentid_array1 + instrumentid_array2
 
 	conn = cx_Oracle.connect('hq','hq','114.251.16.210:9921/quota')    
-	cursor = conn.cursor () 
+	cursor = conn.cursor()
 
 	
 	for instrumentid in instrumentid_array:
