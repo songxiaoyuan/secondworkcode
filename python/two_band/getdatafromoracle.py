@@ -77,7 +77,8 @@ def getSqlData(myday,instrumentid):
 		# get the data and sort it.
 		# sortedlist = sorted(icresult, key = lambda x: (x[20], int(x[21])))
 		cleandata = getSortedData(icresult)
-		filename='../data/'+"%s_"%instrumentid
+		# filename='../data/'+"%s_"%instrumentid
+		filename='../tmp/'+"%s_"%instrumentid
 		filename=filename+str(date)+'.csv'
 		print "we get the instrument id %s" % instrumentid
 
@@ -97,15 +98,19 @@ if __name__=='__main__':
 	# data10 =[20171009,20171010,20171011,20171012,20171013]
 	# data11 =[20171016,20171017,20171018,20171019,20171020]	
 	# data12 =[20171023,20171024,20171025,20171026,20171027]
-	data13 = [20171030,20171031,20171101,20171102,20171103]
-	data14 = [20171106,20171107,20171108,20171109,20171110]
-	data15 = [20171113,20171114,20171115]
-	# data = data1+data2+data3+data4+data5+data6+data7+data8+data9+data10+data11+data12+data13
-	data = data13+data14+data15
-	# data = [20171115]
-	# instrumentid_array = ["ru1801","rb1801","zn1801","pb1712"]
-	# instrumentid_array = ["p1801","y1801","m1801","jd1801"]
-	instrumentid_array = ["pb1801"]
+	# data13 = [20171030,20171031,20171101,20171102,20171103]
+	# data14 = [20171106,20171107,20171108,20171109,20171110]
+	# data15 = [20171113,20171114,20171115,20171116,20171117]
+	# data16 = [20171120,20171121,20171122]
+
+	# # # # # data = data1+data2+data3+data4+data5+data6+data7+data8+data9+data10+data11+data12+data13
+	# data = data14+data15+data16
+	data = [20171123]
+	# instrumentid_array = ["c1801","a1801"]
+	# instrumentid_array = ["m1801","cs1801"]
+	# instrumentid_array = ["j1801","jm1801","m1801","cs1801","c1801","a1801","i1805","hc1805"]
+	instrumentid_array = ["y1801","p1801","v1801","pp1801","jm1801","j1801","a1801","ni1805"]
+	# instrumentid_array = ["rb1805","ru1801","zn1801","cu1801","al1801","ni1805","pp1801","v1801","au1806","ag1712","pb1801","bu1712"]
 	for myday in data:
 		for instrumentid in instrumentid_array:
 			getSqlData(myday,instrumentid)
