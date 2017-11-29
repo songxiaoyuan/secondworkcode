@@ -1,0 +1,146 @@
+<html>
+<head>
+	<meta charset="UTF-8">
+	<script src="./echarts.min.js"></script>
+	<script src="./jquery-3.2.1.min.js"></script>
+</head>
+
+<body style="width: 100%;height:100%;">
+<div>
+
+<div id="setting">
+	<div style="float: left;">
+        <input type="file" id="file" onchange="handleFiles(this.files)"/>
+	</div>
+	<div style="float: left;">
+		<button type="button" onclick="startdraw()">draw</button>
+	</div>
+</div>
+<br>
+<br>
+<br>
+<br>
+
+<div id="banddrawing" style="width: 1000px;height:300px;"></div>
+
+
+<script type="text/javascript">
+
+        filedata =''
+        var range_myChart = echarts.init(document.getElementById('banddrawing'));
+        times_array= []
+        data_array =[]
+
+
+      option = {
+          title : {
+              text: ''
+          },
+          tooltip : {
+              trigger: 'axis'
+          },
+          legend: {
+              data:['ticknum']
+          },
+          toolbox: {
+              show : true,
+              feature : {
+                  mark : {show: true},
+                  dataView : {show: true, readOnly: false},
+                  magicType : {show: true, type: ['line', 'bar']},
+                  restore : {show: true},
+                  saveAsImage : {show: true}
+              }
+          },
+          calculable : true,
+          xAxis : [
+              {
+                  type : 'category',
+                  data:[]
+                  // data : ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月']
+              }
+          ],
+          yAxis : [
+              {
+                  type : 'value'
+              }
+          ],
+          series : [
+              {
+                  name:'ticknum',
+                  type:'bar',
+                  // data:[2.0, 4.9, 7.0, 23.2, 25.6, 76.7, 135.6, 162.2, 32.6, 20.0, 6.4, 3.3]
+                  data:[]
+ 
+              }
+          ]
+      };
+                          
+
+
+        // 根据input的file标签读取出相对应的csv的数据。
+        // 首先有一个问题就是因为是针对一个合约的数据，所以不存在对其的问题，那么数据还需不需要补充。
+        // 如果数据库中的数据，就是接受到的行情的本身的数据，那么就不需要补充，直接去除非交易时间的，直接用就可以了。
+        // 补充的话，还会影响最后的效果。
+        function  handleFiles(files)
+        {
+          if(files.length)
+          {
+             var file = files[0];
+             var reader = new FileReader();
+             reader.onload = function()
+             {
+                 // document.getElementById("filecontent").innerHTML = this.result;
+                 // console.log(this.result)
+                 var data = this.result
+                 filedata = data.split("\n")
+                 // console.log(file["name"].split("_"))
+                option.title.text = file["name"]
+             };
+             reader.readAsText(file);
+          }
+        }
+
+
+
+        // 根据传入的参数进行画图，
+        function startdraw(){
+            // 首先确定一些基本的参数。确定要选择的几条线，然后和周期的评价指标，ema还是ma。
+
+            for (var i = 0; i < filedata.length; i++) {
+                var linedata = filedata[i].split(':')
+                if (linedata.length<2) {
+                    break;
+                }
+                // 首先判断是不是已经达到我们所需要的周期了，如果还没有达到，那么就继续等着，不然就开始计算数据。
+                var time = linedata[0]
+                console.log(time)
+                var ticknum = Number(linedata[1])
+                
+                times_array.push(time)
+                data_array.push(ticknum)
+            } 
+
+
+            option.xAxis[0].data = times_array
+            option.series[0].data = data_array
+          
+
+            range_myChart.setOption(option);
+
+        }
+
+
+        range_myChart.setOption(option);
+
+        // ema_diff_volume_drawing.setOption(ema_diff_volume_option)
+        // ema_diff_openinterest_drawing.setOption(ema_openinterest_option)
+
+         // 使用刚指定的配置项和数据显示图表。
+         
+</script>
+
+</div>
+
+</body>
+</html>

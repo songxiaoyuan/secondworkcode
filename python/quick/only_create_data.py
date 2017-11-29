@@ -24,14 +24,11 @@ param_dict_pb = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":50
 			,"sd_lastprice":100,"open_interest_edge":0,"spread":100,"config_file":310}
 # 这个是螺纹钢的
 param_dict_rb = {"rsi_bar_period":120,"limit_rsi_data":80,"rsi_period":14,
-			    "band_period":2400,"multiple":10,"file":file,"config_file":320}
+			    "band_period":600,"multiple":10,"file":file,"config_file":320}
 
 # 这个是橡胶的
-param_dic_ru = {"limit_max_profit":250,"limit_max_loss":100,"rsi_bar_period":120
-			,"limit_rsi_data":80,"rsi_period":14,"diff_period":60,"tick_num":5
-			,"band_open_edge":0.5,"band_loss_edge":1,"band_profit_edge":3,"band_period":2400
-			,"volume_open_edge":120,"limit_max_draw_down":0,"multiple":10,"file":file
-			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":330}
+param_dic_ru = {"rsi_bar_period":120,"limit_rsi_data":80,"rsi_period":14,
+			    "band_period":120,"multiple":10,"file":file,"config_file":330}
 
 # 这个是锌的
 param_dic_zn = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
@@ -268,7 +265,7 @@ if __name__=='__main__':
 	data10 =[20171009,20171010,20171011,20171012,20171013]
 	data11 =[20171016,20171017,20171018,20171019,20171020]	
 	data12 =[20171023,20171024,20171025,20171026,20171027]
-	data13 = [20171030,20171031]
+	data13 = [20171030]
 	data = data1+data2+data3+data4+data5+data6+data7+data8+data9+data10+data11+data12+data13
 	# data =[20171020]
 	instrumentid_array = ["rb1801"]

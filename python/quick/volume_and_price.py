@@ -24,38 +24,23 @@ class BandAndTrigger(object):
 		self._limit_interest = 1
 
 		# band param
-		self._param_open_edge1 = param_dic["band_open_edge1"]
-		self._param_open_edge2 = param_dic["band_open_edge2"]
-		self._cross_middle_edge = param_dic["band_loss_edge"]
 
-		self._limit_multiple = param_dic["limit_multiple"]
-		self._limit_large_period = param_dic["limit_large_period"]
-		self._limit_bar_volume_tick = param_dic["limit_bar_volume_tick"]
+		self._limit_volume = param_dic["limit_volume"]
+		self._limit_lastprice = param_dic["limit_lastprice"]
+		self._limit_bar_tick_num = param_dic["limit_bar_tick_num"]
 		self._diff_volume_array = []
 		self._lastprice_array = []
-		self._tmp_sum_diff_volume = 0
-		self._now_bar_volume_tick = 0
-
-		self._current_hour =9
-		self._has_open = 0
-		self._limit_open =100
 
 		self._profit = 0
 		self._max_profit = 0
 		self._limit_max_profit = param_dic["max_profit"]
 		self._limit_max_loss = param_dic["max_loss"]
 		self._limit_max_drawdown = param_dic["max_drawdown"]
+		self._cross_middle_edge = param_dic["middle_edge"]
+		self._open_tick_num = -1
 
 		self._file = param_dic["file"]
 
-		self._open_status = 0
-		self._open_tick_num = -1
-
-
-	def __del__(self):
-		print "this is the over function"
-		# bf.write_config_info(self._pre_ema_val,self._lastprice_array
-		# 	,self._rsi_array,self._rsi_period,self._lastprice,self._config_file)
 
 	# get the md data ,every line;
 	def get_md_data(self,md_array):
@@ -65,29 +50,27 @@ class BandAndTrigger(object):
 		self._now_middle_value = float(md_array[MIDDLE])
 		self._diff_volume = float(md_array[DIFF_VOLUME])
 
-		self._tmp_sum_diff_volume += self._diff_volume
-		self._now_bar_volume_tick +=1
-		if self._now_bar_volume_tick >= self._limit_bar_volume_tick:
-			self._diff_volume_array.append(self._tmp_sum_diff_volume)
-			self._lastprice_array.append(self._lastprice)
-			self._tmp_sum_diff_volume = 0
-			self._now_bar_volume_tick = 0
-
-
+		
+		self._diff_volume_array.append(self._diff_volume)
+		self._lastprice_array.append(self._lastprice)
+		if len(self._diff_volume_array) < self._limit_bar_tick_num:
+			# print len(self._diff_volume_array)
+			return True
+		# print len(self._diff_volume_array)
 		open_time = self.is_trend_open_time()
 		close_time = self.is_trend_close_time()
-		# close_time = False
+		self._diff_volume_array.pop(0)
+		self._lastprice_array.pop(0)
 		
 		if open_time and self._now_interest < self._limit_interest:
 		# if open_time:
 			self._now_interest +=1
-			self._has_open +=1
 			total_obj._nums +=1
+			self._open_tick_num = 1
 			if self._direction == LONG:
 				total_obj._long +=1
-			else:
+			elif self._direction == SHORT:
 				total_obj._short +=1
-			self._open_tick_num =0
 			# print "we start to open"
 			self._open_lastprice = self._lastprice
 			mesg= "the time of open: "+self._time + ",the price: " + str(self._lastprice)
@@ -96,7 +79,6 @@ class BandAndTrigger(object):
 		# elif close_time:
 		elif close_time and self._now_interest >0:
 			self._now_interest -=1
-			self._open_tick_num = -1
 			# print "we need to close"
 			if self._direction ==LONG:
 				self._profit +=(self._lastprice - self._open_lastprice)
@@ -108,12 +90,13 @@ class BandAndTrigger(object):
 			elif self._direction ==SHORT:
 				self._profit +=(self._open_lastprice - self._lastprice)
 				total_obj._profit +=(self._open_lastprice - self._lastprice)
-				if (self._open_lastprice - self._lastprice) < 0:
+				if (self._open_lastprice - self._lastprice) > 0:
 					total_obj._loss_num +=1
 				else:
 					total_obj._profit_num +=1
 			self._open_lastprice = 0
 			self._max_profit =0
+			self._open_tick_num = -1
 			mesg= "the time of close:"+self._time+ ",the price: " + str(self._lastprice)
 			self._file.write(mesg+"\n")
 
@@ -135,17 +118,31 @@ class BandAndTrigger(object):
 				self._has_open = 0
 		return True
 
-	def is_band_open_time(self,direction,lastprice,middle_val,bigger_edge1,bigger_edge2):
+	def is_band_open_time(self,direction,lastprice,middle_val):
 		# this is used to judge is time to band open
 		if direction ==LONG:
-			upval = middle_val + bigger_edge2
-			downval = middle_val + bigger_edge1
-			if lastprice > downval  and lastprice < upval:
+			if lastprice > middle_val:
 				return True
 		elif direction ==SHORT:
-			downval = middle_val - bigger_edge2
-			upval = middle_val - bigger_edge1
-			if lastprice < upval  and lastprice > downval:
+			if lastprice < middle_val:
+				return True
+		return False
+
+	def is_diff_volume_open_time(self):
+		tmp_sum = sum(self._diff_volume_array)
+		# print tmp_sum
+		# print len(self._diff_volume_array)
+		if tmp_sum < self._limit_volume:
+			return False
+		return True
+
+	def is_lastprice_open_time(self):
+		front_lastprice = self._lastprice_array[0]
+		if self._direction == LONG:
+			if (self._lastprice - front_lastprice) >= self._limit_lastprice:
+				return True
+		elif self._direction == SHORT:
+			if (front_lastprice - self._lastprice) >= self._limit_lastprice:
 				return True
 		return False
 
@@ -155,40 +152,29 @@ class BandAndTrigger(object):
 		hour = int(hour)
 		minute = self._time.split(':')[1]
 		minute = int(minute)
-		if hour ==9 and minute < 5:
+		if hour ==9 and minute < 3:
+			return False
+		if hour ==14 and minute >= 58:
+			return False
+		is_band_open = self.is_band_open_time(self._direction,self._lastprice,
+											self._now_middle_value)
+		if is_band_open ==False:
 			return False
 
-		# is_time_open = self.is_time_open_time()
-		# if is_time_open == False:
-		# 	return False
-
-		# is_band_open = self.is_band_open_time(self._direction,self._lastprice,
-		# 									self._now_middle_value,
-		# 									self._param_open_edge1,self._param_open_edge2)
-		# # return is_band_open
-		# if is_band_open ==False:
-		# 	return False
-
-		is_diff_volume_open = bf.is_diff_volume_open_time(self._tmp_sum_diff_volume,self._diff_volume_array,
-												self._limit_multiple,self._limit_large_period)
-
-		# return is_diff_volume_open
+		is_diff_volume_open = self.is_diff_volume_open_time()
 		if is_diff_volume_open ==False:
 			return False
+		is_lastprice_open = self.is_lastprice_open_time()
 
-		# is_series_open = bf.is_lastprice_series_open_time(self._direction,self._series_lastprice,self._limit_series_lastprice)
-		is_lastprice_open = bf.is_lastprice_open_time(self._direction,self._lastprice,self._lastprice_array,self._limit_large_period)
-
-		# return is_lastprice_open
-		if is_lastprice_open == True:
-			if self._direction == LONG:
-				if self._lastprice < self._now_middle_value:
-					self._open_status = 1
-			elif self._direction == SHORT:
-				if self._lastprice > self._now_middle_value:
-					self._open_status = 1
-			else:
-				return False
+		# if is_lastprice_open == True:
+		# 	if self._direction == LONG:
+		# 		if self._lastprice < self._now_middle_value:
+		# 			self._open_status = 1
+		# 	elif self._direction == SHORT:
+		# 		if self._lastprice > self._now_middle_value:
+		# 			self._open_status = 1
+		# 	else:
+		# 		return False
 		return is_lastprice_open
 
 
@@ -202,29 +188,29 @@ class BandAndTrigger(object):
 		if "14:58" in tmp_time_str:
 			return True
 
-		if self._open_tick_num == -1:
-			return False
-		else:
-			self._open_tick_num +=1
-			if self._open_tick_num >= 120:
-				self._open_tick_num = -1
-				return True
-		# base the max loss
-		# if self._open_lastprice != 0:
-		# 	if self._direction ==LONG:
-		# 		tmp = self._lastprice - self._open_lastprice
-		# 	elif self._direction ==SHORT:
-		# 		tmp = self._open_lastprice - self._lastprice
-		# 	if tmp <0 and ((0 - tmp) > self._limit_max_loss):
+		# if self._open_tick_num == -1:
+		# 	return False
+		# else:
+		# 	self._open_tick_num +=1
+		# 	if self._open_tick_num >= 600:
+		# 		self._open_tick_num = -1
 		# 		return True
+		# base the max loss
+		if self._open_lastprice != 0:
+			if self._direction ==LONG:
+				tmp = self._lastprice - self._open_lastprice
+			elif self._direction ==SHORT:
+				tmp = self._open_lastprice - self._lastprice
+			if tmp <0 and ((0 - tmp) > self._limit_max_loss):
+				return True
 
-		# # 	if self._max_profit < tmp:
-		# # 		self._max_profit =tmp
-		# # 	if self._max_profit >= self._limit_max_profit:
-		# # 		max_drawdown = self._max_profit - tmp
-		# # 		if max_drawdown >= self._limit_max_drawdown:
-		# # 			return True
-		# # return False
+			if self._max_profit < tmp:
+				self._max_profit =tmp
+			if self._max_profit >= self._limit_max_profit:
+				max_drawdown = self._max_profit - tmp
+				if max_drawdown >= self._limit_max_drawdown:
+					return True
+		return False
 		# is_band_close = self.is_middle_cross_close_time(self._direction,self._lastprice,
 		# 									self._now_middle_value)
 		# return is_band_close
@@ -235,24 +221,24 @@ class BandAndTrigger(object):
 	def is_middle_cross_close_time(self,direction,lastprice,middle_value):
 		if direction ==LONG:
 			if lastprice < middle_value - self._cross_middle_edge:
-				if self._open_status ==1:
-					return False
-				else:
+				# if self._open_status ==1:
+				# 	return False
+				# else:
 					return True
-			elif lastprice > middle_value + self._cross_middle_edge :
-				self._open_status = 0
-			else:
-				return False
+			# elif lastprice > middle_value + self._cross_middle_edge :
+			# 	self._open_status = 0
+			# else:
+			# 	return False
 		elif direction ==SHORT:
 			if lastprice > middle_value + self._cross_middle_edge:
-				if self._open_status ==1:
-					return False
-				else:
+				# if self._open_status ==1:
+				# 	return False
+				# else:
 					return True
-			elif lastprice < middle_value - self._cross_middle_edge:
-				self._open_status = 0
-			else:
-				return False
+			# elif lastprice < middle_value - self._cross_middle_edge:
+			# 	self._open_status = 0
+			# else:
+			# 	return False
 		return False
 		
 
@@ -293,16 +279,15 @@ def main(filename,total_obj):
 	file = open(path,"w")
 
 	# 这个是螺纹钢的 tick 1
-	param_dict = {"limit_bar_volume_tick":10,
-				"limit_large_period":5,"limit_multiple":5,"file":file}
+	param_dict = {"file":file}
 	if "rb" in filename:
-		param_dict["volume_open_edge"] =600
-		param_dict["band_open_edge1"] = 0
-		param_dict["band_open_edge2"] = 50000
-		param_dict["band_loss_edge"] = 2
+		param_dict["limit_volume"] =20000
+		param_dict["limit_lastprice"] = 5
+		param_dict["limit_bar_tick_num"] = 80
+		param_dict["middle_edge"] = 2
 		param_dict["max_loss"] =10
-		param_dict["max_profit"] = 30
-		param_dict["max_drawdown"] = 10
+		param_dict["max_profit"] = 15
+		param_dict["max_drawdown"] = 5
 	elif "ru" in filename:
 		param_dict["volume_open_edge"] =600
 		param_dict["band_open_edge1"] = 0
@@ -484,7 +469,7 @@ if __name__=='__main__':
 	data12 =[20171023,20171024,20171025,20171026,20171027]
 	data13 =[20171030]
 	data = data1+data2+data3+data4+data5+data6+data7+data8+data9+data10+data11+data12+ data13
-	# data =[20171101]
+	# data =[20171027,20171030]
 	# instrumentid = ["rb1801","ru1801","zn1801","pb1712"]
 	total_obj = total(0,0)
 	instrumentid = ["rb1801"]

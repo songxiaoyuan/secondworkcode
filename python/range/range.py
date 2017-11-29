@@ -114,12 +114,15 @@ class GetRange(object):
 	def __del__(self):
 		print "this is the over function " + self._config_file
 
-		config_file = "../range_config/"+self._config_file
+		config_file = "../range_config/"+self._config_file+'.csv'
 		file = open(config_file,"w")
 		write_lines = []
 		for item in self._tick_num_dict:
-			line = str(item) + " : "+ str(self._tick_num_dict[item]) + '\n'
+			tmp = str(5*item) + " - " + str(5*item + 4)
+			line = tmp + " : "+ str(self._tick_num_dict[item]) + '\n'
 			write_lines.append(line)
+			# print int(line.split(":")[0].split('-')[0])
+		write_lines = sorted(write_lines, key=lambda tick_data : int(tick_data.split(":")[0].split('-')[0]))
 		file.writelines(write_lines)
 		file.close()
 		print "has write the config file"
@@ -179,17 +182,17 @@ def main():
 	# data7 =[20170911,20170912,20170913,20170914,20170915]	
 	# data8 =[20170918,20170919,20170920,20170921,20170922]
 	# data9 =[20170925,20170926,20170927,20170928,20170929]
-	# data10 =[20171009,20171010,20171011,20171012,20171013]
+	data10 =[20171009,20171010,20171011,20171012,20171013]
 	# data11 =[20171016,20171017,20171018,20171019,20171020]	
 	# data12 =[20171023,20171024,20171025,20171026,20171027]
 	# data13 =[20171030,20171031]
 	# data = data1+data2+data3+data4+data5+data6+data7+data8+data9+data10+data11+data12+ data13
-	data13 = [20171030,20171031,20171101,20171102,20171103]
-	data14 = [20171106,20171107,20171108,20171109,20171110]
-	data15 = [20171113,20171114]
-	data = data13+data14+data15
+	# data13 = [20171030,20171031,20171101,20171102,20171103]
+	# data14 = [20171106,20171107,20171108,20171109,20171110]
+	# data15 = [20171113,20171114]
+	data = data10
 	# instrumentid_array = ["ru1801","rb1801","zn1710","pb1710","cu1710","hc1801","i1801","ni1801","al1710","au1712","ag1712","bu1712"]
-	instrumentid_array = ["pp1801","v1801"]
+	instrumentid_array = ["rb1801"]
 	for instrumentid in instrumentid_array:
 		# instrumentid = "pb1711"
 		bt = GetRange(nameDict[instrumentid]["param"])
