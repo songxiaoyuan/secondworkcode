@@ -105,8 +105,8 @@ if __name__=='__main__':
 
 	# # # # # data = data1+data2+data3+data4+data5+data6+data7+data8+data9+data10+data11+data12+data13
 	# data = data14+data15+data16
-	data = [20171128]
-	instrumentid_array = ["jm1801"]
+	data = [20171201]
+	instrumentid_array = ["hc1805"]
 	# instrumentid_array = ["m1801","cs1801"]
 	# instrumentid_array = ["j1801","jm1801","m1801","cs1801","c1801","a1801","i1805","hc1805"]
 	# instrumentid_array = ["y1801","p1801","v1801","pp1801","jm1801","j1801","a1801","ni1805"]
