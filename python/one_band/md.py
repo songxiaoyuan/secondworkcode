@@ -10,8 +10,8 @@ MIDDLE_5 = 3
 MIDDLE_1 = 4
 SD = 5
 RSI = 6
-DIFF_VOLUME = 7
-SPREAD = 8
+DIFF_VOLUME = 4
+SPREAD = 5
 LONG =1
 SHORT =0
 
@@ -33,15 +33,19 @@ class BandAndTrigger(object):
 		self._param_profit_edge =param_dic["band_profit_edge"]	
 
 		self._price_tick = param_dic["price_tick"]
+		self._limit_diff_volume = param_dic["limit_diff_volume"]
+		self._limit_triggersize_num = param_dic["limit_triggersize_num"]
 
 		self._current_minute =-1
 		self._current_minute_num =0
 		self._limit_minute_num = 60
+		self._limit_triggersize_series = 0
 
 		self._open_status = 0
 		self._pre_open_status = 0
 		self._has_open = 0
 		self._limit_open =2
+		self._open_tick_num = -1
 
 		self._profit =0
 
@@ -54,7 +58,11 @@ class BandAndTrigger(object):
 		self._lastprice = float(md_array[LASTPRICE])
 		self._now_middle_value_60 = float(md_array[MIDDLE_60])
 		self._now_middle_value_5 = float(md_array[MIDDLE_5])
+		self._diff_volume = float(md_array[DIFF_VOLUME])
+		self._spread = float(md_array[SPREAD])
 
+		if self._open_tick_num >0:
+			self._open_tick_num +=1
 		open_time = self.is_trend_open_time()
 		close_time = self.is_trend_close_time()
 		# close_time = False
@@ -63,6 +71,7 @@ class BandAndTrigger(object):
 		# if open_time:
 			self._now_interest +=1
 			self._has_open +=1
+			self._open_tick_num = -1 
 			# print "we start to open"
 			self._open_lastprice = self._lastprice
 			mesg= "the time of open: "+self._time + ",the price: " + str(self._lastprice)  + ",the middle_val: " + str(self._now_middle_value_60)
@@ -78,6 +87,7 @@ class BandAndTrigger(object):
 				self._profit +=(self._open_lastprice - self._lastprice)
 			self._open_lastprice = 0
 			self._open_status = 0
+			self._open_tick_num = 1
 			mesg= "the time of close:"+self._time+ ",the price: " + str(self._lastprice)  + ",the middle_val: " + str(self._now_middle_value_60)
 			self._file.write(mesg+"\n")
 
@@ -139,7 +149,14 @@ class BandAndTrigger(object):
 		is_band_open = self.is_band_open_time(self._direction,self._lastprice,
 											self._now_middle_value_60,
 											self._param_open_edge1,self._param_open_edge2)
-		return is_band_open
+		if is_band_open == False:
+			return False
+		if self._open_tick_num <=0:
+			return True
+		if self._open_tick_num>0 and self._open_tick_num < 360:
+			return False
+		else:
+			return True
 
 	def is_band_close_time(self,direction,lastprice,middle_val,close_edge,profit_edge):
 	# this is used to judge is time to band is close time
@@ -168,6 +185,30 @@ class BandAndTrigger(object):
 				return True
 		return False
 
+	def is_triggersize_series_close_time(self,profit_edge):
+		if self._direction == LONG:
+			profit_val = self._now_middle_value_60 + profit_edge*self._price_tick
+			if self._lastprice < profit_val:
+				return False
+			if self._diff_volume >= self._limit_diff_volume and self._spread<=0:
+				self._limit_triggersize_series +=1
+				if self._limit_triggersize_series >= self._limit_triggersize_num:
+					return True
+			else:
+				self._limit_triggersize_series = 0
+				return False
+		elif self._direction == SHORT:
+			profit_val = self._now_middle_value_60 - profit_edge*self._price_tick
+			if self._lastprice > profit_val:
+				return False
+			if self._diff_volume >= self._limit_diff_volume and self._spread>=100:
+				self._limit_triggersize_series +=1
+				if self._limit_triggersize_series >= self._limit_triggersize_num:
+					return True
+			else:
+				self._limit_triggersize_series = 0
+				return False
+		return False
 	def is_trend_close_time(self):
 		# this is used to jude the time to close return bool
 		# first base band, if the sd is too small ,wo need to bigger
@@ -184,6 +225,9 @@ class BandAndTrigger(object):
 											self._now_middle_value_60,self._param_loss_edge,self._param_profit_edge)
 		if is_band_close ==True :
 			return True
+		is_triggersize_series_close = self.is_triggersize_series_close_time(self._param_profit_edge)
+		if is_triggersize_series_close == True:
+			return True
 		is_middle_cross_close = self.is_middle_cross_close_time(self._direction,self._lastprice,self._now_middle_value_5)
 		return is_middle_cross_close
 
@@ -195,7 +239,7 @@ def start_to_run_md(band_obj,data):
 	for row in data:
 		band_obj.get_md_data(row)
 
-def create_band_obj(data,param_dict):
+def create_band_obj(data,param_dict,total_obj):
 	file = param_dict["file"]
 	for i in xrange(0,2):
 		param_dict["direction"] = i
@@ -207,6 +251,7 @@ def create_band_obj(data,param_dict):
 			file.write("方向是short的交易情况:\n")
 			start_to_run_md(band_and_trigger_obj,data)
 			profit = band_and_trigger_obj.get_total_profit()
+			total_obj._profit += profit
 			file.write(str(profit)+"\n")
 		else:
 			print "方向是long的交易情况："
@@ -215,11 +260,11 @@ def create_band_obj(data,param_dict):
 			file.write("方向是long的交易情况：:\n")
 			start_to_run_md(band_and_trigger_obj,data)
 			profit = band_and_trigger_obj.get_total_profit()
+			total_obj._profit += profit
 			file.write(str(profit)+"\n")
 
 
-
-def main(filename):
+def main(filename,total_obj):
 	# path = "../create_data/"+filename+"_band_data.csv"
 	path = "../tmp/"+filename+"_band_data.csv"
 	# path = "../everydayoutdata/"+filename+"_band_data.csv"
@@ -232,6 +277,9 @@ def main(filename):
 				"band_open_edge2":2,"file":file}
 	if "rb" in filename:
 		param_dict["price_tick"] = 1
+		param_dict["band_loss_edge"] = 2
+		param_dict["limit_diff_volume"] = 700
+		param_dict["limit_triggersize_num"] = 2
 	elif "ru" in filename:
 		param_dict["price_tick"] = 5
 		param_dict["band_open_edge1"] = 0
@@ -382,33 +430,52 @@ def main(filename):
 	else:
 		print "the instrument is not in the parm " + filename
 		return
-	create_band_obj(csv_data,param_dict)
+	create_band_obj(csv_data,param_dict,total_obj)
 	file.close()
 
 
+class total(object):
+	"""docstring for total"""
+	def __init__(self, profit,nums):
+		super(total, self).__init__()
+		self._profit = profit
+		self._nums = nums
+		self._long = 0
+		self._short = 0
+		self._profit_num = 0
+		self._loss_num = 0
 
 if __name__=='__main__': 
 	# data1 =[20170801,20170802,20170803,20170804]
-	# data2 =[20170807,20170808,20170809,20170810,20170811]
-	# data3 =[20170814,20170815,20170816,20170817,20170818]
-	# data4 =[20170821,20170822,20170823,20170824,20170825]	
-	# data5 =[20170828,20170829,20170830,20170831,20170901]
-	# data6 =[20170904,20170905,20170906,20170907,20170908]
-	# data7 =[20170911,20170912,20170913,20170914,20170915]	
-	# data8 =[20170918,20170919,20170920,20170921,20170922]
-	# data9 =[20170925,20170926,20170927,20170928,20170929]
-	# data10 =[20171009,20171010,20171011,20171012,20171013]
-	# data11 =[20171016,20171017,20171018,20171019,20171020]	
-	# data12 =[20171023,20171024,20171025,20171026,20171027]
-	# data13 =[20171030,20171031]
+	data2 =[20170807,20170808,20170809,20170810,20170811]
+	data3 =[20170814,20170815,20170816,20170817,20170818]
+	data4 =[20170821,20170822,20170823,20170824,20170825]	
+	data5 =[20170828,20170829,20170830,20170831,20170901]
+	data6 =[20170904,20170905,20170906,20170907,20170908]
+	data7 =[20170911,20170912,20170913,20170914,20170915]	
+	data8 =[20170918,20170919,20170920,20170921,20170922]
+	data9 =[20170925,20170926,20170927,20170928,20170929]
+	data10 =[20171009,20171010,20171011,20171012,20171013]
+	data11 =[20171016,20171017,20171018,20171019,20171020]	
+	data12 =[20171023,20171024,20171025,20171026,20171027]
+	data13 =[20171030,20171031]
 	# data = data1+data2+data3+data4+data5+data6+data7+data8+data9+data10+data11+data12+ data13
-	data =[20171024]
+	data = data2+data3+data4+data5+data6+data7+data8+data9+data10+data11+data12+ data13
+	# data =[20171024]
 	# instrumentid = ["rb1801","ru1801","zn1801","pb1712"]
 	instrumentid = ["rb1801"]
+	total_obj = total(0,0)
 	for item in data:
 		for instrument in instrumentid:
 			# path = instrument
 			path = instrument + "_"+ str(item)
 			print path
-			main(path)	
+			main(path,total_obj)	
 		# print WRITETOFILE
+
+	print total_obj._nums
+	print total_obj._profit
+	print total_obj._long
+	print total_obj._short
+	print total_obj._profit_num
+	print total_obj._loss_num

@@ -15,6 +15,15 @@ ASKPRICE1VOLUME =25
 TIME = 20
 LONG =1
 SHORT =0
+LASTPRICE = 4
+VOLUME = 11
+OPENINTEREST = 13
+TURNONER = 12
+BIDPRICE1 = 22
+BIDPRICE1VOLUME = 23
+ASKPRICE1 =24
+ASKPRICE1VOLUME =25
+TIME = 20
 
 # 这个是铅的
 param_dict_pb = {"rsi_period":14,"limit_ema_tick_5":60,"limit_ema_tick_1":120,
@@ -127,6 +136,8 @@ class BandAndTrigger(object):
 		self._now_ema_tick_5 = 0
 		self._limit_ema_tick_5 = param_dic["limit_ema_tick_5"]
 
+		self._multiple = param_dic["multiple"]
+
 
 		self._ema_period = 20
 		self._rsi_period = param_dic["rsi_period"]
@@ -209,8 +220,18 @@ class BandAndTrigger(object):
 		else:
 			self._now_ema_tick_5 +=1
 
+		diff_volume = self._now_md_price[VOLUME] - self._pre_md_price[VOLUME]
+		diff_interest = self._now_md_price[OPENINTEREST] - self._pre_md_price[OPENINTEREST]
+		diff_turnover = self._now_md_price[TURNONER] - self._pre_md_price[TURNONER]
+
+		if diff_volume != 0 and (self._pre_md_price[ASKPRICE1] - self._pre_md_price[BIDPRICE1]) !=0:
+			avg_price = float(diff_turnover)/diff_volume/self._multiple
+			spread = 100*(avg_price - self._pre_md_price[BIDPRICE1])/(self._pre_md_price[ASKPRICE1] - self._pre_md_price[BIDPRICE1])
+		else:
+			spread = 50
+
 		tmp_to_csv = [self._now_md_price[TIME],self._now_md_price[LASTPRICE],
-					round(self._now_middle_60,2),round(self._now_middle_5,2)]
+					round(self._now_middle_60,2),round(self._now_middle_5,2),round(diff_volume,2),round(spread,2)]
 		# print tmp_to_csv
 		self._write_to_csv_data.append(tmp_to_csv)
 
@@ -240,22 +261,22 @@ def clean_night_data(data):
 
 
 def main():
-	# data1 =[20170801,20170802,20170803,20170804]
-	# data2 =[20170807,20170808,20170809,20170810,20170811]
-	# data3 =[20170814,20170815,20170816,20170817,20170818]
-	# data4 =[20170821,20170822,20170823,20170824,20170825]	
-	# data5 =[20170828,20170829,20170830,20170831,20170901]
-	# data6 =[20170904,20170905,20170906,20170907,20170908]
-	# data7 =[20170911,20170912,20170913,20170914,20170915]	
-	# data8 =[20170918,20170919,20170920,20170921,20170922]
-	# data9 =[20170925,20170926,20170927,20170928,20170929]
-	# data10 =[20171009,20171010,20171011,20171012,20171013]
-	# data11 =[20171016,20171017,20171018,20171019,20171020]	
-	# data12 =[20171023,20171024,20171025,20171026,20171027]
-	# data13 =[20171030,20171031]
-	# data = data1+data2+data3+data4+data5+data6+data7+data8+data9+data10+data11+data12+ data13
+	data1 =[20170801,20170802,20170803,20170804]
+	data2 =[20170807,20170808,20170809,20170810,20170811]
+	data3 =[20170814,20170815,20170816,20170817,20170818]
+	data4 =[20170821,20170822,20170823,20170824,20170825]	
+	data5 =[20170828,20170829,20170830,20170831,20170901]
+	data6 =[20170904,20170905,20170906,20170907,20170908]
+	data7 =[20170911,20170912,20170913,20170914,20170915]	
+	data8 =[20170918,20170919,20170920,20170921,20170922]
+	data9 =[20170925,20170926,20170927,20170928,20170929]
+	data10 =[20171009,20171010,20171011,20171012,20171013]
+	data11 =[20171016,20171017,20171018,20171019,20171020]	
+	data12 =[20171023,20171024,20171025,20171026,20171027]
+	data13 =[20171030,20171031]
+	data = data1+data2+data3+data4+data5+data6+data7+data8+data9+data10+data11+data12+data13
 	# # data = data8+data9+data10+data11+data12
-	data =[20171024]
+	# data =[20171024]
 	# instrumentid_array = ["ru1801","rb1801","zn1710","pb1710","cu1710","hc1801","i1801","ni1801","al1710","au1712","ag1712","bu1712"]
 	instrumentid_array = ["rb1801"]
 	
