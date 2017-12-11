@@ -5,37 +5,71 @@ import os
 
 TIME = 0
 LASTPRICE = 1
-DIFF_VOLUME = 2
-SPREAD = 3
+MIDDLE = 2
+SD = 3
+RSI = 4
+DIFF_VOLUME = 5
+DIFF_OPENINTEREST = 6
+SPREAD = 7
+EMA_DIFF_VOLUME = 8
+EMA_DIFF_OPENINTEREST = 9
+EMA_SPREAD = 10
+AVG_SUM = 12
 LONG =1
 SHORT =0
+
 class BandAndTrigger(object):
 	"""docstring for BandAndTrigger"""
 	def __init__(self,param_dic):
 		super(BandAndTrigger, self).__init__()
 		# self.arg = arg
 		self._direction = param_dic["direction"]
-		self._limit_diff_volume = param_dic["limit_diff_volume"]
+
+
+		self._limit_rsi_data = param_dic["limit_rsi_data"]
+
+		self._direction = param_dic["direction"]
+		self._moving_theo = "EMA"
 		# now we have the cangwei and the limit cangwei
 		self._now_interest = 0
 		self._limit_interest = 1
 
+		self._limit_max_draw_down = param_dic["limit_max_draw_down"]
+		self._limit_max_loss = param_dic["limit_max_loss"]
+		self._limit_max_profit = param_dic["limit_max_profit"]
+
 		self._profit = 0
+		self._max_profit = 0
 		self._open_lastprice = 0
 
-		self._now_open_signal_tick = 0
-		self._has_open_tick = -1
+		# band param
+		self._param_open_edge = param_dic["band_open_edge"]		
+
+		# trigger param
+
+		self._ris_data = 0
+
+		self._now_interest = 0
+		self._limit_interest = 1
+		self._band_add_edge = 1
+		self._close_band_num =2
 
 		self._file = param_dic["file"]
 
 
+	def __del__(self):
+		print "this is the over function"
+		# bf.write_config_info(self._pre_ema_val,self._lastprice_array
+		# 	,self._rsi_array,self._rsi_period,self._now_md_price[LASTPRICE],self._config_file)
+
 	# get the md data ,every line;
-	def get_md_data(self,md_array,total_obj):
+	def get_md_data(self,md_array):
 		# tranfer the string to float
 		self._time = md_array[TIME]
 		self._lastprice = float(md_array[LASTPRICE])
-		self._diff_volume = float(md_array[DIFF_VOLUME])
-		self._spread = float(md_array[SPREAD])
+		self._now_middle_value = float(md_array[MIDDLE])
+		self._now_sd_val = float(md_array[SD])
+		self._ris_data = float(md_array[RSI])
 
 		open_time = self.is_trend_open_time()
 		close_time = self.is_trend_close_time()
@@ -43,25 +77,22 @@ class BandAndTrigger(object):
 		
 		if open_time and self._now_interest < self._limit_interest:
 		# if open_time:
-			self._open_lastprice = self._lastprice
+			self._open_lastprice = ((self._open_lastprice * self._now_interest) + self._lastprice)/(self._now_interest + 1)
 			self._now_interest +=1
 			self._max_profit = 0
-			self._has_open_tick = 0
 			mesg= "the time of open: "+self._time + ",the price: " + str(self._lastprice)
 			self._file.write(mesg+"\n")
-			total_obj._nums +=1
 			# print "the diff volume is:" + str(self._now_md_price[VOLUME] - self._pre_md_price[VOLUME])
 		# elif close_time:
 		elif close_time and self._now_interest >0:
 			# print "we need to close"
 			if self._direction ==LONG:
-				self._profit +=(self._lastprice - self._open_lastprice) 
+				self._profit +=(self._lastprice - self._open_lastprice) *self._now_interest
 			elif self._direction ==SHORT:
-				self._profit +=(self._open_lastprice - self._lastprice)
+				self._profit +=(self._open_lastprice - self._lastprice) *self._now_interest
 			self._open_lastprice = 0
 			self._max_profit = 0
 			self._now_interest = 0
-			self._has_open_tick =-1
 			mesg= "the time of close:"+self._time+ ",the price: " + str(self._lastprice)
 			self._file.write(mesg+"\n")
 
@@ -69,39 +100,57 @@ class BandAndTrigger(object):
 
 	def is_trend_open_time(self):
 
-		is_band_open = self.is_triggersize_open_time(self._direction,self._lastprice,
-											self._diff_volume,self._spread)
+		open_val = self._param_open_edge + self._band_add_edge*self._now_interest
+
+		is_band_open = self.is_band_open_time(self._direction,self._lastprice,
+											self._now_middle_value,open_val,self._now_sd_val,
+											self._ris_data,self._limit_rsi_data)
 		return is_band_open
 
 
 	def is_trend_close_time(self):
 		if self._now_interest <=0:
 			return False
-		if self._has_open_tick >=0:
-			self._has_open_tick +=1
-			if self._has_open_tick >=120:
-				return True	
-		return False
+		# base the max draw down
+		# 达到最大盈利之后，或者最大亏损之后，就开始平仓。这个是系统自带的。
+		# 现在根据李总的说法，添加了maxdrawdown的功能。！！！！！
+		if self._direction ==LONG:
+			tmp_profit = self._lastprice - self._open_lastprice
+		elif self._direction ==SHORT:
+			tmp_profit = self._open_lastprice - self._lastprice
+		else:
+			return False
+		if tmp_profit < (0 - self._limit_max_loss) or tmp_profit > self._limit_max_profit:
+			# print "the profit is bigger or loss"
+			return True
+
+		is_drawdown = self.is_max_draw_down(self._direction,self._lastprice,self._open_lastprice
+			,self._max_profit,self._limit_max_draw_down)
+		self._max_profit = is_drawdown[1]
+		if is_drawdown[0]:
+			mesg= 'this is the max draw down ' + str(self._max_profit)
+			self._file.write(mesg +"\n")
+			return True
+
+		close_band = self._param_open_edge + self._now_interest - self._close_band_num -1
+
+		is_band_close = self.is_band_close_time(self._direction,self._lastprice,
+											self._now_middle_value,self._now_sd_val,close_band)
+		
+		return is_band_close
 
 
-	def is_triggersize_open_time(self,direction,lastprice,diff_volume,spread):
+	def is_band_open_time(self,direction,lastprice,middle_val,open_edge,sd_val,rsi_data,limit_rsi_data):
 		# this is used to judge is time to band open
 		if direction ==LONG:
-			if diff_volume >= self._limit_diff_volume:
-				if self._spread >=100:
-					self._now_open_signal_tick +=1
-					if self._now_open_signal_tick >=2:
-						return True
-			else:
-				self._now_open_signal_tick = 0
+			downval = middle_val - open_edge*sd_val
+			rsi_data = 100 - rsi_data
+			if lastprice < downval  and rsi_data > limit_rsi_data:
+				return True
 		elif direction ==SHORT:
-			if diff_volume >= self._limit_diff_volume:
-				if self._spread <= 0:
-					self._now_open_signal_tick +=1
-					if self._now_open_signal_tick >=2:
-						return True
-			else:
-				self._now_open_signal_tick = 0
+			upval = middle_val + open_edge*sd_val
+			if lastprice > upval and rsi_data > limit_rsi_data:
+				return True
 		return False
 
 	def is_band_close_time(self,direction,lastprice,middle_val,sd_val,close_edge):
@@ -120,6 +169,24 @@ class BandAndTrigger(object):
 	def get_total_profit(self):
 		return  self._profit
 
+	def is_max_draw_down(self,direction,cur_price,open_price,max_profit,limit_max_draw_down):
+		if open_price ==0 or limit_max_draw_down ==0:
+			return (False,max_profit)
+		if direction ==LONG:
+			tmp_profit = cur_price - open_price;
+		elif direction ==SHORT:
+			tmp_profit = open_price - cur_price;
+		else :
+			return (False,0)
+		tmp_profit = tmp_profit
+		if max_profit < tmp_profit:
+			max_profit = tmp_profit
+		# f = open("rsidata.txt","a")
+		# f.write(str(time)+","+str(cur_price)+","+str(open_price)+","+str(max_profit)+","+str(tmp_profit)+"\n")
+		if (max_profit - tmp_profit) >= limit_max_draw_down :
+			return (True,max_profit)
+		else:
+			return (False,max_profit)
 		
 
 def read_data_from_csv(path):
@@ -132,11 +199,11 @@ def read_data_from_csv(path):
 	# only get the day data
 	return ret
 
-def start_to_run_md(band_obj,data,total_obj):
+def start_to_run_md(band_obj,data):
 	for row in data:
-		band_obj.get_md_data(row,total_obj)
+		band_obj.get_md_data(row)
 
-def create_band_obj(data,param_dict,total_obj):
+def create_band_obj(data,param_dict):
 	file = param_dict["file"]
 	for i in xrange(0,2):
 		param_dict["direction"] = i
@@ -146,24 +213,22 @@ def create_band_obj(data,param_dict,total_obj):
 			band_and_trigger_obj = BandAndTrigger(param_dict)
 			print "方向是short的交易情况:"
 			file.write("方向是short的交易情况:\n")
-			start_to_run_md(band_and_trigger_obj,data,total_obj)
+			start_to_run_md(band_and_trigger_obj,data)
 			profit = band_and_trigger_obj.get_total_profit()
-			total_obj._profit += profit
 			file.write(str(profit)+"\n")
 		else:
 			print "方向是long的交易情况："
 			# param_dict["limit_max_draw_down"] =0
 			band_and_trigger_obj = BandAndTrigger(param_dict)
 			file.write("方向是long的交易情况：:\n")
-			start_to_run_md(band_and_trigger_obj,data,total_obj)
+			start_to_run_md(band_and_trigger_obj,data)
 			profit = band_and_trigger_obj.get_total_profit()
-			total_obj._profit += profit
 			file.write(str(profit)+"\n")
 
 
 
-def main(filename,total_obj):
-	path = "../tmp/"+filename+"_band_data.csv"
+def main(filename):
+	path = "../data/"+filename+"_band_data.csv"
 	# path = "../zn/"+filename
 	csv_data = read_data_from_csv(path)
 	path = "../outdata/"+filename+"_trade_Fade.txt"
@@ -173,7 +238,7 @@ def main(filename,total_obj):
 	param_dict = {"limit_rsi_data":80,"band_open_edge":3,"limit_max_profit":100000,
 				 "file":file,"limit_max_draw_down":100000}
 	if "rb" in filename:
-		param_dict["limit_diff_volume"] =1000
+		param_dict["band_open_edge"] =3
 		# param_dict["limit_max_draw_down"] =10
 		param_dict["limit_max_profit"] =20
 		param_dict["limit_max_loss"] =20
@@ -235,48 +300,31 @@ def main(filename,total_obj):
 	else:
 		print "the instrument is not in the parm " + filename
 		return
-	create_band_obj(csv_data,param_dict,total_obj)
+	create_band_obj(csv_data,param_dict)
 	file.close()
 
-class total(object):
-	"""docstring for total"""
-	def __init__(self, profit,nums):
-		super(total, self).__init__()
-		self._profit = profit
-		self._nums = nums
-		self._long = 0
-		self._short = 0
-		self._profit_num = 0
-		self._loss_num = 0
+
 
 if __name__=='__main__': 
-	data1 =[20170801,20170802,20170803,20170804]
-	data2 =[20170807,20170808,20170809,20170810,20170811]
-	data3 =[20170814,20170815,20170816,20170817,20170818]
-	data4 =[20170821,20170822,20170823,20170824,20170825]	
-	data5 =[20170828,20170829,20170830,20170831,20170901]
-	data6 =[20170904,20170905,20170906,20170907,20170908]
-	data7 =[20170911,20170912,20170913,20170914,20170915]	
-	data8 =[20170918,20170919,20170920,20170921,20170922]
-	data9 =[20170925,20170926,20170927,20170928,20170929]
-	data10 =[20171009,20171010,20171011,20171012,20171013]
-	data11 =[20171016,20171017,20171018,20171019,20171020]	
-	data12 =[20171023,20171024,20171025,20171026,20171027]
-	data13 =[20171030,20171031]
-	data = data1+data2+data3+data4+data5+data6+data7+data8+data9+data10+data11+data12+data13
-
-	instrumentid_array = ["rb1801"]
-	total_obj = total(0,0)
+	# main("ru1709_20170622")
+	# data1 = [20170724,20170725,20170726,20170727,20170728]
+	# data =[20170731,20170801,20170802,20170803,20170804,20170807,20170808,20170809,20170810]
+	# data = data+data1
+	# file_dir = "../zn"
+	# for root, dirs, files in os.walk(file_dir):
+	#     for file in files:
+	#     	if "band_data" in file:
+	#     		tmp_path = os.path.join(root,file)
+	#     		tmp_path = tmp_path.split('/')[2]
+	#     		print tmp_path
+	#     		main(tmp_path)
+	# data = [20170817,20170818,20170821,20170822]
+	data = [20170828]
+	# instrumentid = ["ru1801","rb1801","zn1710","pb1710","cu1710","hc1801","i1801","ni1801","al1710","au1712","ag1712","bu1712"]
+	instrumentid = ["cu1710"]
 	for item in data:
-		for instrument in instrumentid_array:
+		for instrument in instrumentid:
 			path = instrument + "_"+ str(item)
 			print path
-			main(path,total_obj)	
+			main(path)	
 		# print WRITETOFILE
-
-	print total_obj._nums
-	print total_obj._profit
-	print total_obj._long
-	print total_obj._short
-	print total_obj._profit_num
-	print total_obj._loss_num

@@ -52,7 +52,7 @@ class BandAndTrigger(object):
 		self._file = param_dic["file"]
 
 	# get the md data ,every line;
-	def get_md_data(self,md_array):
+	def get_md_data(self,md_array,total_obj):
 		# tranfer the string to float
 		self._time = md_array[TIME]
 		self._lastprice = float(md_array[LASTPRICE])
@@ -76,6 +76,7 @@ class BandAndTrigger(object):
 			self._open_lastprice = self._lastprice
 			mesg= "the time of open: "+self._time + ",the price: " + str(self._lastprice)  + ",the middle_val: " + str(self._now_middle_value_60)
 			self._file.write(mesg+"\n")
+			total_obj._nums +=1
 			# print "the diff volume is:" + str(self._now_md_price[VOLUME] - self._pre_md_price[VOLUME])
 		# elif close_time:
 		elif close_time and self._now_interest >0:
@@ -235,9 +236,9 @@ class BandAndTrigger(object):
 		return  self._profit
 		
 
-def start_to_run_md(band_obj,data):
+def start_to_run_md(band_obj,data,total_obj):
 	for row in data:
-		band_obj.get_md_data(row)
+		band_obj.get_md_data(row,total_obj)
 
 def create_band_obj(data,param_dict,total_obj):
 	file = param_dict["file"]
@@ -249,7 +250,7 @@ def create_band_obj(data,param_dict,total_obj):
 			band_and_trigger_obj = BandAndTrigger(param_dict)
 			print "方向是short的交易情况:"
 			file.write("方向是short的交易情况:\n")
-			start_to_run_md(band_and_trigger_obj,data)
+			start_to_run_md(band_and_trigger_obj,data,total_obj)
 			profit = band_and_trigger_obj.get_total_profit()
 			total_obj._profit += profit
 			file.write(str(profit)+"\n")
@@ -258,7 +259,7 @@ def create_band_obj(data,param_dict,total_obj):
 			# param_dict["open_interest_edge"] =1
 			band_and_trigger_obj = BandAndTrigger(param_dict)
 			file.write("方向是long的交易情况：:\n")
-			start_to_run_md(band_and_trigger_obj,data)
+			start_to_run_md(band_and_trigger_obj,data,total_obj)
 			profit = band_and_trigger_obj.get_total_profit()
 			total_obj._profit += profit
 			file.write(str(profit)+"\n")
@@ -447,21 +448,21 @@ class total(object):
 
 if __name__=='__main__': 
 	# data1 =[20170801,20170802,20170803,20170804]
-	data2 =[20170807,20170808,20170809,20170810,20170811]
-	data3 =[20170814,20170815,20170816,20170817,20170818]
-	data4 =[20170821,20170822,20170823,20170824,20170825]	
-	data5 =[20170828,20170829,20170830,20170831,20170901]
-	data6 =[20170904,20170905,20170906,20170907,20170908]
-	data7 =[20170911,20170912,20170913,20170914,20170915]	
-	data8 =[20170918,20170919,20170920,20170921,20170922]
-	data9 =[20170925,20170926,20170927,20170928,20170929]
-	data10 =[20171009,20171010,20171011,20171012,20171013]
-	data11 =[20171016,20171017,20171018,20171019,20171020]	
-	data12 =[20171023,20171024,20171025,20171026,20171027]
-	data13 =[20171030,20171031]
-	# data = data1+data2+data3+data4+data5+data6+data7+data8+data9+data10+data11+data12+ data13
-	data = data2+data3+data4+data5+data6+data7+data8+data9+data10+data11+data12+ data13
-	# data =[20171024]
+	# data2 =[20170807,20170808,20170809,20170810,20170811]
+	# data3 =[20170814,20170815,20170816,20170817,20170818]
+	# data4 =[20170821,20170822,20170823,20170824,20170825]	
+	# data5 =[20170828,20170829,20170830,20170831,20170901]
+	# data6 =[20170904,20170905,20170906,20170907,20170908]
+	# data7 =[20170911,20170912,20170913,20170914,20170915]	
+	# data8 =[20170918,20170919,20170920,20170921,20170922]
+	# data9 =[20170925,20170926,20170927,20170928,20170929]
+	# data10 =[20171009,20171010,20171011,20171012,20171013]
+	# data11 =[20171016,20171017,20171018,20171019,20171020]	
+	# data12 =[20171023,20171024,20171025,20171026,20171027]
+	# data13 =[20171030,20171031]
+	# # data = data1+data2+data3+data4+data5+data6+data7+data8+data9+data10+data11+data12+ data13
+	# data = data2+data3+data4+data5+data6+data7+data8+data9+data10+data11+data12+ data13
+	data =[20171024]
 	# instrumentid = ["rb1801","ru1801","zn1801","pb1712"]
 	instrumentid = ["rb1801"]
 	total_obj = total(0,0)

@@ -1,6 +1,5 @@
 # -*- coding:utf8 -*-
 import csv
-import band_and_trigger
 import basic_fun as bf
 import os
 import cx_Oracle  
@@ -130,103 +129,15 @@ class BandAndTrigger(object):
 
 		self._pre_md_price = []
 		self._now_md_price = []
-		self._lastprice_array = []
-		self._lastprice_map = dict()
-		self._pre_ema_val = 0
-		self._now_middle_value =0
-		self._now_sd_val = 0
-
-		self._diff_volume_array = []
-		self._diff_open_interest_array = []
-		self._diff_spread_array = []
-		self._diff_turn_over_array = []
-		self._diff_period =param_dic["diff_period"]
 
 		self._multiple = param_dic["multiple"]
 
-		self._rsi_array = []
-		self._pre_rsi_lastprice =0 
-		self._now_bar_rsi_tick = 0
-		self._ris_data = 0
-		self._rsi_period = param_dic["rsi_period"]
-		self._rsi_bar_period = param_dic["rsi_bar_period"]
-		self._limit_rsi_data = param_dic["limit_rsi_data"]
+		self._close_time = 0
+		self._limit_close_time = 120
 
-		self._now_bar_num = 0
-		self._limit_bar_num = 1
-		self._bar_min_lastprice = 0
-		self._bar_max_lastprice = 0
+		self._low_lastprice = 0
+		self._high_lastprice = 0
 
-		# self._limit_twice_sd = 2
-
-		self._moving_theo = "EMA"
-		# band param
-		self._param_period = param_dic["band_period"]
-
-
-		adv_param_dict = {}
-		adv_param_dict["period"] = 120
-		adv_param_dict["pre_adv"] = 0
-		self._adv_obj = adv.ADV(adv_param_dict)
-
-		wavd_param_dict = {}
-		wavd_param_dict["period"] = 120
-		wavd_param_dict["bar_num"] = 1
-		self._wvad_obj = wvad.WVAD(wavd_param_dict)
-
-		self._file = param_dic["file"]
-		self._config_file = param_dic["config_file"]
-
-		self._slope = []
-		self._tick_num = param_dic["tick_num"]
-		self._slope_tick = 0
-
-		self._volume_period = 20
-		self._now_volume_tick = 0
-		self._sum_volume =0
-		self._pre_sum_volume = 1
-
-		if len(self._lastprice_array) ==0:
-			print "this is init function " + str(self._config_file)
-			tmp_pre_ema_array = []
-			tmp_rsi_lastprice = []
-			config_file = "../config_pic/"+str(self._config_file)
-			bf.get_config_info(tmp_pre_ema_array,self._lastprice_array,self._lastprice_map
-				,self._rsi_array,tmp_rsi_lastprice,config_file)
-			if len(tmp_pre_ema_array)==0:
-				self._pre_ema_val = 0
-				self._pre_rsi_lastprice = 0 
-			else:
-				self._pre_ema_val = tmp_pre_ema_array[0]
-				self._pre_rsi_lastprice = tmp_rsi_lastprice[0]
-		print self._pre_ema_val
-		print len(self._lastprice_array)
-		print self._rsi_array
-		print self._pre_rsi_lastprice
-		# print "the length of lastprice is: " +str(len(self._lastprice_array))
-
-
-	def __del__(self):
-		print "this is the over function " + str(self._config_file)
-
-		config_file = "../config/"+str(self._config_file)
-		bf.write_config_info(self._pre_ema_val,self._lastprice_array
-			,self._rsi_array,self._rsi_period,self._now_md_price[LASTPRICE],config_file)
-		
-		config_file = "../config/"+str(self._config_file+1)
-		bf.write_config_info(self._pre_ema_val,self._lastprice_array
-			,self._rsi_array,self._rsi_period,self._now_md_price[LASTPRICE],config_file)
-
-
-	def get_slope(self,period):
-		l = len(self._slope)
-		begin = 0
-		if l - period >0:
-			begin = l - period
-		left = self._slope[begin]
-		right = self._slope[l-1]
-		ret = (right - left)/self._tick_num
-		return ret
 
 	# get the md data ,every line;
 	def get_md_data(self,md_array):
@@ -248,174 +159,21 @@ class BandAndTrigger(object):
 		if len(self._pre_md_price) ==0:
 			# "the is the first line data"
 			return
-		else:
-			# self._rsi_array.append(lastprice - self._pre_md_price[LASTPRICE])
-			if self._now_bar_rsi_tick >= self._rsi_bar_period:
-				# 表示已经到了一个bar的周期。
-				tmpdiff = lastprice - self._pre_rsi_lastprice		
-				self._pre_rsi_lastprice = lastprice
-				self._now_bar_rsi_tick = 1
-				self._ris_data =bf.get_rsi_data2(tmpdiff,self._rsi_array,self._rsi_period)
-				self._rsi_array.append(tmpdiff)
-			else:
-				self._now_bar_rsi_tick +=1
-				tmpdiff = lastprice - self._pre_rsi_lastprice
-				self._ris_data =bf.get_rsi_data2(tmpdiff,self._rsi_array,self._rsi_period)
-				# self._ris_data = 0
-
-		self._lastprice_array.append(lastprice)
-		if len(self._lastprice_array) <= self._param_period:
-			# this is we dont start the period.
-			# print  "the lastprice length is small: " +str(len(self._lastprice_array))
-			ema_period = len(self._lastprice_array)
-			pre_ema_val = bf.get_ema_data(lastprice,self._pre_ema_val,ema_period)
-			self._pre_ema_val = pre_ema_val
-			# save the pre_ema_val and return
-			if lastprice not in self._lastprice_map:
-				self._lastprice_map[lastprice] =1
-			else:
-				self._lastprice_map[lastprice] +=1
-			return True
-
-		front_lastprice = self._lastprice_array[0]
-		self._lastprice_array.pop(0)
-		if front_lastprice != lastprice:
-			if lastprice not in self._lastprice_map :
-				self._lastprice_map[lastprice] = 1
-			else:
-				self._lastprice_map[lastprice] +=1
-
-			self._lastprice_map[front_lastprice] -=1
-		# start the judge
-		if self._moving_theo =="EMA":
-			self._now_middle_value = bf.get_ema_data(lastprice,self._pre_ema_val,self._param_period)
-			self._pre_ema_val = self._now_middle_value
-		else:
-			self._now_middle_value = bf.get_ma_data(self._lastprice_array,self._param_period)
-		
-
-		self._slope.append(self._now_middle_value)
-		slope1 = self.get_slope(120)
-		slope2 = self.get_slope(360)
-		slope3 = self.get_slope(600)
-		self._slope_tick = (slope3 + slope2 + slope1)/3
-		
-		# self._ris_data = bf.get_rsi_data(self._rsi_array,self._rsi_period)
-		# self._now_sd_val =bf.get_sd_data(self._now_md_price[TIME], self._lastprice_array,self._param_period)
-		self._now_sd_val =bf.get_sd_data_by_map(self._lastprice_map,self._param_period)	
 
 		diff_volume = self._now_md_price[VOLUME] - self._pre_md_price[VOLUME]
 		diff_interest = self._now_md_price[OPENINTEREST] - self._pre_md_price[OPENINTEREST]
 		diff_turnover = self._now_md_price[TURNONER] - self._pre_md_price[TURNONER]
 
-		self._diff_volume_array.append(diff_volume)
-		self._diff_open_interest_array.append(diff_interest)
-		self._diff_turn_over_array.append(diff_turnover)
-		# 直接就是diff_interest
-		# ema_diff_volume = bf.get_ema_data_2(self._diff_volume_array,self._diff_period)
-		if self._now_bar_num > self._limit_bar_num:
-			ema_diff_volume = bf.get_sum(self._diff_volume_array,self._limit_bar_num)
-			ema_diff_openinterest = bf.get_sum(self._diff_open_interest_array,self._limit_bar_num)
-			ema_diff_turnonver = bf.get_sum(self._diff_turn_over_array,self._limit_bar_num)
-			self._now_bar_num = 1
-			self._bar_max_lastprice = self._now_md_price[LASTPRICE]
-			self._bar_min_lastprice = self._now_md_price[LASTPRICE]
-		else:
-			ema_diff_volume = bf.get_sum(self._diff_volume_array,self._now_bar_num)
-			ema_diff_openinterest = bf.get_sum(self._diff_open_interest_array,self._now_bar_num)
-			ema_diff_turnonver = bf.get_sum(self._diff_turn_over_array,self._now_bar_num)
-			self._now_bar_num +=1
-			if self._bar_max_lastprice ==0 or self._bar_max_lastprice < self._now_md_price[LASTPRICE]:
-				self._bar_max_lastprice = self._now_md_price[LASTPRICE]
-			if self._bar_min_lastprice ==0 or self._bar_min_lastprice > self._now_md_price[LASTPRICE]:
-				self._bar_min_lastprice = self._now_md_price[LASTPRICE]
-
-		if diff_volume ==0:
+		if diff_volume ==0 or (self._pre_md_price[ASKPRICE1] - self._pre_md_price[BIDPRICE1]) ==0:
 			spread =50
-			self._diff_spread_array.append(spread)
 		else:
 
 			avg_price = float(diff_turnover)/diff_volume/self._multiple
-			# avg_price = float(ema_diff_turnonver)/ema_diff_volume/self._multiple
-			# if lastprice > self._now_middle_value:
-			# if self._pre_md_price[ASKPRICE1] != self._pre_md_price[BIDPRICE1]:
 			# 注意，现在算的只是和买一价的位置关系。
 			spread = 100*(avg_price - self._pre_md_price[BIDPRICE1])/(self._pre_md_price[ASKPRICE1] - self._pre_md_price[BIDPRICE1])
-			# spread = 100*(avg_price - self._now_md_price[BIDPRICE1])/(self._now_md_price[ASKPRICE1] - self._now_md_price[BIDPRICE1])
-			# if self._bar_max_lastprice == self._bar_min_lastprice:
-			# 	spread = 50
-			# else:
-			# 	spread = 100*(avg_price - self._bar_min_lastprice)/(self._bar_max_lastprice - self._bar_min_lastprice)
-			self._diff_spread_array.append(spread)
-			# spread = bf.get_weighted_mean(self._diff_spread_array,self._diff_volume_array,self._diff_period)
-		# diff_interest = self._now_md_price[OPENINTEREST] - self._pre_md_price[OPENINTEREST]
-		# diff_turnover = self._now_md_price[TURNONER] - self._pre_md_price[TURNONER]
 
-		if self._now_volume_tick < self._volume_period:
-			self._now_volume_tick +=1
-			self._sum_volume += diff_volume
-		else:
-			self._now_volume_tick =1
-			self._sum_volume = diff_volume
-			self._pre_sum_volume = self._sum_volume
-
-		tmp_beishu =0 
-		if self._pre_sum_volume != 1 and self._pre_sum_volume != 0:
-			tmp_beishu = self._sum_volume/self._pre_sum_volume
-
-		# self._diff_volume_array.append(diff_volume)
-		# self._diff_open_interest_array.append(diff_interest)
-		# self._diff_turn_over_array.append(diff_turnover)
-		# # 直接就是diff_interest
-		# # ema_diff_volume = bf.get_ema_data_2(self._diff_volume_array,self._diff_period)
-		# if self._now_bar_num > self._limit_bar_num:
-		# 	ema_diff_volume = bf.get_sum(self._diff_volume_array,self._limit_bar_num)
-		# 	ema_diff_openinterest = bf.get_sum(self._diff_open_interest_array,self._limit_bar_num)
-		# 	ema_diff_turnonver = bf.get_sum(self._diff_turn_over_array,self._limit_bar_num)
-		# 	self._now_bar_num = 1
-		# 	self._bar_max_lastprice = self._now_md_price[LASTPRICE]
-		# 	self._bar_min_lastprice = self._now_md_price[LASTPRICE]
-		# else:
-		# 	ema_diff_volume = bf.get_sum(self._diff_volume_array,self._now_bar_num)
-		# 	ema_diff_openinterest = bf.get_sum(self._diff_open_interest_array,self._now_bar_num)
-		# 	ema_diff_turnonver = bf.get_sum(self._diff_turn_over_array,self._now_bar_num)
-		# 	self._now_bar_num +=1
-		# 	if self._bar_max_lastprice ==0 or self._bar_max_lastprice < self._now_md_price[LASTPRICE]:
-		# 		self._bar_max_lastprice = self._now_md_price[LASTPRICE]
-		# 	if self._bar_min_lastprice ==0 or self._bar_min_lastprice > self._now_md_price[LASTPRICE]:
-		# 		self._bar_min_lastprice = self._now_md_price[LASTPRICE]
-
-		# if diff_volume ==0:
-		# 	spread1 =0
-		# 	spread = 0
-		# 	self._diff_spread_array.append(spread1)
-		# else:
-
-		# 	avg_price = float(diff_turnover)/diff_volume/self._multiple
-		# 	# avg_price = float(ema_diff_turnonver)/ema_diff_volume/self._multiple
-		# 	# if lastprice > self._now_middle_value:
-		# 	# if self._pre_md_price[ASKPRICE1] != self._pre_md_price[BIDPRICE1]:
-		# 	# 注意，现在算的只是和买一价的位置关系。
-		# 	spread1 = 100*(avg_price - self._pre_md_price[BIDPRICE1])/(self._pre_md_price[ASKPRICE1] - self._pre_md_price[BIDPRICE1])
-		# 	# spread = 100*(avg_price - self._now_md_price[BIDPRICE1])/(self._now_md_price[ASKPRICE1] - self._now_md_price[BIDPRICE1])
-		# 	if self._bar_max_lastprice == self._bar_min_lastprice:
-		# 		spread = 50
-		# 	else:
-		# 		spread = 100*(avg_price - self._bar_min_lastprice)/(self._bar_max_lastprice - self._bar_min_lastprice)
-		# 	self._diff_spread_array.append(spread)
-		# # spread = bf.get_weighted_mean(self._diff_spread_array,self._diff_volume_array,self._diff_period)
->>>>>>> 6c1d2d0c5ee57e1f69b9269dc66b3f546c41b778
-		
-		# # avg = (int(self._now_md_price[BIDPRICE1VOLUME])+int(self._now_md_price[ASKPRICE1VOLUME]))/2
-		# tmp_adv = self._adv_obj.get_md_data(md_array)
-		# tmp_wvad = self._wvad_obj.get_md_data(md_array)
-		# tmp_to_csv = [self._now_md_price[TIME],self._now_md_price[LASTPRICE],round(self._now_middle_value,2),
-		# 			round(self._now_sd_val,2),round(self._ris_data,2),diff_volume,diff_interest,round(spread1,2),
-		# 			round(ema_diff_volume,2),round(ema_diff_openinterest,2),round(tmp_wvad,2)
-		# 			]
-
-		tmp_to_csv = [self._now_md_price[TIME],self._now_md_price[LASTPRICE],round(self._now_middle_value,2),
-					round(self._now_sd_val,2),round(self._slope_tick,2),round(tmp_beishu,2)]
+		tmp_to_csv = [self._now_md_price[TIME],self._now_md_price[LASTPRICE],round(diff_volume,2),
+					round(spread,2)]
 		# print tmp_to_csv
 		self._write_to_csv_data.append(tmp_to_csv)
 
@@ -527,43 +285,30 @@ def main(filename):
 	
 	data = bt.get_to_csv_data()
 
-<<<<<<< HEAD
-	# data = clean_night_data(data)
-	path_new = "../data/"+filename+ "_band_data"+".csv"
-=======
 	data = clean_night_data(data)
-	path_new = "../datasave/"+filename+ "_band_data"+".csv"
->>>>>>> 6c1d2d0c5ee57e1f69b9269dc66b3f546c41b778
+	path_new = "../tmp/"+filename+ "_band_data"+".csv"
 	bf.write_data_to_csv(path_new,data)
 
 
 
 if __name__=='__main__':
-	# data2 =[20170724,20170725,20170726,20170727,20170728]
-	# data3 =[20170731,20170801,20170802,20170803,20170804,20170807,20170808,20170809]
-	# data = data2+ data3
-	# file_dir = "../zn"
-	# for root, dirs, files in os.walk(file_dir):
-	#     for file in files:
-	#     	if "band_data" not in file and "csv" in file:
-	#     		tmp_path = os.path.join(root,file)
-	#     		tmp_path = tmp_path.split('/')[2]
-	#     		print tmp_path
-	#     		main(tmp_path)
+	data1 =[20170801,20170802,20170803,20170804]
+	data2 =[20170807,20170808,20170809,20170810,20170811]
+	data3 =[20170814,20170815,20170816,20170817,20170818]
+	data4 =[20170821,20170822,20170823,20170824,20170825]	
+	data5 =[20170828,20170829,20170830,20170831,20170901]
+	data6 =[20170904,20170905,20170906,20170907,20170908]
+	data7 =[20170911,20170912,20170913,20170914,20170915]	
+	data8 =[20170918,20170919,20170920,20170921,20170922]
+	data9 =[20170925,20170926,20170927,20170928,20170929]
+	data10 =[20171009,20171010,20171011,20171012,20171013]
+	data11 =[20171016,20171017,20171018,20171019,20171020]	
+	data12 =[20171023,20171024,20171025,20171026,20171027]
+	data13 =[20171030,20171031]
+	data = data1+data2+data3+data4+data5+data6+data7+data8+data9+data10+data11+data12+data13
 
-<<<<<<< HEAD
-
-
-	# data = [20170821,20170822,20170823,20170824,20170825]
-	data = [20170828]
-	# instrumentid_array = ["ru1801","rb1801","zn1710","pb1710","cu1710","hc1801","i1801"]
 	instrumentid_array = ["rb1801"]
-=======
-	data =[20170918,20170919,20170920,20170921,20170922,20170925,20170926,20170927]
-	# data =[20170927]
-	# instrumentid_array = ["ru1801","rb1801","zn1710","pb1710","cu1710","hc1801","i1801","ni1801","al1710","au1712","ag1712","bu1712"]
-	instrumentid_array = ["zn1711"]
->>>>>>> 6c1d2d0c5ee57e1f69b9269dc66b3f546c41b778
+
 	for item in data:
 		for instrumentid in instrumentid_array:
 			# first get the sql data
