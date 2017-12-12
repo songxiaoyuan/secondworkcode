@@ -148,6 +148,8 @@ class BandAndTrigger(object):
 		md_array[TURNONER] = float(md_array[TURNONER])
 		md_array[BIDPRICE1] = float(md_array[BIDPRICE1])
 		md_array[ASKPRICE1] = float(md_array[ASKPRICE1])
+		md_array[ASKPRICE1VOLUME] = float(md_array[ASKPRICE1VOLUME])
+		md_array[BIDPRICE1VOLUME] = float(md_array[BIDPRICE1VOLUME])
 
 
 		self._pre_md_price = self._now_md_price
@@ -161,19 +163,20 @@ class BandAndTrigger(object):
 			return
 
 		diff_volume = self._now_md_price[VOLUME] - self._pre_md_price[VOLUME]
-		diff_interest = self._now_md_price[OPENINTEREST] - self._pre_md_price[OPENINTEREST]
-		diff_turnover = self._now_md_price[TURNONER] - self._pre_md_price[TURNONER]
+		# diff_interest = self._now_md_price[OPENINTEREST] - self._pre_md_price[OPENINTEREST]
+		# diff_turnover = self._now_md_price[TURNONER] - self._pre_md_price[TURNONER]
 
-		if diff_volume ==0 or (self._pre_md_price[ASKPRICE1] - self._pre_md_price[BIDPRICE1]) ==0:
-			spread =50
-		else:
+		# if diff_volume ==0 or (self._pre_md_price[ASKPRICE1] - self._pre_md_price[BIDPRICE1]) ==0:
+		# 	spread =50
+		# else:
 
-			avg_price = float(diff_turnover)/diff_volume/self._multiple
-			# 注意，现在算的只是和买一价的位置关系。
-			spread = 100*(avg_price - self._pre_md_price[BIDPRICE1])/(self._pre_md_price[ASKPRICE1] - self._pre_md_price[BIDPRICE1])
+		# 	avg_price = float(diff_turnover)/diff_volume/self._multiple
+		# 	# 注意，现在算的只是和买一价的位置关系。
+		# 	spread = 100*(avg_price - self._pre_md_price[BIDPRICE1])/(self._pre_md_price[ASKPRICE1] - self._pre_md_price[BIDPRICE1])
 
 		tmp_to_csv = [self._now_md_price[TIME],self._now_md_price[LASTPRICE],round(diff_volume,2),
-					round(spread,2)]
+					round(self._pre_md_price[ASKPRICE1],2),round(self._pre_md_price[ASKPRICE1VOLUME],2),
+					round(self._pre_md_price[BIDPRICE1],2),round(self._pre_md_price[BIDPRICE1VOLUME],2)]
 		# print tmp_to_csv
 		self._write_to_csv_data.append(tmp_to_csv)
 
@@ -304,10 +307,10 @@ if __name__=='__main__':
 	data10 =[20171009,20171010,20171011,20171012,20171013]
 	data11 =[20171016,20171017,20171018,20171019,20171020]	
 	data12 =[20171023,20171024,20171025,20171026,20171027]
-	data13 =[20171030,20171031]
+	data13 =[20171030]
 	data = data1+data2+data3+data4+data5+data6+data7+data8+data9+data10+data11+data12+data13
 
-	instrumentid_array = ["rb1801"]
+	instrumentid_array = ["cu1801"]
 
 	for item in data:
 		for instrumentid in instrumentid_array:

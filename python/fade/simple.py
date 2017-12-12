@@ -18,11 +18,11 @@ class BandAndTrigger(object):
 	def __init__(self,param_dic):
 		super(BandAndTrigger, self).__init__()
 		# self.arg = arg
-		self._direction = param_dic["direction"]
 		self._limit_diff_volume = param_dic["limit_diff_volume"]
 		# now we have the cangwei and the limit cangwei
 		self._now_interest = 0
 		self._limit_interest = 1
+		self._direction = 0
 
 		self._profit = 0
 		self._open_lastprice = 0
@@ -52,35 +52,18 @@ class BandAndTrigger(object):
 		# if open_time:
 			self._open_lastprice = self._lastprice
 			self._now_interest +=1
-			self._max_profit = 0
 			self._has_open_tick = 0
 			mesg= "the time of open: "+self._time + ",the price: " + str(self._lastprice)
 			self._file.write(mesg+"\n")
 			total_obj._nums +=1
-			if self._direction == LONG:
-				total_obj._long +=1
-			elif self._direction == SHORT:
-				total_obj._short +=1
 			# print "the diff volume is:" + str(self._now_md_price[VOLUME] - self._pre_md_price[VOLUME])
 		# elif close_time:
 		elif close_time and self._now_interest >0:
-			# print "we need to close"
-			if self._direction ==LONG:
-				self._profit +=(self._lastprice - self._open_lastprice) 
-				if (self._lastprice - self._open_lastprice) >0:
-					total_obj._profit_num +=1
-				else:
-					total_obj._loss_num +=1
-			elif self._direction ==SHORT:
-				self._profit +=(self._open_lastprice - self._lastprice)
-
-				if (self._open_lastprice - self._lastprice) >0:
-					total_obj._profit_num +=1
-				else:
-					total_obj._loss_num +=1
-			self._open_lastprice = 0
-			self._max_profit = 0
-			self._now_interest = 0
+			self._now_interest -=1
+			if self._lastprice - self._open_lastprice >0:
+				total_obj._long +=1
+			else:
+				total_obj._short +=1
 			self._has_open_tick =-1
 			mesg= "the time of close:"+self._time+ ",the price: " + str(self._lastprice)
 			self._file.write(mesg+"\n")
@@ -97,47 +80,22 @@ class BandAndTrigger(object):
 	def is_trend_close_time(self):
 		if self._now_interest <=0:
 			return False
+
 		if self._has_open_tick >=0:
 			self._has_open_tick +=1
-			if self._has_open_tick >=600:
+			if self._has_open_tick >=120:
 				return True	
 		return False
 
 
 	def is_triggersize_open_time(self,direction,lastprice,diff_volume,askprice1,bidprice1):
 		# this is used to judge is time to band open
-		if direction ==LONG:
-			if diff_volume >= self._limit_diff_volume:
-				if lastprice >=askprice1:
-					self._now_open_signal_tick +=1
-					if self._now_open_signal_tick >=2:
-						return True
-				else:
-					self._now_open_signal_tick = 0
-			else:
-				self._now_open_signal_tick = 0
-		elif direction ==SHORT:
-			if diff_volume >= self._limit_diff_volume:
-				if lastprice <=bidprice1:
-					self._now_open_signal_tick +=1
-					if self._now_open_signal_tick >=2:
-						return True
-				else:
-					self._now_open_signal_tick = 0
-			else:
-				self._now_open_signal_tick = 0
-		return False
-
-	def is_band_close_time(self,direction,lastprice,middle_val,sd_val,close_edge):
-		# this is used to judge is time to band open
-		if direction ==LONG:
-			upval = middle_val - close_edge*sd_val
-			if lastprice > upval:
-				return True
-		elif direction ==SHORT:
-			downval = middle_val + close_edge*sd_val
-			if lastprice < downval:
-				return True
+		if diff_volume >= self._limit_diff_volume:
+				self._now_open_signal_tick +=1
+				if self._now_open_signal_tick >=3:
+					return True
+		else:
+			self._now_open_signal_tick = 0
 		return False
 
 
@@ -165,7 +123,7 @@ def create_band_obj(data,param_dict,total_obj):
 	for i in xrange(0,2):
 		param_dict["direction"] = i
 		if i==0:
-			# continue
+			continue
 			# param_dict["limit_max_draw_down"] =0
 			band_and_trigger_obj = BandAndTrigger(param_dict)
 			print "方向是short的交易情况:"
@@ -197,7 +155,7 @@ def main(filename,total_obj):
 	param_dict = {"limit_rsi_data":80,"band_open_edge":3,"limit_max_profit":100000,
 				 "file":file,"limit_max_draw_down":100000}
 	if "rb" in filename:
-		param_dict["limit_diff_volume"] =1000
+		param_dict["limit_diff_volume"] =1500
 		# param_dict["limit_max_draw_down"] =10
 		param_dict["limit_max_profit"] =20
 		param_dict["limit_max_loss"] =20
