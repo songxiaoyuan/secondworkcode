@@ -72,6 +72,10 @@ class BandAndTrigger(object):
 
 	def is_trend_open_time(self):
 
+		hour = int(self._time.split(":")[0])
+		minute = int(self._time.split(":")[0])
+		if hour ==14 and minute >=58:
+			return False
 		is_band_open = self.is_triggersize_open_time(self._direction,self._lastprice,
 											self._diff_volume,self._askprice1,self._bidprice1)
 		return is_band_open
@@ -81,9 +85,13 @@ class BandAndTrigger(object):
 		if self._now_interest <=0:
 			return False
 
+		hour = int(self._time.split(":")[0])
+		minute = int(self._time.split(":")[0])
+		if hour ==14 and minute >=58:
+			return True
 		if self._has_open_tick >=0:
 			self._has_open_tick +=1
-			if self._has_open_tick >=120:
+			if self._has_open_tick >=600:
 				return True	
 		return False
 
@@ -92,7 +100,7 @@ class BandAndTrigger(object):
 		# this is used to judge is time to band open
 		if diff_volume >= self._limit_diff_volume:
 				self._now_open_signal_tick +=1
-				if self._now_open_signal_tick >=3:
+				if self._now_open_signal_tick >=2:
 					return True
 		else:
 			self._now_open_signal_tick = 0
@@ -145,8 +153,8 @@ def create_band_obj(data,param_dict,total_obj):
 
 
 def main(filename,total_obj):
-	path = "../tmp/"+filename+"_band_data.csv"
-	# path = "../zn/"+filename
+	# path = "../tmp/"+filename+"_band_data.csv"
+	path = "../tmp/"+filename
 	csv_data = read_data_from_csv(path)
 	path = "../outdata/"+filename+"_trade_Fade.txt"
 	file = open(path,"w")
@@ -170,12 +178,12 @@ def main(filename,total_obj):
 		param_dict["limit_max_profit"] =100
 		param_dict["limit_max_loss"] =100
 	elif "zn" in filename:
-		param_dict["band_open_edge"] =3
+		param_dict["limit_diff_volume"] =150
 		# param_dict["limit_max_draw_down"] =50
 		param_dict["limit_max_profit"] =100
 		param_dict["limit_max_loss"] =100
 	elif "cu" in filename:
-		param_dict["band_open_edge"] =3
+		param_dict["limit_diff_volume"] =150
 		# param_dict["limit_max_draw_down"] =100
 		param_dict["limit_max_profit"] =200
 		param_dict["limit_max_loss"] =200
@@ -232,28 +240,35 @@ class total(object):
 		self._loss_num = 0
 
 if __name__=='__main__': 
-	data1 =[20170801,20170802,20170803,20170804]
-	data2 =[20170807,20170808,20170809,20170810,20170811]
-	data3 =[20170814,20170815,20170816,20170817,20170818]
-	data4 =[20170821,20170822,20170823,20170824,20170825]	
-	data5 =[20170828,20170829,20170830,20170831,20170901]
-	data6 =[20170904,20170905,20170906,20170907,20170908]
-	data7 =[20170911,20170912,20170913,20170914,20170915]	
-	data8 =[20170918,20170919,20170920,20170921,20170922]
-	data9 =[20170925,20170926,20170927,20170928,20170929]
-	data10 =[20171009,20171010,20171011,20171012,20171013]
-	data11 =[20171016,20171017,20171018,20171019,20171020]	
-	data12 =[20171023,20171024,20171025,20171026,20171027]
-	data13 =[20171030]
-	data = data1+data2+data3+data4+data5+data6+data7+data8+data9+data10+data11+data12+data13
+	# data1 =[20170801,20170802,20170803,20170804]
+	# data2 =[20170807,20170808,20170809,20170810,20170811]
+	# data3 =[20170814,20170815,20170816,20170817,20170818]
+	# data4 =[20170821,20170822,20170823,20170824,20170825]	
+	# data5 =[20170828,20170829,20170830,20170831,20170901]
+	# data6 =[20170904,20170905,20170906,20170907,20170908]
+	# data7 =[20170911,20170912,20170913,20170914,20170915]	
+	# data8 =[20170918,20170919,20170920,20170921,20170922]
+	# data9 =[20170925,20170926,20170927,20170928,20170929]
+	# data10 =[20171009,20171010,20171011,20171012,20171013]
+	# data11 =[20171016,20171017,20171018,20171019,20171020]	
+	# data12 =[20171023,20171024,20171025,20171026,20171027]
+	# data13 =[20171030,20171031,20171101,20171102,20171103]
+	# data14 = [20171106,20171107,20171108,20171109,20171110]
+	# data15 = [20171113,20171114,20171115,20171116,20171117]
+	# data16 = [20171120,20171121,20171122,20171123,20171124]
+	# data = data1+data2+data3+data4+data5+data6+data7+data8+data9+data10+data11+data12+data13+data14+data15+data16
 
-	instrumentid_array = ["rb1801"]
 	total_obj = total(0,0)
-	for item in data:
-		for instrument in instrumentid_array:
-			path = instrument + "_"+ str(item)
-			print path
-			main(path,total_obj)	
+	total_path = "../tmp/"
+	instrumentid = "zn"
+	for file in os.listdir(total_path):
+		tmp =  os.path.join(total_path,file)
+		if os.path.isdir(tmp):
+			print "this is dir"
+		else:
+			if instrumentid in file:
+				print file
+				main(file,total_obj)
 		# print WRITETOFILE
 
 	print total_obj._nums

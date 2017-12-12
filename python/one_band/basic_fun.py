@@ -200,7 +200,7 @@ def get_ma_data(lastprice,price_array,period):
 		if i >= (l - period +1):
 			tmpsum +=price_array[i]
 	tmpsum +=lastprice
-	if period >= len(price_array):
+	if period > len(price_array):
 		ret = float(tmpsum)/(len(price_array)+1)
 	else:
 		ret=float(tmpsum)/period
