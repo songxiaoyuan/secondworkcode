@@ -30,6 +30,7 @@ class BandAndTrigger(object):
 		self._now_open_signal_tick = 0
 		self._has_open_tick = -1
 		self._diff_volume_array = []
+		self._open_status = -1
 
 		self._file = param_dic["file"]
 
@@ -40,10 +41,11 @@ class BandAndTrigger(object):
 		self._time = md_array[TIME]
 		self._lastprice = float(md_array[LASTPRICE])
 		self._diff_volume = float(md_array[DIFF_VOLUME])
-		self._askprice1 = float(md_array[ASKPRICE1])
-		self._askprice1volume = float(md_array[ASKPRICE1VOLUME])
-		self._bidprice1 = float(md_array[BIDPRICE1])
-		self._bidprice1volume = float(md_array[BIDPRICE1VOLUME])
+		self._ma_line = float(md_array[3])
+		# self._askprice1 = float(md_array[ASKPRICE1])
+		# self._askprice1volume = float(md_array[ASKPRICE1VOLUME])
+		# self._bidprice1 = float(md_array[BIDPRICE1])
+		# self._bidprice1volume = float(md_array[BIDPRICE1VOLUME])
 		self._diff_volume_array.append(self._diff_volume)
 
 		open_time = self.is_trend_open_time()
@@ -58,14 +60,27 @@ class BandAndTrigger(object):
 			mesg= "the time of open: "+self._time + ",the price: " + str(self._lastprice)
 			self._file.write(mesg+"\n")
 			total_obj._nums +=1
+			if self._lastprice >= self._ma_line:
+				self._open_status = LONG
+				total_obj._long +=1
+			else:
+				self._open_status = SHORT
+				total_obj._short +=1
 			# print "the diff volume is:" + str(self._now_md_price[VOLUME] - self._pre_md_price[VOLUME])
 		# elif close_time:
 		elif close_time and self._now_interest >0:
 			self._now_interest -=1
 			if self._lastprice - self._open_lastprice >0:
-				total_obj._long +=1
+				if self._open_status == LONG:
+					total_obj._long_long +=1
+				elif self._open_status == SHORT:
+					total_obj._short_long +=1
 			else:
-				total_obj._short +=1
+				if self._open_status == LONG:
+					total_obj._long_short +=1
+				elif self._open_status == SHORT:
+					total_obj._short_short +=1
+			self._open_status = -1
 			self._has_open_tick =-1
 			mesg= "the time of close:"+self._time+ ",the price: " + str(self._lastprice)
 			self._file.write(mesg+"\n")
@@ -103,7 +118,7 @@ class BandAndTrigger(object):
 	def is_triggersize_open_time(self,direction,lastprice,diff_volume_array):
 		# this is used to judge is time to band open
 		l = len(diff_volume_array)
-		begin = l - 8
+		begin = l - 6
 		if begin <0:
 			begin = 0
 		bigger = 0
@@ -111,7 +126,7 @@ class BandAndTrigger(object):
 			tmp = self._diff_volume_array[x]
 			if tmp > self._limit_diff_volume:
 				bigger +=1
-		if bigger >=5:
+		if bigger >=4:
 			return True
 		else:
 			return False
@@ -173,7 +188,7 @@ def main(filename,total_obj):
 	param_dict = {"limit_rsi_data":80,"band_open_edge":3,"limit_max_profit":100000,
 				 "file":file,"limit_max_draw_down":100000}
 	if "rb" in filename:
-		param_dict["limit_diff_volume"] =1500
+		param_dict["limit_diff_volume"] =2000
 		# param_dict["limit_max_draw_down"] =10
 		param_dict["limit_max_profit"] =20
 		param_dict["limit_max_loss"] =20
@@ -245,7 +260,11 @@ class total(object):
 		self._profit = profit
 		self._nums = nums
 		self._long = 0
+		self._long_long = 0
+		self._long_short = 0
 		self._short = 0
+		self._short_long = 0
+		self._short_short = 0
 		self._profit_num = 0
 		self._loss_num = 0
 		self._open = 0
@@ -288,6 +307,10 @@ if __name__=='__main__':
 	print total_obj._profit
 	print total_obj._long
 	print total_obj._short
+	print total_obj._long_long
+	print total_obj._long_short
+	print total_obj._short_long
+	print total_obj._short_short
 	print total_obj._profit_num
 	print total_obj._loss_num
 

@@ -94,6 +94,10 @@
                 name:"lastprice",
                 type:"line",
                 data:[]
+            },{
+                name:"maline",
+                type:"line",
+                data:[]
             }]      
         };
 
@@ -134,7 +138,7 @@
                 var time = linedata[0]
                 var lastprice = Number(linedata[1])
                 var diff_volume = Number(linedata[2])
-                var spread = Number(linedata[3])
+                var maline = Number(linedata[3])
                 
 
 
@@ -152,6 +156,7 @@
                 }
 
                 band_option.series[0].data.push(lastprice)
+                band_option.series[1].data.push(maline)
 
                 if (MIN > lastprice) {
                     MIN = lastprice
