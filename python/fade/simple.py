@@ -29,6 +29,7 @@ class BandAndTrigger(object):
 
 		self._now_open_signal_tick = 0
 		self._has_open_tick = -1
+		self._diff_volume_array = []
 
 		self._file = param_dic["file"]
 
@@ -43,6 +44,7 @@ class BandAndTrigger(object):
 		self._askprice1volume = float(md_array[ASKPRICE1VOLUME])
 		self._bidprice1 = float(md_array[BIDPRICE1])
 		self._bidprice1volume = float(md_array[BIDPRICE1VOLUME])
+		self._diff_volume_array.append(self._diff_volume)
 
 		open_time = self.is_trend_open_time()
 		close_time = self.is_trend_close_time()
@@ -73,11 +75,13 @@ class BandAndTrigger(object):
 	def is_trend_open_time(self):
 
 		hour = int(self._time.split(":")[0])
-		minute = int(self._time.split(":")[0])
+		minute = int(self._time.split(":")[1])
 		if hour ==14 and minute >=58:
 			return False
+		if hour ==9 and minute <=5:
+			return False
 		is_band_open = self.is_triggersize_open_time(self._direction,self._lastprice,
-											self._diff_volume,self._askprice1,self._bidprice1)
+											self._diff_volume_array)
 		return is_band_open
 
 
@@ -86,7 +90,7 @@ class BandAndTrigger(object):
 			return False
 
 		hour = int(self._time.split(":")[0])
-		minute = int(self._time.split(":")[0])
+		minute = int(self._time.split(":")[1])
 		if hour ==14 and minute >=58:
 			return True
 		if self._has_open_tick >=0:
@@ -96,15 +100,21 @@ class BandAndTrigger(object):
 		return False
 
 
-	def is_triggersize_open_time(self,direction,lastprice,diff_volume,askprice1,bidprice1):
+	def is_triggersize_open_time(self,direction,lastprice,diff_volume_array):
 		# this is used to judge is time to band open
-		if diff_volume >= self._limit_diff_volume:
-				self._now_open_signal_tick +=1
-				if self._now_open_signal_tick >=2:
-					return True
+		l = len(diff_volume_array)
+		begin = l - 8
+		if begin <0:
+			begin = 0
+		bigger = 0
+		for x in xrange(begin,l):
+			tmp = self._diff_volume_array[x]
+			if tmp > self._limit_diff_volume:
+				bigger +=1
+		if bigger >=5:
+			return True
 		else:
-			self._now_open_signal_tick = 0
-		return False
+			return False
 
 
 	def get_total_profit(self):
@@ -141,7 +151,7 @@ def create_band_obj(data,param_dict,total_obj):
 			total_obj._profit += profit
 			file.write(str(profit)+"\n")
 		else:
-			print "方向是long的交易情况："
+			# print "方向是long的交易情况："
 			# param_dict["limit_max_draw_down"] =0
 			band_and_trigger_obj = BandAndTrigger(param_dict)
 			file.write("方向是long的交易情况：:\n")
@@ -158,7 +168,7 @@ def main(filename,total_obj):
 	csv_data = read_data_from_csv(path)
 	path = "../outdata/"+filename+"_trade_Fade.txt"
 	file = open(path,"w")
-
+	total_obj._name = filename
 	# 这个是螺纹钢的 tick 1
 	param_dict = {"limit_rsi_data":80,"band_open_edge":3,"limit_max_profit":100000,
 				 "file":file,"limit_max_draw_down":100000}
@@ -238,6 +248,9 @@ class total(object):
 		self._short = 0
 		self._profit_num = 0
 		self._loss_num = 0
+		self._open = 0
+		self._close = 0
+		self._name = "0"
 
 if __name__=='__main__': 
 	# data1 =[20170801,20170802,20170803,20170804]
@@ -260,14 +273,14 @@ if __name__=='__main__':
 
 	total_obj = total(0,0)
 	total_path = "../tmp/"
-	instrumentid = "zn"
+	instrumentid = "rb"
 	for file in os.listdir(total_path):
 		tmp =  os.path.join(total_path,file)
 		if os.path.isdir(tmp):
 			print "this is dir"
 		else:
 			if instrumentid in file:
-				print file
+				# print file
 				main(file,total_obj)
 		# print WRITETOFILE
 
@@ -277,3 +290,5 @@ if __name__=='__main__':
 	print total_obj._short
 	print total_obj._profit_num
 	print total_obj._loss_num
+
+

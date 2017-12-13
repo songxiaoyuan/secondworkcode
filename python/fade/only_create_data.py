@@ -105,7 +105,7 @@ param_dic_sn = {"limit_max_profit":125,"limit_max_loss":50,"rsi_bar_period":120
 			,"sd_lastprice":0,"open_interest_edge":0,"spread":100,"config_file":430}
 
 nameDict = {
-	"rb1801":{"param":param_dict_rb},
+	"rb":{"param":param_dict_rb},
 	"ru1801":{"param":param_dic_ru},
 	"zn":{"param":param_dic_zn},
 	"cu":{"param":param_dict_cu},
@@ -270,8 +270,8 @@ def getSqlData(myday,instrumentid):
 
 
 def main(filename):
-	# path = "../data/"+filename+".csv"
-	path = "../data/"+filename
+	path = "../data/"+filename+".csv"
+	# path = "../data/"+filename
 	# read_data_from_csv(path)
 	f = open(path,'rb')
 	instrumentid = filename.split("_")[0][0:2]
@@ -295,42 +295,42 @@ def main(filename):
 
 
 if __name__=='__main__':
-	# data1 =[20170801,20170802,20170803,20170804]
-	# data2 =[20170807,20170808,20170809,20170810,20170811]
-	# data3 =[20170814,20170815,20170816,20170817,20170818]
-	# data4 =[20170821,20170822,20170823,20170824,20170825]	
-	# data5 =[20170828,20170829,20170830,20170831,20170901]
-	# data6 =[20170904,20170905,20170906,20170907,20170908]
-	# data7 =[20170911,20170912,20170913,20170914,20170915]	
-	# data8 =[20170918,20170919,20170920,20170921,20170922]
-	# data9 =[20170925,20170926,20170927,20170928,20170929]
-	# data10 =[20171009,20171010,20171011,20171012,20171013]
-	# data11 =[20171016,20171017,20171018,20171019,20171020]	
-	# data12 =[20171023,20171024,20171025,20171026,20171027]
-	# data13 =[20171030,20171031,20171101,20171102,20171103]
-	# data14 = [20171106,20171107,20171108,20171109,20171110]
-	# data15 = [20171113,20171114,20171115,20171116,20171117]
-	# data16 = [20171120,20171121,20171122,20171123,20171124]
-	# data = data1+data2+data3+data4+data5+data6+data7+data8+data9+data10+data11+data12+data13+data14+data15+data16
+	data1 =[20170801,20170802,20170803,20170804]
+	data2 =[20170807,20170808,20170809,20170810,20170811]
+	data3 =[20170814,20170815,20170816,20170817,20170818]
+	data4 =[20170821,20170822,20170823,20170824,20170825]	
+	data5 =[20170828,20170829,20170830,20170831,20170901]
+	data6 =[20170904,20170905,20170906,20170907,20170908]
+	data7 =[20170911,20170912,20170913,20170914,20170915]	
+	data8 =[20170918,20170919,20170920,20170921,20170922]
+	data9 =[20170925,20170926,20170927,20170928,20170929]
+	data10 =[20171009,20171010,20171011,20171012,20171013]
+	data11 =[20171016,20171017,20171018,20171019,20171020]	
+	data12 =[20171023,20171024,20171025,20171026,20171027]
+	data13 =[20171030,20171031,20171101,20171102,20171103]
+	data14 = [20171106,20171107,20171108,20171109,20171110]
+	data15 = [20171113,20171114,20171115,20171116,20171117]
+	data16 = [20171120,20171121,20171122,20171123,20171124]
+	data = data1+data2+data3+data4+data5+data6+data7+data8+data9+data10+data11+data12+data13+data14+data15+data16
 
-	# instrumentid_array = ["rb1801"]
+	instrumentid_array = ["rb1801"]
 
-	# for item in data:
-	# 	for instrumentid in instrumentid_array:
-	# 		# first get the sql data
-	# 		# getSqlData(item,instrumentid)
+	for item in data:
+		for instrumentid in instrumentid_array:
+			# first get the sql data
+			# getSqlData(item,instrumentid)
 
-	# 		path = instrumentid+ "_"+str(item)
-	# 		print path
-	# 		main(path)
+			path = instrumentid+ "_"+str(item)
+			print path
+			main(path)
 
-	total_path = "../data/"
-	instrumentid = "zn"
-	for file in os.listdir(total_path):
-		tmp =  os.path.join(total_path,file)
-		if os.path.isdir(tmp):
-			print "this is dir"
-		else:
-			if instrumentid in file:
-				print file
-				main(file)	
+	# total_path = "../data/"
+	# instrumentid = "zn"
+	# for file in os.listdir(total_path):
+	# 	tmp =  os.path.join(total_path,file)
+	# 	if os.path.isdir(tmp):
+	# 		print "this is dir"
+	# 	else:
+	# 		if instrumentid in file:
+	# 			print file
+	# 			main(file)	
