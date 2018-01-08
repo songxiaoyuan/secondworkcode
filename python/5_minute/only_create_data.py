@@ -95,8 +95,8 @@ param_dic_jd = {"rsi_period":14,"limit_ema_tick_5":60,"limit_ema_tick_1":120,
 nameDict = {
 	"rb1801":{"param":param_dict_rb},
 	"ru1801":{"param":param_dic_ru},
-	"zn1712":{"param":param_dic_zn},
-	"cu1712":{"param":param_dict_cu},
+	"zn1801":{"param":param_dic_zn},
+	"cu1801":{"param":param_dict_cu},
 	"i1801":{"param":param_dict_i},
 	"hc1801":{"param":param_dict_hc},
 	"ni1801":{"param":param_dic_ni},
@@ -257,7 +257,7 @@ def main():
 	# # data = data8+data9+data10+data11+data12
 	# data =[20171024]
 	# instrumentid_array = ["ru1801","rb1801","zn1710","pb1710","cu1710","hc1801","i1801","ni1801","al1710","au1712","ag1712","bu1712"]
-	instrumentid_array = ["rb1801"]
+	instrumentid_array = ["zn1801"]
 	
 	for item in data:
 		for instrumentid in instrumentid_array:
